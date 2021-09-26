@@ -250,7 +250,7 @@
 			<th rowspan="1" colspan="1" >Over 100%</th>
 			<th rowspan="1" colspan="1" >Min Tolerance (%)</th>
 			<th rowspan="1" colspan="1" >Max Tolerance (%)</th>
-			<th rowspan="1" colspan="1" >Step (per 100kg)</th>
+			<th rowspan="1" colspan="1" >Round</th>
 
 
 			<th rowspan="1" colspan="1" ></th>

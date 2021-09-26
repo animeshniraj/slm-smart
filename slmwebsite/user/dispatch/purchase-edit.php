@@ -29,12 +29,12 @@
     $PAGE = [
         "Page Title" => "Edit Disptch Order | SLM SMART",
         "Home Link"  => "/user/",
-        "Menu"		 => "dispatch-view",
+        "Menu"		 => "purchase-view",
         "MainMenu"	 => "dispatch_menu",
 
     ];
 
-    if(!isset($_POST["invoiceid"]))
+    if(!isset($_POST["orderid"]))
     {
     	$ERR_TITLE = "Error";
     	$ERR_MSG = "You are not authorized to view this page.";
@@ -43,25 +43,25 @@
 
     }
 
-   $invoiceid = $_POST["invoiceid"];
+   $orderid = $_POST["orderid"];
 
 
   	if(isset($_POST["editid"]))
   	{
   		
-  		$newid = $_POST["invoiceidName"][0]."/". $_POST["invoiceidName"][1];
+  		$newid = $_POST["orderidName"][0]."/". $_POST["orderidName"][1];
 
-  		$result = runQuery("SELECT * FROM dispatch_order WHERE invoiceid='$newid'");
+  		$result = runQuery("SELECT * FROM dispatch_order WHERE orderid='$newid'");
     	if($result->num_rows==0)
     	{
-    		runQuery("INSERT INTO dispatch_notes (SELECT NULL,'$newid',sender,note,time FROM dispatch_notes WHERE invoiceid='$invoiceid' ORDER by time)");
-    		runQuery("INSERT INTO dispatch_params (SELECT NULL,'$newid',step,param,value,tag FROM dispatch_params WHERE invoiceid='$invoiceid')");
-    		runQuery("INSERT INTO dispatch_order (SELECT '$newid',customer,entrydate,status FROM dispatch_order WHERE invoiceid='$invoiceid')");
+    		runQuery("INSERT INTO dispatch_notes (SELECT NULL,'$newid',sender,note,time FROM dispatch_notes WHERE orderid='$orderid' ORDER by time)");
+    		runQuery("INSERT INTO dispatch_params (SELECT NULL,'$newid',step,param,value,tag FROM dispatch_params WHERE orderid='$orderid')");
+    		runQuery("INSERT INTO dispatch_order (SELECT '$newid',customer,entrydate,status FROM dispatch_order WHERE orderid='$orderid')");
 
-    		runQuery("DELETE FROM dispatch_notes WHERE invoiceid='$invoiceid'");
-    		runQuery("DELETE FROM dispatch_params WHERE invoiceid='$invoiceid'");
-    		runQuery("DELETE FROM dispatch_order WHERE invoiceid='$invoiceid'");
-    		$invoiceid = $newid;
+    		runQuery("DELETE FROM dispatch_notes WHERE orderid='$orderid'");
+    		runQuery("DELETE FROM dispatch_params WHERE orderid='$orderid'");
+    		runQuery("DELETE FROM dispatch_order WHERE orderid='$orderid'");
+    		$orderid = $newid;
     	}
     	else
     	{
@@ -84,22 +84,34 @@
 
     if(isset($_POST["addorder"]))
     {
-    	$batchids= $_POST["order_batchid"];
-    	$package = $_POST['order_batchpkg'];
-    	$qty = $_POST['order_batchqty'];
-
-    	runQuery("DELETE FROM dispatch_params WHERE invoiceid='$invoiceid' AND step='BATCH'");
-    	runQuery("DELETE FROM dispatch_params WHERE invoiceid='$invoiceid' AND step='DATA'");
-
-    	for($i=0;$i<count($batchids);$i++)
+    	if(!isset($_POST["order_batchid"]))
     	{
-    		$cid =  $batchids[$i];
-    		$cpkg =  $package[$i];
-    		$cqty =  $qty[$i];
-
-    		runQuery("INSERT INTO dispatch_params VALUES(NULL,'$invoiceid','BATCH','$cid','$cqty','batchid')");
-    		runQuery("INSERT INTO dispatch_params VALUES(NULL,'$invoiceid','DATA','$cid','$cpkg','package')");
+    			runQuery("DELETE FROM dispatch_params WHERE orderid='$orderid' AND step='BATCH'");
+    			runQuery("DELETE FROM dispatch_params WHERE orderid='$orderid' AND step='DATA'");
     	}
+    	else
+    	{
+
+
+    		$batchids= $_POST["order_batchid"];
+	    	$package = $_POST['order_batchpkg'];
+	    	$qty = $_POST['order_batchqty'];
+
+	    	runQuery("DELETE FROM dispatch_params WHERE orderid='$orderid' AND step='BATCH'");
+	    	runQuery("DELETE FROM dispatch_params WHERE orderid='$orderid' AND step='DATA'");
+
+	    	for($i=0;$i<count($batchids);$i++)
+	    	{
+	    		$cid =  $batchids[$i];
+	    		$cpkg =  $package[$i];
+	    		$cqty =  $qty[$i];
+
+	    		runQuery("INSERT INTO dispatch_params VALUES(NULL,'$orderid','BATCH','$cid','$cqty','batchid')");
+	    		runQuery("INSERT INTO dispatch_params VALUES(NULL,'$orderid','DATA','$cid','$cpkg','package')");
+	    	}
+
+    	}
+    	
     	
     }
     
@@ -109,7 +121,7 @@
 
     	$note = $_POST["note"];
 
-    	runQuery("INSERT INTO dispatch_notes VALUES(NULL,'$invoiceid','$myuserid','$note',CURRENT_TIMESTAMP)");
+    	runQuery("INSERT INTO dispatch_notes VALUES(NULL,'$orderid','$myuserid','$note',CURRENT_TIMESTAMP)");
 
     }
 
@@ -210,8 +222,8 @@ input[type=number] {
 
 			  		var i = document.createElement("input"); //input element, text
 						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"invoiceid");
-						i.setAttribute('value',"<?php echo $invoiceid ?>");
+						i.setAttribute('name',"orderid");
+						i.setAttribute('value',"<?php echo $orderid ?>");
 
 						form.appendChild(i);
 
@@ -242,7 +254,7 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h5>Edit Order (<?php echo $invoiceid; ?>)</h5>
+					<h5>Edit Order (<?php echo $orderid; ?>)</h5>
 					<span>Edit premix parameters</span>
 				</div>
 			</div>
@@ -310,22 +322,22 @@ input[type=number] {
 				if($editidPermission)
 						{
 
-							$part1 = substr("$invoiceid",0, strrpos($invoiceid,'/'));
-							$part2 = substr("$invoiceid",(strrpos($invoiceid,'/')+1));
+							$part1 = substr("$orderid",0, strrpos($orderid,'/'));
+							$part2 = substr("$orderid",(strrpos($orderid,'/')+1));
 							?>
 
 							<form method="POST">
 
 					<div class="form-group" style="display:flex; justify-content: center;">
-						<input type="hidden" name="invoiceid" value="<?php echo $invoiceid; ?>">
+						<input type="hidden" name="orderid" value="<?php echo $orderid; ?>">
 						<input type="hidden" name="currtab" value="creation-tabdiv">
 
 						<div class="col-sm-6">
 							<div class="input-group input-group-button">
 
 								
-								<input name="invoiceidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo $part1; ?>"><div> </div>
-								<input name="invoiceidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;"value="<?php echo $part2; ?>"><div> </div>
+								<input name="orderidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo $part1; ?>"><div> </div>
+								<input name="orderidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;"value="<?php echo $part2; ?>"><div> </div>
 								
 							</div>
 						</div>
@@ -346,14 +358,15 @@ input[type=number] {
 					?>
 
 <?php
-
-	$result = runQuery("SELECT * FROM dispatch_order WHERE invoiceid='$invoiceid'");
+	
+	$result = runQuery("SELECT * FROM dispatch_order WHERE orderid='$orderid'");
 
 	$result = $result->fetch_assoc();
 
 	$dumC = $result["customer"];
 	$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='Name'");
 	$result2 = $result2->fetch_assoc(); 
+	$customerid = $dumC;
 
 ?>
 	
@@ -372,21 +385,31 @@ input[type=number] {
 
 
 	<div class="form-group row">
-			<div class="col-sm-2">
-				
-					<select class="form-control" id="select-type" onchange="loadBatch(this.value)">
-						<option disabled selected=""> Choose a type</option>
-						<option value="premix">Premix</option>
-						<option value="final">Final Blend</option>
-					</select>
-					
-			</div>
+
 
 	
 			<div class="col-sm-3">
 				
 					<select class="form-control" id="select-batch">
-						<option disabled selected=""> Choose a batch</option>
+						<option disabled selected=""> Choose a grade</option>
+
+						<?php
+
+							$result = runQuery("SELECT * FROM premix_grades WHERE gradename in (SELECT value FROM external_param WHERE externalid='$customerid' AND param='Grades')");
+
+
+
+							while($row=$result->fetch_assoc())
+							{
+								?>
+
+
+								<option value="<?php echo $row["gradename"] ?>"><?php echo $row["gradename"] ?></option>
+
+								<?php
+							}
+
+						?>
 					</select>
 			</div>
 
@@ -537,7 +560,7 @@ input[type=number] {
 
 <form method="POST">
 
-<input type="hidden" name="invoiceid" value="<?php echo $invoiceid ?>">
+<input type="hidden" name="orderid" value="<?php echo $orderid ?>">
 <input type="hidden" name="currtab" value="batches-tabdiv">
 
 <table class="table table-striped table-bordered" id="process4table">
@@ -557,13 +580,13 @@ input[type=number] {
 
 		<?php
 
-			$result = runQuery("SELECT * FROM dispatch_params WHERE invoiceid='$invoiceid' AND step='BATCH'");
+			$result = runQuery("SELECT * FROM dispatch_params WHERE orderid='$orderid' AND step='BATCH'");
 			$k=1;
 			while($row=$result->fetch_assoc())
 			{
 				$package ="";
 				$currid = $row["param"];
-				$result2 = runQuery("SELECT * FROM dispatch_params WHERE invoiceid='$invoiceid' AND param='$currid' AND step='DATA' AND tag='package'");
+				$result2 = runQuery("SELECT * FROM dispatch_params WHERE orderid='$orderid' AND param='$currid' AND step='DATA' AND tag='package'");
 				$result2 = $result2->fetch_assoc();
 				$package = $result2["value"];
 
@@ -620,12 +643,12 @@ input[type=number] {
 <form method="POST">
 
 	 <div style="position: absolute; bottom: 0px; margin: 10px;">
-	 	<input type="hidden" name="invoiceid" value="<?php echo $invoiceid; ?>">
+	 	<input type="hidden" name="orderid" value="<?php echo $orderid; ?>">
 	 	<input type="hidden" name="currtab" value="notes-tabdiv">
             <div id="notesDiv">
                 <?php
 
-                		$result = runQuery("SELECT * FROM dispatch_notes WHERE invoiceid='$invoiceid' ORDER by time");
+                		$result = runQuery("SELECT * FROM dispatch_notes WHERE orderid='$orderid' ORDER by time");
 
                 		if($result->num_rows>0)
                 		{
@@ -704,8 +727,8 @@ function rejectTest(testid)
 
 			  		var i = document.createElement("input"); //input element, text
 						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"invoiceid");
-						i.setAttribute('value',"<?php echo $invoiceid ?>");
+						i.setAttribute('name',"orderid");
+						i.setAttribute('value',"<?php echo $orderid ?>");
 
 						form.appendChild(i);
 
@@ -761,8 +784,8 @@ function approve(approval)
 
 			  		var i = document.createElement("input"); //input element, text
 						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"invoiceid");
-						i.setAttribute('value',"<?php echo $invoiceid ?>");
+						i.setAttribute('name',"orderid");
+						i.setAttribute('value',"<?php echo $orderid ?>");
 
 						form.appendChild(i);
 

@@ -260,10 +260,41 @@
 
 
 	<ul class="pcoded-submenu">
-		<li id="premix-additivesview" class="">
-		<a href="/user/premix/additive-view.php" class="waves-effect waves-dark">
+		<li id="premix-additivesinternalview" class="">
+		<a href="/user/premix/additive-internal-view.php" class="waves-effect waves-dark">
 
 		<span class="pcoded-mtext">View Internal Additive Stock</span>
+		</a>
+		</li>
+
+	</ul>
+
+	<ul class="pcoded-submenu">
+		<li id="premix-additivesdaily" class="">
+		<a href="/user/premix/additive-daily.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">View Daily Additive Stock</span>
+		</a>
+		</li>
+
+	</ul>
+
+	<ul class="pcoded-submenu">
+		<li id="premix-additivesfifo" class="">
+		<a href="/user/premix/additive-fifo.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">View Additive FIFO</span>
+		</a>
+		</li>
+
+	</ul>
+
+
+	<ul class="pcoded-submenu">
+		<li id="premix-additivesreeval" class="">
+		<a href="/user/premix/additive-reeval.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Reevaluate Expired Additives</span>
 		</a>
 		</li>
 
@@ -295,23 +326,42 @@
 
 
 
+<li id="store_menu" class="pcoded-hasmenu" dropdown-icon="style1" subitem-icon="style1">
+<a href="javascript:void(0)" class="waves-effect waves-dark">
+<span class="pcoded-micon"><i class="feather icon-shopping-cart"></i></span>
+<span class="pcoded-mtext">Store</span>
+</a>
+	<ul class="pcoded-submenu">
+		<li id="store-additive" class="">
+		<a href="/user/store/additive-order.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Additive Order</span>
+		</a>
+		</li>
+
+		
+
+	</ul>
+</li>
+
+
 <li id="dispatch_menu" class="pcoded-hasmenu" dropdown-icon="style1" subitem-icon="style1">
 <a href="javascript:void(0)" class="waves-effect waves-dark">
 <span class="pcoded-micon"><i class="feather icon-plus"></i></span>
 <span class="pcoded-mtext">Dispatch</span>
 </a>
 	<ul class="pcoded-submenu">
-		<li id="dispatch-new" class="">
-		<a href="/user/dispatch/new.php" class="waves-effect waves-dark">
+		<li id="purchase-new" class="">
+		<a href="/user/dispatch/new-purchase.php" class="waves-effect waves-dark">
 
-		<span class="pcoded-mtext">New Order</span>
+		<span class="pcoded-mtext">New Purchase Order</span>
 		</a>
 		</li>
 
-		<li id="dispatch-view" class="">
-		<a href="/user/dispatch/view.php" class="waves-effect waves-dark">
+		<li id="purchase-view" class="">
+		<a href="/user/dispatch/purchase-view.php" class="waves-effect waves-dark">
 
-		<span class="pcoded-mtext">View Unfullified Order</span>
+		<span class="pcoded-mtext">View Purchase Order</span>
 		</a>
 		</li>
 

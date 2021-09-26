@@ -42,6 +42,8 @@
 
    $additivename = $result["additive"];
 
+   $entryd = $result["entrydate"];
+
    $testPermission = false;
    if($myrole =='ADMIN')
 	{
@@ -50,6 +52,14 @@
 		
 
 	}
+
+	$isreshelf = false;
+
+	$result = runQuery("SELECT * FROM additive_internal WHERE internalid='$externalid' AND status='RESHELF'");
+   if($result->num_rows==1)
+   {
+   		$isreshelf = true;
+   }
 
    
 
@@ -388,6 +398,19 @@ input[type=number] {
 </div>
 </div>
 <div class="card-block">
+
+
+	<?php
+	if($isreshelf)
+	{
+?>
+<div class="alert alert-info background-danger">This batch was reshelfed on <?php echo $entryd; ?>.</div>
+
+<?php
+
+}
+
+?>
 
 
 <ul class="nav nav-tabs md-tabs " role="tablist" id="tablist">

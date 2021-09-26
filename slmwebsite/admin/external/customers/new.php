@@ -26,7 +26,7 @@
 		$values = $_POST ["Customer_val"];
 		$ordering = $_POST["Customer_paramorder"];
 
-
+		$grades = $_POST["Customer_grade"];
 
 		$prefix = "C-";
     	$sqlprefix = "C-%";
@@ -59,6 +59,14 @@
 			$currv = $values[$i];
 			$curro = $ordering[$i];
 			runQuery("INSERT INTO external_param VALUES(NULL,'$prefix','$currp','$currv','$curro')");
+		}
+
+
+		for($i=0;$i<count($grades);$i++)
+		{
+			$currp = $grades[$i];
+			
+			runQuery("INSERT INTO external_param VALUES(NULL,'$prefix','Grades','$currp','-1')");
 		}
 
 
@@ -262,6 +270,43 @@
 			<span class="messages"></span>
 			</div>
 			</div>
+
+
+			<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Grades</label>
+			<div class="col-sm-10">
+			<select required class="js-example-basic-multiple form-control" multiple="multiple"  name="<?php echo $external_type;?>_grade[]" >
+				<optgroup label="Premix Grades">
+					<?php
+						$result = runQuery("SELECT * FROM premix_grades");
+
+						if($result->num_rows>0)
+						{
+							while($row = $result->fetch_assoc())
+							{
+								echo "<option value=\"".$row["gradename"]."\">".$row["gradename"]."</option>";
+							}
+						}
+
+					?>
+
+					<optgroup label="Final Blend Grades">
+					<?php
+						$result = runQuery("SELECT * FROM processgrades WHERE processname='Final Blend'");
+
+						if($result->num_rows>0)
+						{
+							while($row = $result->fetch_assoc())
+							{
+								echo "<option value=\"".$row["gradename"]."\">".$row["gradename"]."</option>";
+							}
+						}
+
+					?>
+			</select>
+		</div>
+		
+	</div>
 
 
 			<div class="form-group row">			
@@ -595,3 +640,11 @@
     include("../../../pages/endbody.php");
 
 ?>
+
+<script type="text/javascript">
+		$(document).ready(function() {
+  	$(".js-example-basic-single").select2();
+  	$(".js-example-basic-multiple").select2();
+
+  })
+</script>

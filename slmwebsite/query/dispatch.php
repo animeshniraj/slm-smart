@@ -24,7 +24,7 @@
 	$action = $_POST["action"];
 
 	switch ($action) {
-		case "checkInvoiceId"		: checkInvoiceId($_POST['invoiceid']);break;
+		case "checkorderid"		: checkorderid($_POST['orderid']);break;
 		case "loadbatch"		: loadbatch($_POST['type']);break;
 
 
@@ -136,9 +136,9 @@
 	}
 
 
-	function checkInvoiceId($id)
+	function checkorderid($id)
 	{
-		$result = runQuery("SELECT * FROM dispatch_order WHERE invoiceid='$id'");
+		$result = runQuery("SELECT * FROM dispatch_order WHERE orderid='$id'");
 		if($result->num_rows==0)
 		{
 			$error_response = [

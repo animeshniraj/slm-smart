@@ -18,9 +18,9 @@
 	
 
     $PAGE = [
-        "Page Title" => "View all Dispatch | SLM SMART",
+        "Page Title" => "View all Purchase Order | SLM SMART",
         "Home Link"  => "/user/",
-        "Menu"		 => "dispatch-view",
+        "Menu"		 => "pruchase-view",
         "MainMenu"	 => "dispatch_menu",
 
     ];
@@ -34,9 +34,9 @@
     {
     	$externalid = $_POST['externalid'];
     	
-    	runQuery("DELETE FROM dispatch_notes WHERE invoiceid='$externalid'");
-    	runQuery("DELETE FROM dispatch_params WHERE invoiceid='$externalid'");
-    	runQuery("DELETE FROM dispatch_order WHERE invoiceid='$externalid'");
+    	runQuery("DELETE FROM dispatch_notes WHERE orderid='$externalid'");
+    	runQuery("DELETE FROM dispatch_params WHERE orderid='$externalid'");
+    	runQuery("DELETE FROM dispatch_order WHERE orderid='$externalid'");
     }
 
 
@@ -84,7 +84,7 @@
 			<div class="page-header-title">
 				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>View all Dispatch Order</h5>
+					<h5>View all Purchase Order</h5>
 					<span>Select order to edit</span>
 				</div>
 			</div>
@@ -173,18 +173,18 @@
 		?>
 	<tr>
 		<th scope="row"><?php echo ++$k; ?></th>
-		<td><?php echo $row["invoiceid"]; ?></td>
+		<td><?php echo $row["orderid"]; ?></td>
 
 		<td><?php echo $result2["value"]."(".$row["customer"].")"; ?></td>
 
 		<td><?php echo Date('Y-M-d H:i',strtotime($row["entrydate"])); ?></td>
-		<td><form method="POST" action="dispatch-edit.php"><input type="hidden" name="invoiceid" value="<?php echo $row["invoiceid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
+		<td><form method="POST" action="purchase-edit.php"><input type="hidden" name="orderid" value="<?php echo $row["orderid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
 
 			if($deletePermission)
 			{
-				echo "<td><button class=\"btn btn-danger\" name=\"deleteProcess\" onclick=\"removeProcess('".$row["invoiceid"]."')\" type=\"button\"><i class=\"feather icon-trash\"></i>Remove</button></td>";
+				echo "<td><button class=\"btn btn-danger\" name=\"deleteProcess\" onclick=\"removeProcess('".$row["orderid"]."')\" type=\"button\"><i class=\"feather icon-trash\"></i>Remove</button></td>";
 			}
 		
 
@@ -205,14 +205,14 @@
 	
 	function getexternalid()
 	{
-			var invoiceid = document.getElementById("data_externalid").value;
+			var orderid = document.getElementById("data_externalid").value;
 
 
 
 			var postData = new FormData();
        
-        postData.append("action","checkInvoiceId");
-        postData.append("invoiceid",invoiceid);
+        postData.append("action","checkorderid");
+        postData.append("orderid",orderid);
 
 
         var xmlhttp = new XMLHttpRequest();
@@ -225,7 +225,7 @@
             
             if(data.response =="yes")
             {
-                document.getElementById("redirectformid").value = invoiceid;
+                document.getElementById("redirectformid").value = orderid;
             	document.getElementById("redirectform").submit();
             }
             else
@@ -265,8 +265,8 @@
 
 </form>
 
-<form method="POST" id="redirectform" action="dispatch-edit.php">
-	<input type="hidden" name="invoiceid" id="redirectformid">
+<form method="POST" id="redirectform" action="purchase-edit.php">
+	<input type="hidden" name="orderid" id="redirectformid">
 
 
 </form>
@@ -324,8 +324,8 @@ function removeProcess(externalid)
 {
 	Swal.fire({
 		  icon: 'error',
-		  title: 'Delete Dispatch',
-		  html: 'Are you sure you want to delete stock '+externalid,
+		  title: 'Delete Purshace Order',
+		  html: 'Are you sure you want to delete Purshace Order '+externalid,
 		  confirmButtonText: 'Yes',
 		  cancelButtonText: 'No',
 		  showCancelButton: true,

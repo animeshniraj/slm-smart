@@ -19,9 +19,9 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Create new Raw Bag",
+        "Page Title" => "SLM | Create new Purchase order",
         "Home Link"  => "/user/",
-        "Menu"		 => "dispatch-new",
+        "Menu"		 => "puchase-new",
         "MainMenu"	 => "dispatch_menu",
 
     ];
@@ -49,7 +49,7 @@
     	$sqlprefix = "SLMT/".$year."/%";
 
 
-    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(invoiceid, '/', -1) AS SIGNED)) max_val FROM dispatch_order WHERE invoiceid LIKE '$sqlprefix'");
+    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(orderid, '/', -1) AS SIGNED)) max_val FROM dispatch_order WHERE orderid LIKE '$sqlprefix'");
 
     	if($result->num_rows==0)
     	{	
@@ -75,8 +75,8 @@
     			{
     				
     				?>
-    					<form id="redirectform" method="POST" action="dispatch-edit.php">
-    						<input type="hidden" name="invoiceid" value="<?php  echo $prefix;?>">
+    					<form id="redirectform" method="POST" action="purchase-edit.php">
+    						<input type="hidden" name="orderid" value="<?php  echo $prefix;?>">
     					</form>
     					<script type="text/javascript">
     						document.getElementById("redirectform").submit();

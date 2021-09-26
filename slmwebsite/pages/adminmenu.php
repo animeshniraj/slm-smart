@@ -131,6 +131,14 @@
 		</a>
 		</li>
 
+
+		<li id="premix-additives-forcast" class="">
+		<a href="/admin/premix/additive-forcast.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Additives Requirement Forcast</span>
+		</a>
+		</li>
+
 		<li id="premix-grades" class="">
 		<a href="/admin/premix/grades-new.php" class="waves-effect waves-dark">
 		<span class="pcoded-mtext">Grades</span>

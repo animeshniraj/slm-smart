@@ -29,12 +29,121 @@
 		case "checkPremixId"		: checkPremixId($_POST['premixid']);break;
 		case "getBatches"			: getBatches($_POST['additive']); break;
 		case "checkFinalBlend"		: checkFinalBlend($_POST['id'],$_POST['quantity']); break;
-
+		case "getfifobatch"			: getfifobatch($_POST['additive'],$_POST['quantity']); break;
 		
 		default: echo json_encode($error_response);
 	}
 
+	function getfifobatch($additive,$quantity)
+	{
 
+		$step = 0.01;
+	if($additive=="Iron")
+	{
+		echo "";
+		die();
+	}
+	else
+	{
+
+		$allids = [];
+
+
+
+		$result2 = runQuery("SELECT * FROM additive_internal WHERE additive in (SELECT additive FROM premix_additives_group_member WHERE groupname='$additive') AND status='NOTOVER' ORDER BY entrydate LIMIT 20");
+		while($row2=$result2->fetch_assoc())
+		{
+			array_push($allids,[$row2["internalid"],$row2["mass"]]);
+		}
+		
+
+		if(count($allids)==0)
+		{
+
+			$result = runQuery("SELECT * FROM additive_internal WHERE additive='$additive' AND status='NOTOVER' ORDER BY entrydate LIMIT 20");
+			while($row=$result->fetch_assoc())
+			{
+				array_push($allids,[$row["internalid"],$row["mass"]]);
+			}
+
+		}
+
+		$selectedBatch = [];
+		$required = $quantity;
+		$flag = true;
+
+		for($i=0;$i<count($allids);$i++)
+		{
+
+			$currid = $allids[$i][0];
+			$currmass = $allids[$i][1];
+
+			$result = runQuery("SELECT * FROM premix_batch_params WHERE step='BATCH SELECTION' AND param='$currid'");
+
+			while($row=$result->fetch_assoc())
+			{
+				$currmass -= $row["value"];
+			}
+
+			if($currmass>=$step)
+			{
+				if($currmass>=$required)
+				{
+
+					array_push($selectedBatch,[$currid,$required]);
+					$required -= $currmass;
+					break;
+				}
+				else
+				{
+					
+					$required -= $currmass;
+					array_push($selectedBatch,[$currid,$currmass]);
+				}
+			}
+
+		}
+
+		if($required>0)
+		{
+			array_push($selectedBatch,["Error","No Batch Available"]);
+			$flag = false;
+
+			
+		}
+
+
+		$aa = "";
+
+		for($i=0;$i<count($selectedBatch);$i++)
+		{
+			if($selectedBatch[$i][0] !="Error")
+			{
+				$aa = $aa." ".$selectedBatch[$i][0]." (".$selectedBatch[$i][1]." kg)<br>";
+				
+
+			}
+			else
+			{
+				$aa = $aa." ".$selectedBatch[$i][0]." (".$selectedBatch[$i][1]." )<br>";
+			}
+			
+		}
+
+
+
+		$response = [
+			"response" => true,
+			"result" => $aa,
+			"additive"=>$additive,
+		];
+
+		 echo json_encode($response);
+		 die();
+		//$result = runQuery("SELECT * FROM additive_internal WHERE additive = ")
+	}
+
+	}
 
 	function checkFinalBlend($id,$qty)
 	{

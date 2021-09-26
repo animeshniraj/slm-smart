@@ -62,6 +62,61 @@
     	$currTab =$_POST["currtab"];
     }
 
+
+
+     if(isset($_POST["saveadditive"]))
+    {
+
+    	if(!isset($_SESSION['savestore-additive']))
+    	{
+    		$_SESSION['savestore-additive'] = [];
+    	}
+    	if(!isset($_SESSION['savestore-additive'][$premixid]))
+    	{
+    		$_SESSION['savestore-additive'][$premixid] = [];
+    	}
+
+    	$ids = $_POST["batchid"];
+    	$qtys = $_POST["batchqty"];
+
+    	for($i=0;$i<count($ids);$i++)
+    	{
+    		$cid= $ids[$i];
+    		$cqty = $qtys[$i];
+
+    		if(!isset($_SESSION['savestore-additive'][$premixid][$cid]))
+	    	{
+	    		$_SESSION['savestore-additive'][$premixid][$cid] = [];
+	    	}
+
+	    	$_SESSION['savestore-additive'][$premixid][$cid] = $cqty;
+    	}
+
+
+
+    }
+
+    $newSteps = [];
+
+
+     if(isset($_POST["newstep"]))
+    {
+    	$newstepdata = $_POST["newstep"];
+    	$additive = $_POST["param"];
+
+
+    	for($i=0;$i<count($newstepdata);$i++)
+    	{
+    		 $newSteps[$additive[$i]] = $newstepdata[$i];
+    	}
+
+
+    	
+    	
+    }
+
+
+
     if(isset($_POST["updateprocess1"]))
     {
     	$quantity = $_POST["quantity"];
@@ -489,7 +544,11 @@ if(false)
 
 
 <div class="tab-pane" id="feed-tabdiv" role="tabpanel">
-
+<form id="saveadditiveqty" method="POST">
+		<input type="hidden" name="premixid" value="<?php echo $premixid; ?>">
+		<input type="hidden" name="currtab" value="feed-tabdiv">
+		<input type="hidden" name="saveadditive" value="">
+</form>
 	<form method="POST">
 			<input type="hidden" name="premixid" value="<?php echo $premixid; ?>">
 			<input type="hidden" name="currtab" value="feed-tabdiv">
@@ -497,6 +556,10 @@ if(false)
 			<table class="table table-striped table-bordered" >
 				
 				<thead>
+
+					<tr>
+						<td colspan="100%" style="text-align:right;"><p><button type="submit" form="saveadditiveqty" class="btn btn-primary"><i class="fa fa-save"></i>Save Additives</button></p></td>
+					</tr>
 					<tr>
 						<th>Additives</th>
 						<th>Added %</th>
@@ -541,6 +604,12 @@ if(false)
 						$k=0;
 						while($row=$result->fetch_assoc())
 						{
+							$k++;
+
+								if(isset($newSteps[$row["additive"]]))
+								{
+									$row["step"] = $newSteps[$row["additive"]];
+								}
 
 								?>
 
@@ -553,11 +622,15 @@ if(false)
 												
 											<br> Min Tolerance: <?php echo $row["mintol"]?> %
 											<br> Max Tolerance: <?php echo $row["maxtol"]?> %
-											<br> Step: <?php echo $row["step"]?> per 100kg
 
+											<br> Round: <div><input type="text" form="update-step"  class="form-control col-sm-3" name="newstep[]" value="<?php echo $row["step"]?>">
+											 <button type="submit" form="update-step" class="btn btn-primary col-sm-2"><i class="fa fa-refresh"></i></button></div>
 
+											 <input type="hidden" name="premixid" value="<?php echo $premixid; ?>" form="update-step">
+											 <input type="hidden" name="currtab" value="feed-tabdiv" form="update-step">
+											 <input type="hidden" name="param[]" value="<?php echo $row["additive"]; ?>" form="update-step">
 											</td>
-											<td><?php $feedqty =  getFeedQty(round((($row["composition"]/($total))*$mass)/100,2),$row["mintol"],$row["maxtol"],$row["step"]); echo $feedqty; ?></td>
+											<td><?php $feedqty =  getFeedQty(round((($row["composition"]/($total))*$mass)/100,2),$row["mintol"],$row["maxtol"],$row["step"],$mass); echo $feedqty; ?></td>
 
 											<?php 
 														if($row["additive"] != "Iron")
@@ -583,7 +656,7 @@ if(false)
 
 													<td id="batch_no">
 														
-															<input type="text" name="batchid[]" id="iron_batchid" value="<?php echo $dumid; ?>" placeholder="Final Blend Id" >
+															<input type="text" name="batchid[]" id="iron_batchid" value="<?php echo $dumid; ?>" placeholder="Batch Id" >
 
 															<input type="hidden" name="batchqty[]" value="<?php echo $feedqty; ?>">
 
@@ -659,6 +732,11 @@ if(false)
 
 	</form>
 
+	
+					
+			
+
+	<form method="POST" id="update-step"></form>
 
 <br>
 <br>
@@ -675,7 +753,7 @@ if(false)
 					<tr>
 						<th>Item</th>
 						<th>%</th>
-						<th>Actual Feed Weight</th>
+						<th>Calculated Feed Weight</th>
 						<th>Enter Feed Weight</th>
 						<th>Sequence</th>
 						<th></th>
@@ -684,7 +762,7 @@ if(false)
 				</thead>
 
 
-				<tbody>
+				<tbody id="feed-tbody">
 
 
 					
@@ -1422,9 +1500,86 @@ $(document).ready(function() {
 
 		document.getElementById("seq-input-"+i).disabled = true;
 	}
-	console.log(allSequence.length);
+	
 	document.getElementById("seq-btn-"+i).disabled = false;
 
+	feedtbody = document.getElementById('feed-tbody');
+
+	var allfeeddata = [];
+
+	for(var i =3; i<feedtbody.children.length;i+=2)
+	{
+		var curr = feedtbody.children[i];
+		
+
+		if (typeof allfeeddata[curr.children[0].innerHTML] == 'undefined') {
+			 	allfeeddata[curr.children[0].innerHTML]=[]
+		    allfeeddata[curr.children[0].innerHTML]["reconcilation"] = 0
+		    allfeeddata[curr.children[0].innerHTML]["adjustableobj"] = []
+		}
+
+		var actualqty = parseFloat(curr.children[2].innerHTML);
+		var feedqty =  parseFloat(curr.children[3].children[0].value);
+
+		allfeeddata[curr.children[0].innerHTML]["reconcilation"] += actualqty-feedqty;
+
+		if(!curr.children[3].children[0].disabled)
+		{
+			allfeeddata[curr.children[0].innerHTML]["adjustableobj"].push(curr);
+		}
+
+	}
+
+
+	Object.keys(allfeeddata).forEach(function (key) {
+   
+   var curr = allfeeddata[key];
+   if(curr["reconcilation"]==0)
+   {
+   		return;
+   }
+
+   var adjustment = curr["reconcilation"];
+   var adjustable = curr["adjustableobj"];
+
+   var currvals = []
+   sum = 0;
+
+   for(var i=0;i<adjustable.length;i++)
+   {
+
+   		sum += parseFloat(adjustable[i].children[3].children[0].value);
+   }
+
+
+
+
+   for(var i=0;i<adjustable.length;i++)
+   {
+
+   		var currval =  parseFloat(adjustable[i].children[3].children[0].value);
+   		var ratio = currval/sum;
+
+   		var newval = Math.round(ratio*adjustment,2) + currval;
+
+   		adjustable[i].children[3].children[0].value = newval;
+
+   		adjustment-=Math.round(ratio*adjustment,2);
+
+   		if(i==(adjustable.length-1))
+   		{
+   			adjustable[i].children[3].children[0].value = newval + adjustment;
+   		}
+
+   }
+
+   
+
+});
+
+
+
+console.log(allfeeddata)
 
 	var allowedBatch = <?php echo json_encode($allowedBatches); ?>
 
@@ -1459,47 +1614,70 @@ $(document).ready(function() {
 <?php
 
 
-function  getFeedQty($qty,$mintol,$maxtol,$step)
+function  getFeedQty($qty,$mintol,$maxtol,$step,$total)
 {
 
 	$mintol = $mintol/100;
 	$maxtol = $maxtol/100;
 
-	$step = $step * ($qty/100);
+	
 
-	if($step>=1)
-		$step  = round($step);
-	else
-		$step  = round($step,2);
 
-	if($step==0)
-	{
-		$step =0.1;
-	}
+
+
+
+	
+
 
 	
 
 	$oqty = $qty;
-	$qty = $qty/$step;
 
-	$qty = round($qty);
-	$qty = $qty * $step;
 
-	if($oqty>$qty)
+	if($step==1)
 	{
-		if(($oqty-$qty)/$qty > $maxtol)
+		$qty=round($qty);
+		
+	}
+	elseif($step<1)
+	{
+		$qty = $qty/$step;
+
+		$qty = round($qty);
+		$qty = $qty * $step;
+	}
+	else
+	{
+		$qty = $qty/$step;
+
+		$qty = round($qty);
+		$qty = $qty * $step;
+	}
+
+	
+
+	if($oqty<$qty)
+	{
+		if(($qty)/$total > $maxtol)
 		{
-			$qty = $oqty * (1+$maxtol);
+			$qty = $total * ($maxtol);
+			echo "Cannot Round. Tolerance violation<br>";
+		}
+	}
+	elseif($oqty>$qty)
+	{
+		if(($qty)/$total > $mintol)
+		{
+			$qty = $total * ($mintol);
+			echo  "Tolerance violation. Rounded off to max allowed<br>";
 		}
 	}
 
-	elseif($oqty<$qty)
-	{
-		if(($qty-$oqty)/$qty > $mintol)
-		{
-			$qty = $oqty * (1-$mintol);
-		}
-	}
+
+
+
+
+
 
 	return $qty;
 }
@@ -1509,16 +1687,7 @@ function  getFeedQty($qty,$mintol,$maxtol,$step)
 function getFIFOBatch($additive,$quantity,$step)
 {
 
-	$step = $step * ($quantity/$step);
-	if($step>=1)
-		$step  = round($step);
-	else
-		$step  = round($step,2);
 
-	if($step==0)
-	{
-		$step =0.1;
-	}
 
 	if($additive=="Iron")
 	{
@@ -1603,6 +1772,10 @@ function getFIFOBatch($additive,$quantity,$step)
 				$aa = $aa." ".$selectedBatch[$i][0]." (".$selectedBatch[$i][1]." kg)<br>";
 				$aa = $aa . "<input type=\"hidden\" name=\"batchid[]\" value=\"".$selectedBatch[$i][0]."\">";
 				$aa = $aa . "<input type=\"hidden\" name=\"batchqty[]\" value=\"".$selectedBatch[$i][1]."\">";
+
+				$aa = $aa . "<input form=\"saveadditiveqty\" type=\"hidden\" name=\"batchid[]\" value=\"".$selectedBatch[$i][0]."\">";
+				$aa = $aa . "<input form=\"saveadditiveqty\" type=\"hidden\" name=\"batchqty[]\" value=\"".$selectedBatch[$i][1]."\">";
+
 				$aa = $aa . "<input type=\"hidden\" name=\"tags[]\" value=\"".$additive."\">";
 
 			}

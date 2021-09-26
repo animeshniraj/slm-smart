@@ -38,6 +38,8 @@
 		$values = $_POST ["Customer_val"];
 		$ordering = $_POST["Customer_paramorder"];
 
+		$grades = $_POST["Customer_grade"];
+
 		
 
 
@@ -49,6 +51,15 @@
 			runQuery("UPDATE external_param SET value='$currv' WHERE externalid='$externalid' AND param='$currp'");
 		}
 
+		runQuery("DELETE FROM external_param WHERE param='Grades' AND externalid='$externalid'");
+
+		for($i=0;$i<count($grades);$i++)
+		{
+			$currp = $grades[$i];
+			
+			runQuery("INSERT INTO external_param VALUES(NULL,'$externalid','Grades','$currp','-1')");
+		}
+
 
 	
 	
@@ -56,7 +67,7 @@
 
 	$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$externalid' ORDER BY ordering");
 	$allparams = [];
-	$alladditives = "[";
+	$allgrades = "[";
 	while($row = $result2->fetch_assoc())
 	{
 		
@@ -66,13 +77,23 @@
 			$currName = $row["value"];
 		}
 
-
+		if($row["ordering"]==-1)
+		{
+			$dumad = $row["value"];
+			$allgrades = $allgrades ."\"$dumad\",";
+		}
+		else
+		{
 			array_push($allparams,[$row["param"],$row["value"],$row["ordering"]]);
+		}
+
+
+			
 		
 		
 	}
 
-	$alladditives = $alladditives ."]";
+	$allgrades = $allgrades ."]";
 	
 
 
@@ -155,7 +176,25 @@
 		}
 	?>
 
+		<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Grades</label>
+			<div class="col-sm-10">
+			<select required class="js-example-basic-multiple form-control" multiple="multiple"  name="<?php echo $external_type;?>_grade[]" id="grades_div">
+					<?php
+						$result = runQuery("SELECT * FROM premix_grades");
 
+						if($result->num_rows>0)
+						{
+							while($row = $result->fetch_assoc())
+							{
+								echo "<option value=\"".$row["gradename"]."\">".$row["gradename"]."</option>";
+							}
+						}
+
+					?>
+			</select>
+		</div>
+		</div>
 
 
 		<div class="form-group row">
@@ -200,7 +239,7 @@
   	$(".js-example-basic-single").select2();
   	$(".js-example-basic-multiple").select2();
 
-  	$('#addtives_div').val(<?php echo $alladditives; ?>).trigger('change');
+  	$('#grades_div').val(<?php echo $allgrades; ?>).trigger('change');
 
   })
 </script>
