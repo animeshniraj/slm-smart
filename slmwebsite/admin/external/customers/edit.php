@@ -98,7 +98,7 @@
 
 
     $PAGE = [
-        "Page Title" => "SLM | Admin Dashboard",
+        "Page Title" => "Edit Customer | SMART SLM",
         "Home Link"  => "/admin/",
         "Menu"		 => "external-customer",
         "MainMenu"	 => "external_menu",
@@ -121,10 +121,10 @@
 	<div class="row align-items-end">
 		<div class="col-lg-8">
 			<div class="page-header-title">
-				<i class="feather icon-sidebar bg-c-blue"></i>
+			<i class="fa fa-address-card bg-c-blue" aria-hidden="true"></i>
 				<div class="d-inline">
-					<h5><?php echo $externalid." ($currName) " ?></h5>
-					<span>Edit details</span>
+					<h5>Editing <?php echo $externalid." ($currName) " ?></h5>
+					<span>Edit and update details</span>
 				</div>
 			</div>
 		</div>
@@ -137,7 +137,7 @@
 
 <div class="page-body">
 <div class="row">
-<div class="col-lg-12">
+<div class="col-lg-8">
 
 
 <div class="card">
@@ -200,7 +200,7 @@
 		<div class="form-group row">
 			
 			<div class="col-sm-12">
-			<button type="submit" name="editext" class="btn btn-primary pull-right"><i class="fa fa-edit"></i>Edit <?php echo $external_type;?></button>
+			<button type="submit" name="editext" class="btn btn-primary pull-right"><i class="fa fa-user-plus"></i>Update <?php echo $external_type;?> Details</button>
 			<span class="messages"></span>
 			</div>
 			</div>

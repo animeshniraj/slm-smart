@@ -101,7 +101,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | Admin Dashboard",
+        "Page Title" => "Add new supplier | SMART SLM",
         "Home Link"  => "/admin/",
         "Menu"		 => "external-supplier",
         "MainMenu"	 => "external_menu",
@@ -124,10 +124,10 @@
 	<div class="row align-items-end">
 		<div class="col-lg-8">
 			<div class="page-header-title">
-				<i class="feather icon-users bg-c-blue"></i>
+				<i class="feather icon-user-plus bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>New <?php echo $external_type; ?></h5>
-					<span>Add new <?php echo $external_type; ?></span>
+					<h5>Adding a new <?php echo $external_type; ?></h5>
+					<span>Add information for a new <?php echo $external_type; ?></span>
 				</div>
 			</div>
 		</div>
@@ -140,12 +140,12 @@
 
 <div class="page-body">
 <div class="row">
-<div class="col-lg-12">
+<div class="col-lg-8">
 
 
 <div class="card">
 <div class="card-header">
-<h5>Add New</h5>
+<h5>Provide information for a New Supplier</h5>
 <div class="card-header-right">
 
 </div>
@@ -158,8 +158,8 @@
 	
 			
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Supplier Name</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label">Supplier Name</label>
+			<div class="col-sm-9">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_name" placeholder="">
 
 			<input type="hidden"name="<?php echo $external_type;?>_paramorder[]" value="0">
@@ -170,8 +170,8 @@
 
 
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Supplier Address</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label">Supplier Address</label>
+			<div class="col-sm-9">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden"name="<?php echo $external_type;?>_paramorder[]" value="1">
 			<input type="hidden"name="<?php echo $external_type;?>_param[]" value="Address">
@@ -181,8 +181,8 @@
 
 
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Email</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label">Email</label>
+			<div class="col-sm-9">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden"name="<?php echo $external_type;?>_paramorder[]" value="1">
 			<input type="hidden"name="<?php echo $external_type;?>_param[]" value="Email">
@@ -193,8 +193,8 @@
 
 
 	<div class="form-group row">
-		<label class="col-sm-2 col-form-label">Additives</label>
-			<div class="col-sm-10">
+		<label class="col-sm-3 col-form-label">Additives</label>
+			<div class="col-sm-9">
 			<select required class="js-example-basic-multiple form-control" multiple="multiple"  name="<?php echo $external_type;?>_additive[]" >
 					<?php
 						$result = runQuery("SELECT * FROM premix_additives");

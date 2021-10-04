@@ -89,7 +89,7 @@
 
 
     $PAGE = [
-        "Page Title" => "SLM | Admin Dashboard",
+        "Page Title" => "Edit Supplier | SMART SLM",
         "Home Link"  => "/admin/",
         "Menu"		 => "external-supplier",
         "MainMenu"	 => "external_menu",
@@ -112,10 +112,10 @@
 	<div class="row align-items-end">
 		<div class="col-lg-8">
 			<div class="page-header-title">
-				<i class="feather icon-sidebar bg-c-blue"></i>
+				<i class="feather icon-user-check bg-c-blue"></i>
 				<div class="d-inline">
-					<h5><?php echo $externalid." ($currName) " ?></h5>
-					<span>Edit details</span>
+					<h5>Editing <?php echo $externalid." ($currName) " ?></h5>
+					<span>Edit details and update supplier</span>
 				</div>
 			</div>
 		</div>
@@ -128,12 +128,12 @@
 
 <div class="page-body">
 <div class="row">
-<div class="col-lg-12">
+<div class="col-lg-8">
 
 
 <div class="card">
 <div class="card-header">
-<h5>Details</h5>
+<h5>Update Supplier Details</h5>
 <div class="card-header-right">
 
 </div>
@@ -151,8 +151,8 @@
 	?>
 			
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label"><?php echo $value[0] ?></label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label"><?php echo $value[0] ?></label>
+			<div class="col-sm-9">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_<?php echo $value[0] ?>" placeholder="" value="<?php echo $value[1]; ?>">
 
 			<input type="hidden"name="<?php echo $external_type;?>_paramorder[]" value="<?php echo $value[2]; ?>">
@@ -170,8 +170,8 @@
 
 
 	<div class="form-group row">
-		<label class="col-sm-2 col-form-label">Additives</label>
-			<div class="col-sm-10">
+		<label class="col-sm-3 col-form-label">Additives</label>
+			<div class="col-sm-9">
 			<select required class="js-example-basic-multiple form-control" multiple="multiple"  name="<?php echo $external_type;?>_additive[]" id="addtives_div">
 					<?php
 						$result = runQuery("SELECT * FROM premix_additives");
@@ -193,7 +193,7 @@
 		<div class="form-group row">
 			
 			<div class="col-sm-12">
-			<button type="submit" name="editext" class="btn btn-primary pull-right"><i class="fa fa-edit"></i>Edit <?php echo $external_type;?></button>
+			<button type="submit" name="editext" class="btn btn-primary pull-right"><i class="fa fa-edit"></i>Update <?php echo $external_type;?> Details</button>
 			<span class="messages"></span>
 			</div>
 			</div>

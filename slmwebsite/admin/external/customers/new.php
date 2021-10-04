@@ -93,7 +93,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | Admin Dashboard",
+        "Page Title" => "Add new Customer | SMART SLM",
         "Home Link"  => "/admin/",
         "Menu"		 => "external-customer",
         "MainMenu"	 => "external_menu",
@@ -116,10 +116,11 @@
 	<div class="row align-items-end">
 		<div class="col-lg-8">
 			<div class="page-header-title">
-				<i class="feather icon-users bg-c-blue"></i>
+				<!--<i class="feather icon-users bg-c-blue"></i>-->
+                <i class="fa fa-address-card bg-c-blue" aria-hidden="true"></i>
 				<div class="d-inline">
-					<h5>New Customer</h5>
-					<span>Create New Customer</span>
+					<h5>Creating a New Customer</h5>
+					<span>Provide basic information for the customer</span>
 				</div>
 			</div>
 		</div>
@@ -132,12 +133,12 @@
 
 <div class="page-body">
 <div class="row">
-<div class="col-lg-12">
+<div class="col-lg-8">
 
 
 <div class="card">
 <div class="card-header">
-<h5>Customer Details</h5>
+<h5>Add Customer Details</h5>
 <div class="card-header-right">
 
 </div>
@@ -150,8 +151,8 @@
 	
 			
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Customer Name</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label">Customer Name</label>
+			<div class="col-sm-9">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_name" placeholder="">
 
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="0">
@@ -162,8 +163,8 @@
 
 
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Address</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label">Address</label>
+			<div class="col-sm-9">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="1">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Address">
@@ -173,19 +174,16 @@
 
 
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">City</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label">City</label>
+			<div class="col-sm-4">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="1">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="City">
 			<span class="messages"></span>
 			</div>
-			</div>
-
-
-			<div class="form-group row">
+			
 			<label class="col-sm-2 col-form-label">Pincode</label>
-			<div class="col-sm-10">
+			<div class="col-sm-3">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="1">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Pincode">
@@ -195,19 +193,16 @@
 
 
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">State</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label">State</label>
+			<div class="col-sm-4">
 			<input list="statelist" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="1">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="State">
 			<span class="messages"></span>
 			</div>
-			</div>
-
-
-			<div class="form-group row">
+			
 			<label class="col-sm-2 col-form-label">Country</label>
-			<div class="col-sm-10">
+			<div class="col-sm-3">
 			<input list="countrylist" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="1">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Country">
@@ -217,31 +212,27 @@
 
 
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Contact Person</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label">Contact Person</label>
+			<div class="col-sm-4">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="2">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Contact Person">
 			<span class="messages"></span>
 			</div>
-			</div>
-
+            </div>
 
 
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Contact Number</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label">Contact Number</label>
+			<div class="col-sm-3">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="3">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Contact Number">
 			<span class="messages"></span>
 			</div>
-			</div>
-
-
-			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Alternate Contact Number</label>
-			<div class="col-sm-10">
+			
+			<label class="col-sm-3 col-form-label">Alternate Number</label>
+			<div class="col-sm-3">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="" value="-">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="3">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Alternate Contact Number">
@@ -251,8 +242,8 @@
 
 
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Email</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label">Email</label>
+			<div class="col-sm-4">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="4">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Email">
@@ -262,8 +253,8 @@
 
 
 			<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Remarks</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label">Remarks</label>
+			<div class="col-sm-9">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="5">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Remarks">
@@ -273,8 +264,8 @@
 
 
 			<div class="form-group row">
-		<label class="col-sm-2 col-form-label">Grades</label>
-			<div class="col-sm-10">
+		<label class="col-sm-3 col-form-label">Grades</label>
+			<div class="col-sm-9">
 			<select required class="js-example-basic-multiple form-control" multiple="multiple"  name="<?php echo $external_type;?>_grade[]" >
 				<optgroup label="Premix Grades">
 					<?php
@@ -311,7 +302,7 @@
 
 			<div class="form-group row">			
 			<div class="col-sm-12">
-			<button type="submit" name="addnew" class="btn btn-primary pull-right"><i class="fa fa-plus"></i>Add <?php echo $external_type;?></button>
+			<button type="submit" name="addnew" class="btn btn-primary pull-right"><i class="fa fa-user-plus"></i>Save <?php echo $external_type;?> Details</button>
 			<span class="messages"></span>
 			</div>
 			</div>

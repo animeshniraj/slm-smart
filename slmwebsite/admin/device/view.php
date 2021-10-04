@@ -214,8 +214,13 @@
 <br>
 <div style="display: flex; justify-content: space-around;">
 	<button class="btn btn-primary btn-round" onclick="editDevice('<?php echo $row["devicename"]; ?>','<?php echo $row["hostname"]; ?>','<?php echo $row["deviceip"]; ?>')"><i class="fa fa-edit"></i>Edit</button>
+
+	<button class="btn btn-warning btn-round" onclick="testDevice('<?php echo $row["devicename"]; ?>','<?php echo $row["hostname"]; ?>','<?php echo $row["deviceip"]; ?>')"><i class="fa fa-tachometer"></i>Test</button>
+
+		<button class="btn btn-inverse btn-round" onclick="rebootDevice('<?php echo $row["devicename"]; ?>','<?php echo $row["deviceip"]; ?>','device-<?php echo str_replace(" ","",$row["devicename"])?>')"><i class="fa fa-refresh"></i>Reboot</button>
+
 	<button class="btn btn-danger btn-round" onclick="deleteDevice('<?php echo $row["devicename"]; ?>')"><i class="fa fa-trash"></i>Delete</button>
-	<button class="btn btn-inverse btn-round" onclick="rebootDevice('<?php echo $row["devicename"]; ?>','<?php echo $row["deviceip"]; ?>','device-<?php echo str_replace(" ","",$row["devicename"])?>')"><i class="fa fa-refresh"></i>Reboot</button>
+
 </div>
 
 <br>
@@ -261,6 +266,29 @@
 </div>
 </div>
 
+<div class="modal fade" id="testdevicemodal" tabindex="-1" role="dialog">
+<div class="modal-dialog modal-lg" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h4 class="modal-title">Testing Device</h4>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+<div class="modal-body" id="testdevicemodalbody">
+
+
+
+
+
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default waves-effect " data-dismiss="modal" onclick="endtest()">Close</button>
+
+</div>
+</div>
+</div>
+</div>
 
 
 
@@ -340,6 +368,75 @@ function rebootDevice(devicename,deviceip,inobj)
 				}
 			})
 }
+
+
+
+let testinterval ;
+function testDevice(devicename,hostname,deviceip)
+{
+	$("#testdevicemodal").modal('show');
+	 consoleobj = document.getElementById('testdevicemodalbody');
+	 consoleobj.innerHTML = "Starting Test on "+devicename+"<br>"
+
+	 testinterval = setInterval(function(){
+
+	 		testDeviceOnce(devicename,deviceip)
+	 		console.log(1);
+
+	 },3000)
+	 
+
+}
+
+function testDeviceOnce(devicename,ip)
+{	
+
+
+					var clientpass ='<?php echo $DEVICE_KEY?>';
+					var postData = new FormData();
+           consoleobj = document.getElementById('testdevicemodalbody');
+            
+         
+            var xmlhttp = new XMLHttpRequest();
+            consoleobj.innerHTML += "Testing..<br>Reading requested<br>"
+           
+            xmlhttp.onreadystatechange = function() {
+              if (this.readyState == 4)
+              {
+              	if(this.status == 200) {
+	                 
+	                var data = JSON.parse(this.responseText);
+	                
+	                if(data.Status=="ONLINE")
+	                {
+	                    
+	                	consoleobj.innerHTML += "Reading Received-><br>"+data.Data+"<br>End of Reading<br>"
+	                }
+	                else
+	                {
+	                	consoleobj.innerHTML += "Error Received-><br>"+data.Error+"<br>End of Error<br>"
+	                }
+                
+                
+            	}
+            	else
+            	{
+            		consoleobj.innerHTML += "Error: Cannot reach the device.<br>"
+            	}
+            	
+              
+            }
+            else
+            	{
+            		consoleobj.innerHTML += "Error: Cannot reach the device.<br>"
+            	}
+            };
+             xmlhttp.timeout = 5000;
+             
+            xmlhttp.open("POST", "http://"+ip+"/read", true);
+            xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xmlhttp.send("clientpass="+clientpass);
+}
 	
 function deleteDevice(devicename)
 {
@@ -374,6 +471,11 @@ function deleteDevice(devicename)
 
 				}
 			})
+}
+
+function endtest()
+{
+	clearInterval(testinterval);
 }
 
 
