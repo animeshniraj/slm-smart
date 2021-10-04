@@ -378,7 +378,7 @@ function testDevice(devicename,hostname,deviceip)
 	 consoleobj = document.getElementById('testdevicemodalbody');
 	 consoleobj.innerHTML = "Starting Test on "+devicename+"<br>"
 
-	 testDeviceOnce(devicename,deviceip)
+	 
 	 testinterval = setInterval(function(){
 
 	 	testDeviceOnce(devicename,deviceip)
