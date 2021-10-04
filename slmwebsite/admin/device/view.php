@@ -381,7 +381,7 @@ function testDevice(devicename,hostname,deviceip)
 	 testinterval = setInterval(function(){
 
 	 		testDeviceOnce(devicename,deviceip)
-	 		console.log(1);
+
 
 	 },3000)
 	 
@@ -426,11 +426,7 @@ function testDeviceOnce(devicename,ip)
             	
               
             }
-            else
-            	{
-            		consoleobj.innerHTML += "Error: Cannot reach the device.<br>"
-            	}
-            };
+            ;
              xmlhttp.timeout = 5000;
              
             xmlhttp.open("POST", "http://"+ip+"/read", true);
