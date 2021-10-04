@@ -424,7 +424,7 @@ function testDeviceOnce(devicename,ip)
             	
               
             }
-            ;
+            };
              xmlhttp.timeout = 5000;
              
             xmlhttp.open("POST", "http://"+ip+"/read", true);
