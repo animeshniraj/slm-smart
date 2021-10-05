@@ -1623,14 +1623,6 @@ function  getFeedQty($qty,$mintol,$maxtol,$step,$total)
 	
 
 
-
-
-
-	
-
-
-	
-
 	$oqty = $qty;
 
 
@@ -1666,10 +1658,10 @@ function  getFeedQty($qty,$mintol,$maxtol,$step,$total)
 	}
 	elseif($oqty>$qty)
 	{
-		if(($qty)/$total > $mintol)
+		if(($qty)/$total < $mintol)
 		{
 			$qty = $total * ($mintol);
-			echo  "Tolerance violation. Rounded off to max allowed<br>";
+			echo  "Tolerance violation. Rounded off to min allowed<br>";
 		}
 	}
 
