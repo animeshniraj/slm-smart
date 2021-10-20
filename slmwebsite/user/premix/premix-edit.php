@@ -552,7 +552,7 @@ if(false)
 	<form method="POST">
 			<input type="hidden" name="premixid" value="<?php echo $premixid; ?>">
 			<input type="hidden" name="currtab" value="feed-tabdiv">
-
+			<div class="table-responsive">
 			<table class="table table-striped table-bordered" >
 				
 				<thead>
@@ -704,6 +704,7 @@ if(false)
 
 
 			</table>
+		</div>
 
 
 			<?php 

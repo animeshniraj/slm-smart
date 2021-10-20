@@ -19,7 +19,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "SLM | Create New Final Blend",
         "Home Link"  => "/user/",
         "Menu"		 => "process-finalblend-new",
         "MainMenu"	 => "process_finalblend",
@@ -191,7 +191,7 @@ label{
   position: relative;
 }
 
-label:hover{box-shadow: 0px 3px 10px -2px rgba(161, 170, 166, 0.85);}
+label:hover{box-shadow: 0px 3px 10px -2px rgba(161, 170, 255, 0.85);}
 
 
 input[name="creation-date"] {
@@ -256,8 +256,8 @@ p {
 			<div class="page-header-title">
 				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>Final Blend Process</h5>
-					<span>Edit Final Blend process parameters</span>
+					<h5>Create New Final Blend</h5>
+					<span>Enter Final Blend process parameters</span>
 				</div>
 			</div>
 		</div>
@@ -286,7 +286,7 @@ p {
 
 
 
-<ul class="nav nav-tabs md-tabs " role="tablist">
+<ul class="nav nav-tabs md-tabs" role="tablist">
 <li class="nav-item">
 <a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
 <div class="slide"></div>
@@ -304,7 +304,7 @@ p {
 <div class="tab-pane active" id="creation-tabdiv" role="tabpanel">
 
 <form method="POST">
-					<p style="display:block;text-align:center;color:#212121;">Enter the Time</p>
+					<p style="display:block;text-align:center;color:#212121;">Enter the date & time</p>
 					<div class="form-group" style="display:flex; justify-content: center;">
 						
 						<input type="text" required name="creation-date" id="creation-date" class="form-control" style="display: inline; text-align: center;" placeholder="Date">
@@ -345,7 +345,7 @@ p {
 <div>
   <input required type="radio" id="control_1" name="preprocessed" value="Pre-Processed">
   <label for="control_1">
-    <h2>Sponged</h2>
+    <h2>Sponge</h2>
     <p></p>
   </label>
 </div>
@@ -363,7 +363,7 @@ p {
 	<div class="form-group row">
 		<input type="hidden" id="furnacename" name="furnacename" value="">
 		<div class="col-sm-12">
-		<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i>Create New Entry</button>
+		<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i>Create New Blend</button>
 		</div>
 	</div>
 

@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "SLM | Edit Semi Finished Batch",
         "Home Link"  => "/user/",
         "Menu"		 => "process-semifinished-view",
         "MainMenu"	 => "process_semifinished",
@@ -654,8 +654,8 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h5><?php echo $processid; ?> (<?php echo $entrytime; ?>)</h5>
-					<span>Edit Semi Finished parameters</span>
+					<h3 style="margin-bottom:0;">Currently updating: <?php echo $processid; ?></h3>
+					<p class="created">(Created on: <?php echo $entrytime; ?>)</p>
 				</div>
 			</div>
 		</div>
@@ -687,33 +687,33 @@ input[type=number] {
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i> Creation</a>
 <div class="slide"></div>
 </li>
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i>Generic</a>
-<div class="slide"></div>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i>Operational Parameter</a>
+<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i> Generic</a>
 <div class="slide"></div>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i>Test Properties</a>
+<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i> Operational Parameter</a>
 <div class="slide"></div>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#parent-tabdiv" role="tab"><i class="icofont icofont-link"></i>Link Process</a>
+<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Test Properties</a>
+<div class="slide"></div>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#parent-tabdiv" role="tab"><i class="icofont icofont-link"></i> Link Process</a>
 <div class="slide"></div>
 </li>
 
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i>Notes</a>
+<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i> Notes</a>
 <div class="slide"></div>
 </li>
 
@@ -1944,6 +1944,14 @@ else
 
 <form method="POST">
 
+			<div class="input-group input-group-button">
+            <textarea required rows="1" cols="500" class="form-control" placeholder="" name="note" ></textarea>
+				<div class="input-group-append">
+					<button class="btn btn-primary" type="submit" name="addNotes"><i class="fa fa-commenting" aria-hidden="true"></i> Add Note</button>
+				</div>
+            </div>
+
+
 	 <div style="position: absolute; bottom: 0px; margin: 10px;">
 	 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 	 	<input type="hidden" name="currtab" value="notes-tabdiv">
@@ -1972,12 +1980,7 @@ else
                
             </div>
             
-            <div class="input-group input-group-button">
-            <textarea required rows="1" cols="500" class="form-control" placeholder="" name="note" ></textarea>
-            <div class="input-group-append">
-                <button class="btn btn-primary" type="submit" name="addNotes"><i class="fa fa-plus"></i>Add Note</button>
-            </div>
-            </div>
+
             
 
     </div>

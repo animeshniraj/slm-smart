@@ -1471,17 +1471,22 @@ if($testPermission)
 
 		?>
 
+<div class="row">
+<div class=col-md-6>
+
 	<div class="form-group row">
 		<label class="col-sm-4" style="margin-top:.5rem;">Select Raw Material</label>
-		<div class="col-sm-6">
+		<div class="col-sm-5">
 		<select id="process6-select" class="form-control">
 			
 		</select>
 		</div>
 		<div class="col-sm-2">
-		<button type="button" class="btn btn-primary" onclick="process6_addmat()"><i class="fa fa-plus"></i>Add Material</button>
+		<button type="button" class="btn btn-primary" onclick="process6_addmat()"><i class="fa fa-plus"></i> Add Material</button>
 		</div>
 	</div>
+
+
 <table class="table table-striped table-bordered" id="process6table">
 <thead>
 <tr>
@@ -1539,14 +1544,20 @@ echo "<tr id = 'process6-qttr'><th>Quantity</th><th>".$QUANTITY."</th></tr>";
 echo "</tbody></table>";
 }
 ?>
+
+
+
+
 	<div class="form-group row">
 		
 		<div class="col-sm-12">
-		<button type="submit" disabled name="updateprocess6" id="process6-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
+		<button type="submit" disabled name="updateprocess6" id="process6-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Quantity</button>
 		</div>
 	</div>
 
 </form>
+</div>
+
 <script type="text/javascript">
 	process6total()
 
@@ -1625,8 +1636,9 @@ echo "</tbody></table>";
 
 
 
+<div class="col-md-6">
+<h5 style="text-align:center;">Forward Tracking</h5>
 <hr>
-<h5>Forward Tracking</h5>
 
 <br>
 
@@ -1707,7 +1719,8 @@ else
 
 </table>
 
-
+</div>
+</div>
 </div>
 
 
@@ -1721,7 +1734,7 @@ else
 		 	<div class="input-group input-group-button">
             <textarea required rows="1" cols="500" class="form-control" placeholder="" name="note" ></textarea>
             <div class="input-group-append">
-                <button class="btn btn-primary" type="submit" name="addNotes"><i class="fa fa-plus"></i>Add Note</button>
+                <button class="btn btn-primary" type="submit" name="addNotes"><i class="fa fa-commenting" aria-hidden="true"></i> Add Note</button>
             </div>
             </div>
 

@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "SLM | Edit Final Blend",
         "Home Link"  => "/user/",
         "Menu"		 => "process-finalblend-view",
         "MainMenu"	 => "process_finalblend",
@@ -697,8 +697,8 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h5><?php echo $processid; ?> (<?php echo $entrytime; ?>)</h5>
-					<span>Edit Final Blend parameters</span>
+					<h3 style="margin-bottom:0;">Currently updating: <?php echo $processid; ?></h3>
+					<p class="created">(Created on: <?php echo $entrytime; ?>)</p>
 				</div>
 			</div>
 		</div>
@@ -730,29 +730,29 @@ input[type=number] {
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i> Creation</a>
 <div class="slide"></div>
 </li>
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i>Generic</a>
+<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i> Generic</a>
 <div class="slide"></div>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i>Operational Parameter</a>
-<div class="slide"></div>
-</li>
-
-
-<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#blendmaster-tabdiv" role="tab"><i class="icofont icofont-link"></i>Blend Master</a>
+<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i> Operational Parameter</a>
 <div class="slide"></div>
 </li>
 
 
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#blendmaster-tabdiv" role="tab"><i class="icofont icofont-link"></i> Blend Master</a>
+<div class="slide"></div>
+</li>
+
+
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i>Test Properties</a>
+<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Test Properties</a>
 <div class="slide"></div>
 </li>
 
@@ -771,7 +771,7 @@ input[type=number] {
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i>Notes</a>
+<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i> Notes</a>
 <div class="slide"></div>
 </li>
 
@@ -1359,9 +1359,50 @@ if($operationalPermission)
 
 </table>
 
+<table class="table">
+	<th rowspan="1" colspan="1" >Grade - <?php echo $currGradeName ?></th>
+	
+
+	<?php 
+
+			for($i=0;$i<count($testParams);$i++)
+			{
+				?>
+
+					<th rowspan="1" colspan="1"><?php echo $testParams[$i][0] ?></th>
+
+				<?php
+			}
+
+	?>
+
+
+<tbody>
+	
+	<tr>
+		<td>Specs</td>
+		<?php 
+
+			for($i=0;$i<count($testParams);$i++)
+			{
+				?>
+
+					<td><?php echo $testParams[$i][4]."-".$testParams[$i][5] ?></td>
+
+				<?php
+			}
+
+	?>
+	</tr>
+
+</tbody>
+
+
+</table>
+
 
 <div class="col-sm-12">
-		<button type="submit"  name="updateprocess5" id="process5-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
+		<button type="submit"  name="updateprocess5" id="process5-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Blend</button>
 		</div>
 
 </form>
@@ -1446,46 +1487,7 @@ if($operationalPermission)
 </script>
 <br><br>
 
-<table class="table">
-	<th rowspan="1" colspan="1" >Grade - <?php echo $currGradeName ?></th>
-	
 
-	<?php 
-
-			for($i=0;$i<count($testParams);$i++)
-			{
-				?>
-
-					<th rowspan="1" colspan="1"><?php echo $testParams[$i][0] ?></th>
-
-				<?php
-			}
-
-	?>
-
-
-<tbody>
-	
-	<tr>
-		<td>Specs</td>
-		<?php 
-
-			for($i=0;$i<count($testParams);$i++)
-			{
-				?>
-
-					<td><?php echo $testParams[$i][4]."-".$testParams[$i][5] ?></td>
-
-				<?php
-			}
-
-	?>
-	</tr>
-
-</tbody>
-
-
-</table>
 
 
 <?php }?>
@@ -1888,6 +1890,14 @@ else
 
 <form method="POST">
 
+			<div class="input-group input-group-button">
+            <textarea required rows="1" cols="500" class="form-control" placeholder="" name="note" ></textarea>
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit" name="addNotes"><i class="fa fa-commenting" aria-hidden="true"></i> Add Note</button>
+            </div>
+            </div>
+
+
 	 <div style="position: absolute; bottom: 0px; margin: 10px;">
 	 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 	 	<input type="hidden" name="currtab" value="notes-tabdiv">
@@ -1916,12 +1926,7 @@ else
                
             </div>
             
-            <div class="input-group input-group-button">
-            <textarea required rows="1" cols="500" class="form-control" placeholder="" name="note" ></textarea>
-            <div class="input-group-append">
-                <button class="btn btn-primary" type="submit" name="addNotes"><i class="fa fa-plus"></i>Add Note</button>
-            </div>
-            </div>
+            
             
 
     </div>

@@ -19,6 +19,7 @@
 -->
 
 <style type="text/css">
+@page { size: A5 landscape }
 .center {
   display: block;
   margin-left: auto;
@@ -27,13 +28,13 @@
 }
 
 table, th, td {
-	border: 1px solid black;
-	border-collapse: collapse;
+  border: 1px solid black;
+  border-collapse: collapse;
 }
 
 th, td {
-	padding: 5px;
-	width: 200px!important;
+  padding: 5px;
+  width: 200px!important;
 }
 .crop{width: 150px;
 height:40px;
@@ -42,6 +43,7 @@ object-fit:cover;}
 tr.noBorder td {
   border: 0;
 }
+.bdcen{font-weight:bold;text-align: center;}
 </style>
 <html>
 	<head>
@@ -49,7 +51,7 @@ tr.noBorder td {
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="description" content="Emulating real sheets of paper in web documents (using HTML and CSS)">
 		<title>A6-Material Identification Tag</title>
-		<link rel="stylesheet" type="text/css" href="a6.css">
+		<link rel="stylesheet" type="text/css" href="paper.css">
 	</head>
 	<body class="document">
 		<div class="page" contenteditable="true">
@@ -57,7 +59,8 @@ tr.noBorder td {
 <html>
 
 
-<body>
+<body class="A5 landscape">
+<section class="sheet padding-10mm">
 
 	<h3 style="text-align:center;background-color:#000;color:#fff;top:0;">MATERIAL IDENTIFICATION TAG</h3>
 	<table style="width:100%">
@@ -97,10 +100,11 @@ tr.noBorder td {
 			
 			
 		</div>
-
+</section>
 		<script type="text/javascript">
 		window.print();
 		</script>
+
 	</body>
 </html>
 
