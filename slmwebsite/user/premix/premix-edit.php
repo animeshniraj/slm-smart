@@ -755,6 +755,7 @@ if(false)
 						<th>Item</th>
 						<th>%</th>
 						<th>Calculated Feed Weight</th>
+						<th>Enter Scale Weight</th>
 						<th>Enter Feed Weight</th>
 						<th>Sequence</th>
 						<th></th>
@@ -810,7 +811,12 @@ if(false)
 											
 											<td><?php echo round($allWeights[$row["additive"]]*$row["percent"]/100,2); ?>
 												</td>
-											<td><input required type="number" min=0 step="0.01" name="sequencevalue" id ="seq-val-<?php echo $k;?>" value="<?php echo round($allWeights[$row["additive"]]*$row["percent"]/100,2); ?>" placeholder="Feed Weight">
+											<td><input required type="number" min=0 step="0.01" name="sequencesvalue" id ="seq-sval-<?php echo $k;?>" value="<?php echo round($allWeights[$row["additive"]]*$row["percent"]/100,2); ?>" placeholder="Scale Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
+												<br>
+												Container Weight:<br><input required type="number" min=0 step="0.01" id ="seq-container-<?php echo $k;?>" value="0.0" placeholder="Container Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
+												</td>
+
+											<td><input required type="number" min=0 step="0.01" name="sequencevalue" id ="seq-val-<?php echo $k;?>" value="<?php echo round($allWeights[$row["additive"]]*$row["percent"]/100,2); ?>" placeholder="Feed Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
 												</td>
 
 												
@@ -847,6 +853,17 @@ if(false)
 
 	let allowBatchSubmit1 = false;
 	let allowBatchSubmit2 = false;
+
+
+	function deductcontainer(container,scale,feed)
+	{
+		container = document.getElementById(container)
+		scale = document.getElementById(scale)
+		feed = document.getElementById(feed)
+		
+		feed.value = parseFloat(scale.value) - parseFloat(container.value)
+
+	}
 
 
 	function checkBarcode(additive,inputObj,formObj)
@@ -1496,6 +1513,7 @@ $(document).ready(function() {
 		{
 			document.getElementById("seq-val-"+i).value = allSequence[i][3];
 			document.getElementById("seq-val-"+i).disabled = true;
+			document.getElementById("seq-sval-"+i).disabled = true;
 		}
 		
 
@@ -1520,11 +1538,11 @@ $(document).ready(function() {
 		}
 
 		var actualqty = parseFloat(curr.children[2].innerHTML);
-		var feedqty =  parseFloat(curr.children[3].children[0].value);
+		var feedqty =  parseFloat(curr.children[4].children[0].value);
 
 		allfeeddata[curr.children[0].innerHTML]["reconcilation"] += actualqty-feedqty;
 
-		if(!curr.children[3].children[0].disabled)
+		if(!curr.children[4].children[0].disabled)
 		{
 			allfeeddata[curr.children[0].innerHTML]["adjustableobj"].push(curr);
 		}
@@ -1558,18 +1576,22 @@ $(document).ready(function() {
    for(var i=0;i<adjustable.length;i++)
    {
 
-   		var currval =  parseFloat(adjustable[i].children[3].children[0].value);
+   		var currval =  parseFloat(adjustable[i].children[4].children[0].value);
    		var ratio = currval/sum;
 
    		var newval = Math.round(ratio*adjustment,2) + currval;
 
-   		adjustable[i].children[3].children[0].value = newval;
+   		adjustable[i].children[3].children[0].value = 0.0;
+   		adjustable[i].children[4].children[0].value = 0.0;
+   		adjustable[i].children[2].innerHTML = actualqty + "<br> Adjusted = " +  newval
 
    		adjustment-=Math.round(ratio*adjustment,2);
 
    		if(i==(adjustable.length-1))
    		{
-   			adjustable[i].children[3].children[0].value = newval + adjustment;
+   			adjustable[i].children[4].children[0].value = 0.0;
+   			adjustable[i].children[3].children[0].value = 0.0;
+   			adjustable[i].children[2].innerHTML = actualqty + "<br> Adjusted = " +  (newval +adjustment)
    		}
 
    }

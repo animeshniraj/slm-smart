@@ -186,14 +186,14 @@ $result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processnam
 					</select>
 					</div>
 					<div class="col-sm-6">
-						<input required type="text" class="form-control" name="min" placeholder="Min" value="">
+						<input type="text" class="form-control" name="min" placeholder="Min" value="">
 					</div>
 					<div class="col-sm-6">
-						<input required type="text"  class="form-control" name="max" placeholder="Max" value="">
+						<input type="text"  class="form-control" name="max" placeholder="Max" value="">
 					</div>
 
 					<div class="col-sm-6">
-						<input required type="text"  class="form-control" name="quarantine" placeholder="Quarantine" value="">
+						<input type="text"  class="form-control" name="quarantine" placeholder="Quarantine" value="">
 					</div>
 				</div>
 

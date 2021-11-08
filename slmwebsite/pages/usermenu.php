@@ -231,6 +231,35 @@
 	</ul>
 </li>
 
+<li id="process_batch" class="pcoded-hasmenu" dropdown-icon="style1" subitem-icon="style1">
+<a href="javascript:void(0)" class="waves-effect waves-dark">
+<span class="pcoded-micon"><i class="feather icon-codepen"></i></span>
+<span class="pcoded-mtext">Batch</span>
+</a>
+	<ul class="pcoded-submenu">
+		
+
+		<li id="process-batch-new" class="">
+		<a href="/user/process/batch-new.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Create New</span>
+		</a>
+		</li>
+
+
+		<li id="process-batch-view" class="">
+		<a href="/user/process/batch-view.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">View</span>
+		</a>
+		</li>
+
+
+
+
+	</ul>
+</li>
+
 
 <li id="premix_menu" class="pcoded-hasmenu" dropdown-icon="style1" subitem-icon="style1">
 <a href="javascript:void(0)" class="waves-effect waves-dark">

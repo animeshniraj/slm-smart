@@ -32,9 +32,28 @@
     if(isset($_POST["addnewprop"]))
     {
     	$propname = $_POST["propname"];
-    	$min = $_POST['min'];
-    	$max = $_POST['max'];
-    	$quarantine = $_POST['quarantine'];
+
+    	if(isset($_POST['min']))
+    	{
+    		$min = $_POST['min'];
+    	}
+    	
+
+    	if(isset($_POST['max']))
+    	{
+    		$max = $_POST['max'];
+    	}
+    	
+
+    	if(isset($_POST['quarantine']))
+    	{
+    		$quarantine = $_POST['quarantine'];
+    	}
+    
+
+    	
+    	
+    	
 
     	$result = runQuery("SELECT count(*) as val FROM gradeproperties WHERE processname='$processname' AND gradename='$gradename'");
     	$row=$result->fetch_assoc();
@@ -186,14 +205,14 @@ $result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processnam
 					</select>
 					</div>
 					<div class="col-sm-6">
-						<input required type="text" class="form-control" name="min" placeholder="Min" value="">
+						<input type="text" class="form-control" name="min" placeholder="Min" value="">
 					</div>
 					<div class="col-sm-6">
-						<input required type="text"  class="form-control" name="max" placeholder="Max" value="">
+						<input type="text"  class="form-control" name="max" placeholder="Max" value="">
 					</div>
 
 					<div class="col-sm-6">
-						<input required type="text"  class="form-control" name="quarantine" placeholder="Quarantine" value="">
+						<input type="text"  class="form-control" name="quarantine" placeholder="Quarantine" value="">
 					</div>
 				</div>
 

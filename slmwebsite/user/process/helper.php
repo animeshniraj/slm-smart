@@ -69,6 +69,7 @@
     function stringTestInput($parameter,$prop,$value,$disabled = '')
     {
         $prop = preg_replace('/\s+/', '_', $prop);
+
         echo "<div class=\"form-group row\">\n<div class=\"col-sm-12\">\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"text\" name=\"paramsvalue[]\" value=\"".$value."\" id=\"".$prop."\" ".$disabled." class=\"form-control\">\n</div>\n</div>";
     }
 
@@ -82,6 +83,13 @@
     function integerTestInput($parameter,$prop,$value,$disabled = '',$min='',$max='',$quarantine)
     {
         $prop = preg_replace('/\s+/', '_', $prop);
+
+        if(!$quarantine)
+        {
+            $min = -100000;
+            $max = 100000;
+            $quarantine =">100000";
+        }
         echo "<div class=\"form-group row\"><div class=\"col-sm-12\">\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"hidden\" name=\"quarantine[]\" value=\"".$quarantine."\"><input type=\"number\" step=1 value=\"".$value."\" name=\"paramsvalue[]\" id=\"".$prop."\" ".$disabled." class=\"form-control\">\n</div>\n</div>";
     }
 
@@ -97,6 +105,12 @@
     function decimalTestInput($parameter,$prop,$value,$disabled = '',$min='',$max='',$quarantine)
     {
         $prop = preg_replace('/\s+/', '_', $prop);
+        if(!$quarantine)
+        {
+            $min = -100000;
+            $max = 100000;
+            $quarantine =">100000";
+        }
         echo "<div class=\"form-group row\">\n<div class=\"col-sm-12\">\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"hidden\" name=\"quarantine[]\" value=\"".$quarantine."\"><input required type=\"number\" value=\"".$value."\" step=0.001 name=\"paramsvalue[]\" id=\"".$prop."\" ".$disabled." class=\"form-control\">\n</div>\n</div>";
     }
 
