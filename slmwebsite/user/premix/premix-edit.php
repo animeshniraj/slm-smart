@@ -619,9 +619,22 @@ if(false)
 											<td><?php echo round($row["composition"]/($total),2); ?></td>
 
 											<td><?php echo round((($row["composition"]/($total))*$mass)/100,2); ?>
+
+
+											<?php 
+														if($row["additive"] != "Iron")
+														{
+
+
+											?>
 												
 											<br> Min Tolerance: <?php echo $row["mintol"]?> %
 											<br> Max Tolerance: <?php echo $row["maxtol"]?> %
+
+											<?php 
+														}
+												?>
+
 
 											<br> Round: <div><input type="text" form="update-step"  class="form-control col-sm-3" name="newstep[]" value="<?php echo $row["step"]?>">
 											 <button type="submit" form="update-step" class="btn btn-primary col-sm-2"><i class="fa fa-refresh"></i></button></div>

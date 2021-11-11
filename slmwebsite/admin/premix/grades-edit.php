@@ -373,18 +373,39 @@ selectedAdditives = []
 		row.appendChild(dumTD);
 
 
-		dumTD = document.createElement("TD");
-		dumTD.innerHTML = "<input type='checkbox' name='over[]' "+ischecked+" value='"+name+"''>";
-		row.appendChild(dumTD);
+		
 
+		if(name=="Iron")
+		{
+			dumTD = document.createElement("TD");
+			dumTD.innerHTML = "<input type='checkbox'  style='display:none'  onclick='return false;' name='over[]' "+ischecked+" value='"+name+"''>";
+			row.appendChild(dumTD);
 
-		dumTD = document.createElement("TD");
-		dumTD.innerHTML = "<input required type='number' name='mintols[]' min='1' max='100' step='0.1' value='"+mintol+"'>";
-		row.appendChild(dumTD);
+			dumTD = document.createElement("TD");
+			dumTD.innerHTML = "<input required readonly style='display:none' type='number' name='mintols[]' min='0' max='0' step='0.1' value='0'>";
+			row.appendChild(dumTD);
 
-		dumTD = document.createElement("TD");
-		dumTD.innerHTML = "<input required type='number' name='maxtols[]' min='1' max='100' step='0.1' value='"+maxtol+"'>";
-		row.appendChild(dumTD);
+			dumTD = document.createElement("TD");
+			dumTD.innerHTML = "<input required style='display:none' readonly type='number' name='maxtols[]' min='120' max='100' step='0.1' value='100'>";
+			row.appendChild(dumTD);
+
+		}
+
+		else
+		{
+			dumTD = document.createElement("TD");
+			dumTD.innerHTML = "<input type='checkbox' name='over[]' "+ischecked+" value='"+name+"''>";
+			row.appendChild(dumTD);
+
+			dumTD = document.createElement("TD");
+			dumTD.innerHTML = "<input required type='number' name='mintols[]' min='1' max='100' step='0.1' value='"+mintol+"'>";
+			row.appendChild(dumTD);
+
+			dumTD = document.createElement("TD");
+			dumTD.innerHTML = "<input required type='number' name='maxtols[]' min='1' max='100' step='0.1' value='"+maxtol+"'>";
+			row.appendChild(dumTD);
+		}
+		
 
 		
 
