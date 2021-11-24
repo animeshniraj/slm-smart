@@ -47,6 +47,25 @@
 
     }
 
+
+ if(isset($_POST["addnewsieve"]))
+    {
+    	$propname = $_POST["propname"];
+    	$min = -10000;
+    	$max = $_POST['print'];
+    	$quarantine = $_POST['cumulative'];
+
+    	$result = runQuery("SELECT count(*) as val FROM gradeproperties WHERE processname='$processname' AND gradename='$gradename'");
+    	$row=$result->fetch_assoc();
+
+    	$count = $row["val"] +1;
+
+    	runQuery("INSERT INTO gradeproperties VALUES(NULL,'$processname','$gradename','$propname','$min','$max','$quarantine','$count')");
+
+    	
+
+    }
+
     
 
     if(isset($_POST["deletepropname"]))
@@ -90,7 +109,7 @@
 
 
 
-$result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processname' AND gradename='$gradename'");
+	$result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processname' AND gradename='$gradename'");
 
     $currProps = [];
 
@@ -110,9 +129,40 @@ $result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processnam
     foreach ($dumSelected as $key => $value) {
     	array_push($notSelected,$value);
     }
-    
-   
 
+
+
+    $result = runQuery("SELECT * FROM sieve");
+
+    $allSieves = [];
+
+    if($result->num_rows>0)
+    {
+    	while($row=$result->fetch_assoc())
+    	{
+    		array_push($allSieves,$row["name"]);
+    	}
+    }
+
+
+    $result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processname' AND gradename='$gradename' AND properties in (SELECT name FROM sieve)");
+
+    $currSieve = [];
+
+    if($result->num_rows>0)
+    {
+    	while($row=$result->fetch_assoc())
+    	{
+    		array_push($currSieve,$row["properties"]);
+    	}
+    }
+    
+   $notSelectedSieve  = [];
+   $dumSelected = array_diff($allSieves,$currSieve);
+
+    foreach ($dumSelected as $key => $value) {
+    	array_push($notSelectedSieve,$value);
+    }
   
     include("../../pages/adminhead.php");
     include("../../pages/adminmenu.php");
@@ -171,7 +221,7 @@ $result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processnam
 				<input type="hidden" name="editgradename" value="<?php echo $gradename; ?>">
 
 				<div class="form-group row">
-					<label class="col-sm-6" style="margin-top:0.75rem;">Choose Grade</label>
+					<label class="col-sm-6" style="margin-top:0.75rem;">Choose Property</label>
 					<div class="col-sm-6">
 					<select required class="form-control" name="propname">
 						
@@ -201,6 +251,65 @@ $result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processnam
 					<label class="col-sm-2"></label>
 					<div class="col-sm-10">
 					<button type="submit" name="addnewprop" id="addnewprop" class="btn btn-primary m-b-0 pull-right"><i class="fa fa-plus"></i>Add Property</button>
+					</div>
+				</div>
+
+		</form>
+	</div>
+</div>
+</div>
+
+
+
+<div class="col-md-6">
+<div class="card">
+	<div class="card-header">
+		<h5>Add New Sieve Property</h5>
+		<div class="card-header-right">
+
+		</div>
+	</div>
+	<div class="card-block">
+
+		<form method="POST">
+
+				<input type="hidden" name="editgradename" value="<?php echo $gradename; ?>">
+
+				<div class="form-group row">
+					<label class="col-sm-6" style="margin-top:0.75rem;">Choose Property</label>
+					<div class="col-sm-6">
+					<select required class="form-control" name="propname">
+						
+						<?php
+							for($i=0;$i<count($notSelectedSieve);$i++)
+							{
+								echo "<option value=\"".$notSelectedSieve[$i]."\">".$notSelectedSieve[$i]."</option>";
+							}
+
+						?>
+
+					</select>
+					</div>
+					<div class="col-sm-6" >
+						<select name="print" class="form-control" required>
+							<option value="1"> Print Property</option>
+							<option value="0">  Do not Print</option>
+						</select>
+					</div>
+					<div class="col-sm-6">
+						<select name="cumulative" class="form-control" required>
+							<option value="1"> Cumulative</option>
+							<option value="0"> Non Cumulative</option>
+						</select>
+					</div>
+
+
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2"></label>
+					<div class="col-sm-10">
+					<button type="submit" name="addnewsieve" id="addnewsieve" class="btn btn-primary m-b-0 pull-right"><i class="fa fa-plus"></i>Add Property</button>
 					</div>
 				</div>
 
@@ -242,57 +351,93 @@ $result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processnam
 							while($row1 = $result->fetch_assoc())
 							{
 								$dumprop = $row1['properties'];
-								$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumprop'");
-
-								if($row = $result2->fetch_assoc())
-								{
+								
 
 
 					?>	
 
 					<div class="sortable-moves card-sub">
 
-					<h5 class="card-title"><?php echo $row["gradeparam"];?></h5>
+					<h5 class="card-title"><?php echo $dumprop;?></h5>
 					<div style="cursor:move;" class="col-sm-12">
 						
 
+						<?php 
 
+
+						if($row1['min']!=-10000)
+						{
+
+						?>
 						<div class="form-group row">
 							
 							<div class="col-md-3 col-sm-4">
-							<label class="min">Min</lable>
+							<label class="min">Min</label>
 								<input type="text" class="form-control" name="prop-min[]" placeholder="Min" value="<?php echo $row1["min"];?>" style="margin-top:0!important;">
 							</div>
 							<div class="col-md-3 col-sm-4">
-							<label class="min">Max</lable>
+							<label class="min">Max</label>
 								<input type="text" class="form-control" name="prop-max[]" placeholder="Max" value="<?php echo $row1["max"];?>" style="margin-top:0!important;">
 							</div>
 							<div class="col-md-3 col-sm-4">
-							<label class="min">Quarantine</lable>
+							<label class="min">Quarantine</label>
 								<input type="text" class="form-control" name="prop-quarant[]" placeholder="Quarantine" value="<?php echo $row1["quarantine"];?>" style="margin-top:0!important;">
 							</div>
 							
 						</div>
 
-						
-						<button type="button" class="btn btn-danger pull-right" onclick="deleteProp('<?php echo $row["gradeparam"];?>');">Remove</button>
-						<hr class="solid" style="margin-top: 70px;">
-						<input type="hidden" name="propnames[]" value="<?php echo $row["gradeparam"];?>">
-					</div>
-					</div>
-
-
-					
-					<?php
-
-
+						<?php 
 						}
 						else
 						{
 
 
-						
+						?>
+
+
+							<div class="form-group row">
+							<?php if($row1['max']==1){echo "Printed";} else {echo "Not Printed";} ?>
+							<br>
+							<?php if($row1['quarantine']==1){echo "Cumulative";} else {echo "Not Cumulative";} ?>
+							<div class="col-md-3 col-sm-4">
+							<label style="display: none;"  class="min">Min</label>
+								<input type="text" style="display: none;" class="form-control" name="prop-min[]" placeholder="Min" value="<?php echo $row1["min"];?>" style="margin-top:0!important;">
+							</div>
+							<div class="col-md-3 col-sm-4">
+							<label style="display: none;"  class="min">Max</label>
+								<input type="text" style="display: none;" class="form-control" name="prop-max[]" placeholder="Max" value="<?php echo $row1["max"];?>" style="margin-top:0!important;">
+							</div>
+							<div class="col-md-3 col-sm-4">
+							<label style="display: none;"  class="min">Quarantine</label>
+								<input type="text" style="display: none;" class="form-control" name="prop-quarant[]" placeholder="Quarantine" value="<?php echo $row1["quarantine"];?>" style="margin-top:0!important;">
+							</div>
+							
+						</div>
+
+						<?php
+
+
+
 						}
+					
+
+
+
+						?>
+
+						
+						<button type="button" class="btn btn-danger pull-right" onclick="deleteProp('<?php echo $dumprop;?>');">Remove</button>
+						<hr class="solid" style="margin-top: 70px;">
+						<input type="hidden" name="propnames[]" value="<?php echo $dumprop;?>">
+					</div>
+					</div>
+						
+
+					
+					<?php
+
+						
+						
 						}}
 
 					?>

@@ -20,7 +20,7 @@
     $PAGE = [
         "Page Title" => "View all Purchase Order | SLM SMART",
         "Home Link"  => "/user/",
-        "Menu"		 => "purchase-view",
+        "Menu"		 => "loadingadvice-view",
         "MainMenu"	 => "dispatch_menu",
 
     ];
@@ -34,9 +34,11 @@
     {
     	$externalid = $_POST['externalid'];
     	
-    	runQuery("DELETE FROM purchaseorder_notes WHERE orderid='$externalid'");
-    	runQuery("DELETE FROM purchaseorder_params WHERE orderid='$externalid'");
-    	runQuery("DELETE FROM purchase_order WHERE orderid='$externalid'");
+
+    	runQuery("UPDATE purchase_order SET status='UNFULFILLED' WHERE orderid in (SELECT poid FROM loading_advice WHERE laid='$externalid')");
+    	runQuery("DELETE FROM loadingadvice_notes WHERE laid='$externalid'");
+    	runQuery("DELETE FROM loadingadvice_params WHERE laid='$externalid'");
+    	runQuery("DELETE FROM loading_advice WHERE laid='$externalid'");
     }
 
 
@@ -84,7 +86,7 @@
 			<div class="page-header-title">
 				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>View all Purchase Order</h5>
+					<h5>View all Loading Advices</h5>
 					<span>Select order to edit</span>
 				</div>
 			</div>
@@ -112,7 +114,7 @@
 
 
 <div class="form-group row">
-			<label class="col-sm-2 col-form-label">Invoice ID</label>
+			<label class="col-sm-2 col-form-label"> Loading Advices</label>
 			<div class="col-sm-10">
 			<div class="input-group input-group-button">
 				<input required id="data_externalid" name="externalid" type="text" class="form-control form-control-uppercase" placeholder="">
@@ -146,7 +148,7 @@
 	<thead>
 		<tr>
 		<th>#</th>
-		<th>Invoice Id</th>
+		<th>Loading Advice</th>
 		<th>Customer</th>
 		<th>Entry Time</th>
 		<th></th>
@@ -161,7 +163,7 @@
 	<tbody>
 
 		<?php
-				$result = runQuery("SELECT * FROM purchase_order WHERE status='UNFULFILLED' ORDER BY entrydate DESC");
+				$result = runQuery("SELECT * FROM loading_advice WHERE status='UNFULFILLED' ORDER BY entrydate DESC");
 				if($result->num_rows>0)
 				{
 					$k=0;
@@ -173,18 +175,18 @@
 		?>
 	<tr>
 		<th scope="row"><?php echo ++$k; ?></th>
-		<td><?php echo $row["orderid"]; ?></td>
+		<td><?php echo $row["laid"]; ?></td>
 
 		<td><?php echo $result2["value"]."(".$row["customer"].")"; ?></td>
 
 		<td><?php echo Date('Y-M-d H:i',strtotime($row["entrydate"])); ?></td>
-		<td><form method="POST" action="purchase-edit.php"><input type="hidden" name="orderid" value="<?php echo $row["orderid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
+		<td><form method="POST" action="loadingadvice-edit.php"><input type="hidden" name="laid" value="<?php echo $row["laid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
 
 			if($deletePermission)
 			{
-				echo "<td><button class=\"btn btn-danger\" name=\"deleteProcess\" onclick=\"removeProcess('".$row["orderid"]."')\" type=\"button\"><i class=\"feather icon-trash\"></i>Remove</button></td>";
+				echo "<td><button class=\"btn btn-danger\" name=\"deleteProcess\" onclick=\"removeProcess('".$row["laid"]."')\" type=\"button\"><i class=\"feather icon-trash\"></i>Remove</button></td>";
 			}
 		
 
@@ -265,7 +267,7 @@
 
 </form>
 
-<form method="POST" id="redirectform" action="purchase-edit.php">
+<form method="POST" id="redirectform" action="loadingadvice-edit.php">
 	<input type="hidden" name="orderid" id="redirectformid">
 
 

@@ -34,6 +34,10 @@
     if(isset($_POST['deleteProcess']))
     {
     	$processid = $_POST['processid'];
+
+    	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='PARENT'");
+    	$parentid = $result->fetch_assoc()['param'];
+    	runQuery("UPDATE processentry SET islocked='LOCKED' WHERE processid='$parentid'"); 
     	runQuery("call delete_process('$processid')");
     }
 
@@ -42,16 +46,25 @@
     $result = runQuery("SELECT * FROM processpermission WHERE processname='$processname' AND step='DELETION' AND role ='$myrole'");
 
     $deletePermission = false;
+
+
     
 	if($result->num_rows>0)
 	{
 		$dumPermission = $result->fetch_assoc()["permission"];
-		if($dumPermission=="ALLOW")
+		if($dumPermission=="ALLOW" || $myrole=="ADMIN")
 		{
 			$deletePermission = true;
 		}
 
 	}
+
+	if($myrole=="ADMIN")
+	{
+		$deletePermission = true;
+	}
+
+
  
 
 
@@ -84,8 +97,8 @@
 			<div class="page-header-title">
 				<i class="fa fa-shopping-bag bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>Raw Bag</h5>
-					<span>Edit Raw Bag parameters</span>
+					<h5>Final Batches</h5>
+					<span>View Final Batch parameters</span>
 				</div>
 			</div>
 		</div>
@@ -110,9 +123,9 @@
 </div>
 <div class="card-block">
 
-<form id="searchbyid" method="POST" action="rawbag-edit.php">
+<form id="searchbyid" method="POST" action="batch-edit.php">
 <div class="form-group row">
-			<label class="col-sm-2 col-form-label">Raw Bag ID</label>
+			<label class="col-sm-2 col-form-label">Batch ID</label>
 			<div class="col-sm-10">
 			<div class="input-group input-group-button">
 				<input required id="processid" name="processid" type="text" class="form-control form-control-uppercase" placeholder="">
@@ -146,7 +159,7 @@
 	<thead>
 		<tr>
 		<th>#</th>
-		<th>Raw Bag ID</th>
+		<th>Batch ID</th>
 		<th>Entry Time</th>
 		<th></th>
 		<?php 
@@ -172,7 +185,7 @@
 		<td><?php echo $row["processid"]; ?></td>
 		
 		<td><?php echo Date('Y-M-d H:i',strtotime($row["entrytime"])); ?></td>
-		<td><form method="POST" action="rawbag-edit.php"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
+		<td><form method="POST" action="batch-edit.php"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
 
@@ -279,7 +292,7 @@ function getHeatid(inObj)
             {
                Swal.fire({
 					icon: "error",
-					title: "Raw Bag ID not Found",
+					title: "Batch ID not Found",
 					showConfirmButton: true,
 				  	showCancelButton: false,
 				  	confirmButtonText: 'OK',

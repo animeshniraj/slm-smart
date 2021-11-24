@@ -180,8 +180,22 @@
 		<label class="col-sm-2 col-form-label">Grades</label>
 			<div class="col-sm-10">
 			<select required class="js-example-basic-multiple form-control" multiple="multiple"  name="<?php echo $external_type;?>_grade[]" id="grades_div">
+				<optgroup label="Premix Grades">
 					<?php
 						$result = runQuery("SELECT * FROM premix_grades");
+
+						if($result->num_rows>0)
+						{
+							while($row = $result->fetch_assoc())
+							{
+								echo "<option value=\"".$row["gradename"]."\">".$row["gradename"]."</option>";
+							}
+						}
+
+					?>
+					<optgroup label="Final Blend Grades">
+					<?php
+						$result = runQuery("SELECT * FROM processgrades WHERE processname='Final Blend'");
 
 						if($result->num_rows>0)
 						{

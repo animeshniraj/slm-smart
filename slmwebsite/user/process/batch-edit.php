@@ -15,20 +15,22 @@
 
 	isAuthenticated($session,'user_module');
 
-	require_once('helper.php');
+	require_once('helper_batch.php');
 	$myuserid = $session->user->getUserid();
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Edit Final Blend",
+        "Page Title" => "SLM | Edit Batch",
         "Home Link"  => "/user/",
-        "Menu"		 => "process-finalblend-view",
-        "MainMenu"	 => "process_finalblend",
+        "Menu"		 => "process-batch-view",
+        "MainMenu"	 => "process_batch",
 
     ];
 
 
-    $processname = "Final Blend";
+    $processname = "Batch";
+
+    $oldprocess = 'Final Blend';
     $QUANTITY = 0;
 
     if(!isset($_POST["processid"]))
@@ -48,13 +50,16 @@
     {
     	$currTab =$_POST["currtab"];
     }
-   
+   	
+
+   	runQuery("UPDATE processentry SET currentstep='TEST' WHERE processid='$processid'");
+    
     
 
      if(isset($_POST["updateprocess1"]))
     {
     	
-    	$newprocessid = $_POST["processidName"][0].$_POST["processidName"][1].$_POST["processidName"][2];
+    	$newprocessid = $_POST["processidName"];
 
 
     	$result = runQuery("SELECT * FROM processentry WHERE processid='$newprocessid'");
@@ -135,6 +140,7 @@
     	$paramsvalue = $_POST['paramsvalue'];
 
 
+
     	
     	for($i=0;$i<count($allParams);$i++)
     	{
@@ -156,17 +162,7 @@
     }
 
 
-    if(isset($_POST['updateBlendMaster']))
-    {
-    	$allbmgrades = $_POST["bmgrades"];
-    	
-    	runQuery("DELETE FROM blendmastergrade WHERE processid='$processid'");
-    	for($i=0;$i<count($allbmgrades);$i++)
-    	{
-    		$dumgrade = $allbmgrades[$i];
-    		runQuery("INSERT INTO blendmastergrade VALUES(NULL,'$processid','$dumgrade')");
-    	}
-    }
+
 
 
     if(isset($_POST["updateprocess4"]))
@@ -175,6 +171,7 @@
     	$allParams = $_POST['allparams'];
     	$paramsvalue = $_POST['paramsvalue'];
     	$qvalue = $_POST['quarantine'];
+    	$testedby = $_POST['testedby'];
 
     		$sqlprefix = $processid."/%";
     		$prefix = $processid."/";
@@ -199,10 +196,16 @@
 	    	for($i=0;$i<count($allParams);$i++)
 	    	{
 	    		
-	    		if($qvalue[$i])
+	    		if($allParams[$i] == 'Tested By')
+	    		{
+	    			runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
+	    		}
+	    		elseif($qvalue[$i])
 	    		{
 
 	    			runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
+
+	    			runQuery("INSERT INTO additional_process_data VALUES(NULL,'$processid','$prefix','$allParams[$i]','$testedby[$i]')");
 	    		}
 	    		elseif($sym==">")
 	    		{
@@ -213,10 +216,12 @@
 	    			{
 	    				runQuery("UPDATE processentry SET islocked ='BLOCKED' WHERE processid='$processid'");
 	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
+	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$processid','$prefix','$allParams[$i]','$testedby[$i]')");
 	    			}
 	    			else
 	    			{
 	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
+	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$processid','$prefix','$allParams[$i]','$testedby[$i]')");
 	    			}
 	    		}
 	    		else
@@ -227,10 +232,12 @@
 	    			{
 	    				runQuery("UPDATE processentry SET islocked ='BLOCKED' WHERE processid='$processid'");
 	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
+	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$processid','$prefix','$allParams[$i]','$testedby[$i]')");
 	    			}
 	    			else
 	    			{
 	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
+	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$processid','$prefix','$allParams[$i]','$testedby[$i]')");
 	    			}
 	    		}
 	    		
@@ -280,9 +287,16 @@
     {
 
     	$approved = $_POST['approved-by'];
+    	$finalqty = $_POST['finalqty'];
 
-    	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','PARENT','approved-by','$approved')");
-    	runQuery("UPDATE processentry SET islocked='LOCKED' WHERE processid='$processid'");
+
+
+    	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','CREATION','approved-by','$approved')");
+    	runQuery("DELETE FROM processentryparams WHERE processid='$processid' AND param='$MASS_TITLE'");
+	    runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','GENERIC','$MASS_TITLE','$finalqty')");
+    	runQuery("UPDATE processentry SET islocked='BATCHED' WHERE processid='$processid'");
+
+
 
 
 
@@ -313,7 +327,7 @@
 
 
     $result = runQuery("SELECT currentstep,islocked FROM processentry WHERE processid='$processid'");
-     $result = $result->fetch_assoc();
+    $result = $result->fetch_assoc();
     $currStep = $result["currentstep"];
 
     if($result["islocked"]=="UNLOCKED")
@@ -327,7 +341,7 @@
     	$approvedblend = false;
     }
 
-    if($result["islocked"]=="LOCKED")
+    if($result["islocked"]=="BATCHED" || $result["islocked"]=="LOCKED")
     {
     	$approvedblend = true;
     }
@@ -337,7 +351,7 @@
 
     $creationPermission = false;
 
-    $result = runQuery("SELECT * FROM processpermission WHERE processname='$processname' AND step='CREATION' AND role ='$myrole'");
+    $result = runQuery("SELECT * FROM processpermission WHERE processname='$oldprocess' AND step='CREATION' AND role ='$myrole'");
 
 		if($result->num_rows>0)
 		{
@@ -352,10 +366,12 @@
 
 
 
+
+
     $genericParams = [];
     $genericPermission = false;
 
-    $result = runQuery("SELECT * FROM processparams WHERE processname='$processname' AND step='GENERIC' ORDER BY ordering");
+    $result = runQuery("SELECT * FROM processparams WHERE processname='$oldprocess' AND step='GENERIC' ORDER BY ordering");
 
     if($result->num_rows>0)
     {
@@ -381,7 +397,7 @@
     	$stepPermission = true;
     }
 
-    $result = runQuery("SELECT * FROM processpermission WHERE processname='$processname' AND step='GENERIC' AND role ='$myrole'");
+    $result = runQuery("SELECT * FROM processpermission WHERE processname='$oldprocess' AND step='GENERIC' AND role ='$myrole'");
 
 	if($result->num_rows>0)
 	{
@@ -401,7 +417,7 @@
 	$operationalParams = [];
     $operationalPermission = false;
 
-    $result = runQuery("SELECT * FROM processparams WHERE processname='$processname' AND step='OPERATIONAL' ORDER BY ordering");
+    $result = runQuery("SELECT * FROM processparams WHERE processname='$oldprocess' AND step='OPERATIONAL' ORDER BY ordering");
 
     if($result->num_rows>0)
     {
@@ -420,7 +436,7 @@
     	}
     }
 
-    $result = runQuery("SELECT * FROM processpermission WHERE processname='$processname' AND step='OPERATIONAL' AND role ='$myrole'");
+    $result = runQuery("SELECT * FROM processpermission WHERE processname='$oldprocess' AND step='OPERATIONAL' AND role ='$myrole'");
     if( $currStep=="GENERIC" || $currStep=="OPERATIONAL" || $currStep=="TEST")
     {
     	$stepPermission = true;
@@ -440,16 +456,10 @@
 	}
 
 
-	$blendmasterpermission = false;
 
-	$result = runQuery("SELECT * from blendmastergrade WHERE processid='$processid'");
-
-	if($result->num_rows>=1)
-	{
-		$blendmasterpermission = true;
-	}
 
 	$testParams = [];
+
     $testPermission = false;
     $currGradeName = "**";
     $result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='OPERATIONAL' AND param='$GRADE_TITLE'");
@@ -463,7 +473,7 @@
 		
     
 
-    $result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processname' AND gradename='$currGradeName' ORDER BY ordering");
+    $result = runQuery("SELECT * FROM gradeproperties WHERE processname='$oldprocess' AND gradename='$currGradeName' ORDER BY ordering");
 
     if($result->num_rows>0)
     {
@@ -473,20 +483,49 @@
 
 
 
-				$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumParam'");
+    		if($row['min']==-10000)
+    		{
+
+    			$print = "Not Printed";
+    			$cum = "Non Cumulative";
+
+    			if($row['max']==1)
+    			{
+    				$print = "Printed";
+    			}
+
+    			if($row['quarantine']==1)
+    			{
+    				$cum = "Cumulative";
+    			}
 
 
-    		$result2 = $result2->fetch_assoc();
+	    		array_push($testParams,[$dumParam,"","","DECIMAL","-","-","-","5",$print.", ".$cum]);
+
+    		}
+    		else
+    		{
+
+    			$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$oldprocess' AND gradeparam='$dumParam'");
+
+
+	    		$result2 = $result2->fetch_assoc();
 
 
 
-    		//array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"]]);
+	    		array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"],$result2['mpif'],$result2['class']]);
+
+    		}
+
+
+
+				
     	}
     }
 
     
 
-    $result = runQuery("SELECT * FROM processpermission WHERE processname='$processname' AND step='TEST' AND role ='$myrole'");
+    $result = runQuery("SELECT * FROM processpermission WHERE processname='$oldprocess' AND step='TEST' AND role ='$myrole'");
     if( $currStep=="OPERATIONAL" || $currStep=="TEST")
     {
     	$stepPermission = true;
@@ -524,7 +563,8 @@
     #$parent_total = $dum["Total"];
 
    
-   $blendmasterData = getAllBlendmasterGrades($processid,$processname);
+
+
 
 
 
@@ -757,27 +797,35 @@ input[type=number] {
 <div class="slide"></div>
 </li>
 
-<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i> Operational Parameter</a>
-<div class="slide"></div>
-</li>
-
-
-<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#blendmaster-tabdiv" role="tab"><i class="icofont icofont-link"></i> Blend Master</a>
-<div class="slide"></div>
-</li>
 
 <?php
 /*
 ?>
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Test Properties</a>
+<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i> Operational Parameter</a>
 <div class="slide"></div>
 </li>
 
 
+<?php
+
+*/
+?>
+
+
+
+
+
+
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Test Properties</a>
+<div class="slide"></div>
+</li>
+
+<?php
+/*
+?>
 
 
 <li class="nav-item">
@@ -825,11 +873,9 @@ input[type=number] {
 							<div class="input-group input-group-button">
 
 								
-								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 0,2) ?>"><div></div>
-								<input name="processidName[]" type="hidden" value=" "><div></div>
+								<input name="processidName"  required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo $processid ?>"><div></div>
 								
-								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 2) ?>">
-
+								
 
 							</div>
 						</div>
@@ -845,7 +891,7 @@ input[type=number] {
 			{
 				?>
 				<div class="col-sm-12">
-				<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/print/finalblend-tag.php?processid=<?php echo $processid; ?>&grade=<?php echo $currGradeName; ?>&quantity=<?php echo getTotalQuantity($processid) ?>')"><i class="icofont icofont-barcode"></i>Generate Label</button>
+				<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/print/batch-tag.php?processid=<?php echo $processid; ?>&grade=<?php echo $currGradeName; ?>&quantity=<?php echo getTotalQuantity($processid) ?>')"><i class="icofont icofont-barcode"></i>Generate Label</button>
 				<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
 				</div>
 
@@ -867,665 +913,76 @@ input[type=number] {
 
 <div class="tab-pane" id="generic-tabdiv" role="tabpanel">
 
-<form method="POST">
 
-	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
-	<input type="hidden" name="currtab" value="generic-tabdiv">
-	<?php 
-		
-		for($i=0;$i<count($genericParams);$i++)
-		{
-
-				if($genericParams[$i][0]==$MASS_TITLE&&$genericPermission)
-				{
-					if($genericParams[$i][1])
-					{
-						$QUANTITY += $genericParams[$i][1];
-					}
-					?>
-
-					<div class="form-group row">
-						<label class="col-sm-2"><?php echo $genericParams[$i][0]; ?></label>
-						<div class="col-sm-10">
-							<div class="input-group input-group-button">
-							
-								<input readonly  type="number" step="0.01" min="0"  class="form-control form-control-uppercase" placeholder="" value="<?php echo $genericParams[$i][1]; ?>">
-								<div class="input-group-append">
-								
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<?php
-				}
-				else if(!$genericPermission && $genericParams[$i][4]=="LOCKED")
-				{
-
-					if($genericParams[$i][2])
-					{
-						optionInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],$genericParams[$i][2],'readonly required');
-					}
-					else if($genericParams[$i][3] == "INTEGER")
-					{
-						integerInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly required');
-					}
-					else if($genericParams[$i][3] == "DECIMAL")
-					{
-						decimalInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly required');
-					}
-					else if($genericParams[$i][3] == "STRING")
-					{
-						stringInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly required');
-					}
-					else if($genericParams[$i][3] == "DATE")
-					{
-						dateInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly required');
-					}
-					else if($genericParams[$i][3] == "TIME")
-					{
-						timeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly required');
-					}
-					else if($genericParams[$i][3] == "DATE TIME")
-					{
-						datetimeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly required');
-					}
-
-				}
-				else if($genericPermission && $genericParams[$i][4]=="LOCKED")
-				{
-
-					if($genericParams[$i][2])
-					{
-						optionInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],$genericParams[$i][2],'required');
-					}
-					else if($genericParams[$i][3] == "INTEGER")
-					{
-						integerInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'required');
-					}
-					else if($genericParams[$i][3] == "DECIMAL")
-					{
-						decimalInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'required');
-					}
-					else if($genericParams[$i][3] == "STRING")
-					{
-						stringInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'required');
-					}
-					else if($genericParams[$i][3] == "DATE")
-					{
-						dateInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'required');
-					}
-					else if($genericParams[$i][3] == "TIME")
-					{
-						timeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'required');
-					}
-					else if($genericParams[$i][3] == "DATE TIME")
-					{
-						datetimeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'required');
-					}
-
-				}
-				else if(!$genericPermission)
-				{
-
-					if($genericParams[$i][2])
-					{
-						optionInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],$genericParams[$i][2],'readonly');
-					}
-					else if($genericParams[$i][3] == "INTEGER")
-					{
-						integerInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly');
-					}
-					else if($genericParams[$i][3] == "DECIMAL")
-					{
-						decimalInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly');
-					}
-					else if($genericParams[$i][3] == "STRING")
-					{
-						stringInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly');
-					}
-					else if($genericParams[$i][3] == "DATE")
-					{
-						dateInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly');
-					}
-					else if($genericParams[$i][3] == "TIME")
-					{
-						timeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly');
-					}
-					else if($genericParams[$i][3] == "DATE TIME")
-					{
-						datetimeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly');
-					}
-
-				}
-				else
-				{
-					if($genericParams[$i][2])
-					{
-						optionInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],$genericParams[$i][2],false);
-					}
-					else if($genericParams[$i][3] == "INTEGER")
-					{
-						integerInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],false);
-					}
-					else if($genericParams[$i][3] == "DECIMAL")
-					{
-						decimalInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],false);
-					}
-					else if($genericParams[$i][3] == "STRING")
-					{
-						stringInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],false);
-					}
-					else if($genericParams[$i][3] == "DATE")
-					{
-						dateInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],false);
-					}
-					else if($genericParams[$i][3] == "TIME")
-					{
-						timeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],false);
-					}
-					else if($genericParams[$i][3] == "DATE TIME")
-					{
-						datetimeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],false);
-					}
-
-
-					
-				}
-				
-		}
-
-
-	?>
+<?php 
 	
+	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='PARENT'");
+	$result  = $result->fetch_assoc();
+
+	$finalblendid = $result['param'];
+	$finalblendqty = $result['value'];
+
+
+
+	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='$GRADE_TITLE'");
+	$result  = $result->fetch_assoc();
+
+	$currgrade = $result['value'];
+
+	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='$MASS_TITLE'");
+	$qty = "Not Assigned";
+	if($result->num_rows>0)
+	{
+		$result=$result->fetch_assoc();
+		$qty = $result['value'];
+	}
+
+
+	$result = runQuery("SELECT * FROM processentry WHERE processid='$finalblendid'");
+	$result  = $result->fetch_assoc();
+
 	
+	$finalblenddate = $result['entrytime'];
+
+?>
 
 
-	<div class="form-group row">
-		<?php
 
-		
 
-			
-			if($genericPermission)
-			{
-				?>
-				<div class="col-sm-12">
-				<button type="submit" name="updateprocess2" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
-				</div>
+<table class="table table-striped">
+	<tr>
+		<td>Parent ID </td>
+		<td> <?php echo $finalblendid; ?> ( Qty: <?php echo $finalblendqty; ?>)</td>
+	</tr>
 
-				<?php
-			}
+	<tr>
+		<td>Parent Creation Date </td>
+		<td> <?php echo $finalblenddate; ?></td>
+	</tr>
 
-			
+	<tr>
+		<td>Quantity Left </td>
+		<td> <?php echo $qty; ?></td>
+	</tr>
 
-			
 
-		?>
-		
-	</div>
-
-</form>
+	<tr>
+		<td>Grade </td>
+		<td> <?php echo $currgrade; ?></td>
+	</tr>
+</table>
 
 </div>
 
 <div class="tab-pane" id="operational-tabdiv" role="tabpanel">
 
-<form method="POST">
-	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
-	<input type="hidden" name="currtab" value="operational-tabdiv">
-	
-	<?php 
-		
-		for($i=0;$i<count($operationalParams);$i++)
-		{
-				
-				if($operationalParams[$i][0]==$GRADE_TITLE)
-				{
-
-					$result = runQuery("SELECT * FROM processgrades WHERE processname='$processname'");
-					$dum  = "";
-					
-					$dumValue = "";
-					if($result->num_rows>0)
-					{
-						
-						while($row=$result->fetch_assoc())
-						{
-								$dum = $dum . $row["gradename"] . ",";
-								
-						}
-
-						$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='OPERATIONAL' AND param='$GRADE_TITLE'");
-						if($result2->num_rows>0)
-						{
-							$result2 = $result2->fetch_assoc();
-							$dumValue = $result2["value"];
-						}
-
-					}
-
-					if($dumValue)
-					{
-						stringInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$dumValue,'readonly');
-					}
-					else if(!$dumValue&&$operationalPermission)
-					{
-						optionInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],$dum,false);
-					}
-					else if(!$dumValue&&!$operationalPermission)
-					{
-						optionInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],$dum,'readonly');
-					}
-
-
-
-					
-
-				}
-				
-				else if(!$operationalPermission)
-				{
-
-					if($operationalParams[$i][2])
-					{
-						optionInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],$operationalParams[$i][2],'readonly');
-					}
-					else if($operationalParams[$i][3] == "INTEGER")
-					{
-						integerInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],'readonly');
-					}
-					else if($operationalParams[$i][3] == "DECIMAL")
-					{
-						decimalInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],'readonly');
-					}
-					else if($operationalParams[$i][3] == "STRING")
-					{
-						stringInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],'readonly');
-					}
-					else if($operationalParams[$i][3] == "DATE")
-					{
-						dateInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],'readonly');
-					}
-					else if($operationalParams[$i][3] == "TIME")
-					{
-						timeInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],'readonly');
-					}
-					else if($operationalParams[$i][3] == "DATE TIME")
-					{
-						datetimeInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],'readonly');
-					}
-
-				}
-				else
-				{
-					if($operationalParams[$i][2])
-					{
-						optionInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],$operationalParams[$i][2],false);
-					}
-					else if($operationalParams[$i][3] == "INTEGER")
-					{
-						integerInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],false);
-					}
-					else if($operationalParams[$i][3] == "DECIMAL")
-					{
-						decimalInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],false);
-					}
-					else if($operationalParams[$i][3] == "STRING")
-					{
-						stringInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],false);
-					}
-					else if($operationalParams[$i][3] == "DATE")
-					{
-						dateInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],false);
-					}
-					else if($operationalParams[$i][3] == "TIME")
-					{
-						timeInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],false);
-					}
-					else if($operationalParams[$i][3] == "DATE TIME")
-					{
-						datetimeInput($operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],false);
-					}
-
-
-					
-				}
-				
-		}
-
-
-	?>
-	
-	
-
-
-	<div class="form-group row">
-		<?php
-
-		
-
-			
-			if($operationalPermission)
-			{
-				?>
-				<div class="col-sm-12">
-				<button type="submit" name="updateprocess3" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
-				</div>
-
-				<?php
-			}
-
-			
-
-			
-
-		?>
-		
-	</div>
-
-</form>
-
-
-
-<?php
-
-
-if($operationalPermission)
-			{
-				?>
-				
-
-
-				<br><br>
-
-				
-				<h4>Select Grades for Blend Master</h4>
-				<form method="POST">
-					<input type="hidden" name="currtab" value="operational-tabdiv">
-					<?php 
-
-							$result = runQuery("SELECT * FROM processgrades WHERE processname='Semi Finished'");
-							$k=0;
-							while($row = $result->fetch_assoc())
-							{
-
-							$dumgrade = $row["gradename"];
-							$checked = "";
-							$dumR = runQuery("SELECT * FROM blendmastergrade WHERE processid='$processid' AND gradename='$dumgrade'");
-							if($dumR->num_rows>=1)
-							{
-								$checked = "checked";
-							}
-
-					?>
-
-					<div class="checkbox-color checkbox-primary">
-						<input id="bmgrades-<?php echo $k;?>" type="checkbox" <?php echo $checked; ?> name="bmgrades[]" value="<?php echo $row["gradename"] ?>">
-						<label for="bmgrades-<?php echo $k;?>">
-						<?php echo $row["gradename"] ?>
-						</label>
-					</div>
-
-
-				
-
-				<?php
-				$k++;
-					}
-				?>
-
-				<input type="hidden" name="processid" value="<?php echo $processid; ?>">
-				<div class="col-sm-12">
-				<button type="submit" name="updateBlendMaster" id="updateBlendMaster-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Blend Master</button>
-				</div>
-				</form>
-
-				<?php
-			}
-
-			?>
-
-
-
-
-
 
 </div>
 
-<style>
-
-.tab-pane.bm2{padding:0!important;}
-	.table.bms{font-size:10px!important;}
-.table td, .table th {padding:0.45rem 0.25rem;}
-.table th.bm{background-color:#990000;color:#fff;text-wrap:normal;word-wrap:break-word;width:150px;}
-</style>
-
-
-
-<div class="tab-pane bm2" id="blendmaster-tabdiv" role="tabpanel">
-<?php if($blendmasterpermission){?>
-	<table class="table table-striped table-bordered bms">
-	
-	
-
-	<?php
-		$blenmasterparams = $blendmasterData[1];
-			$blendmasterData = $blendmasterData[0];
-		for($i=1;$i<count($blendmasterData[0]);$i++)
-		{
-			echo "<th class='bm'>".$blendmasterData[0][$i]."</th>";
-		}
-
-	?>
-
-
-	<th rowspan="1" class="bm">Blend Qty</th>
-	<form method="POST">
-
-		<input type="hidden" name="processid" value="<?php echo $processid; ?>">
-		<input type="hidden" name="currtab" value="blendmaster-tabdiv">
-
-<tbody id="blendmasterparenttbody">
-	
-	<?php 
-
-			for($i=1;$i<count($blendmasterData);$i++)
-			{
-				echo "<tr>";
-
-				?>
-				<td>
-				<div class="checkbox-color checkbox-primary">
-						<input onchange="evalAverage(this)"  type="checkbox" <?php echo $blendmasterData[$i][0]; ?> id="bmparent-<?php echo $i; ?>"  value="<?php echo $blendmasterData[$i][2]; ?>" name = "parentname[]">
-						
-						<label for = "bmparent-<?php echo $i; ?>">
-							<?php echo $blendmasterData[$i][2]; ?>
-						</label>
-					</div>
-				</td>
-				
-				<?php
-
-				for($j=3;$j<count($blendmasterData[$i]);$j++)
-				{
-	?>
-
-		<?php if($j == count($blendmasterData[$i])-1){ ?>	
-			<td id = "bmparent-<?php echo $i."-balqty"; ?>"><?php echo $blendmasterData[$i][$j]; ?></td>
-		<?php }else{ ?>
-		<td id = "bmparent-<?php echo $i."-"."$j"; ?>"><?php echo $blendmasterData[$i][$j]; ?></td>
-
-		<?php } ?>
-
-	<?php
-		
-			}
-			$max = $blendmasterData[$i][1]+$blendmasterData[$i][count($blendmasterData[$i])-1];
-			if($blendmasterData[$i][0]=="checked")
-			{
-							echo "<td ><input id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  value=\"".$blendmasterData[$i][1]."\"></td>";
-
-			}
-			else
-			{
-							echo "<td ><input id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  disabled value=\"".$blendmasterData[$i][1]."\"></td>";
-
-			}
-			echo "</tr>";
-		}
-	?>
-
-	<tr>
-		<th colspan="3">Weighted Average</th>
-		
-	</tr>
-
-</tbody>
-
-</table>
-
-<table class="table">
-	<th rowspan="1" colspan="1" >Grade - <?php echo $currGradeName ?></th>
-	
-
-	<?php 
-
-			for($i=0;$i<count($testParams);$i++)
-			{
-				?>
-
-					<th rowspan="1" colspan="1"><?php echo $testParams[$i][0] ?></th>
-
-				<?php
-			}
-
-	?>
-
-
-<tbody>
-	
-	<tr>
-		<td>Specs</td>
-		<?php 
-
-			for($i=0;$i<count($testParams);$i++)
-			{
-				?>
-
-					<td><?php echo $testParams[$i][4]."-".$testParams[$i][5] ?></td>
-
-				<?php
-			}
-
-	?>
-	</tr>
-
-</tbody>
-
-
-</table>
-
-
-<div class="col-sm-12">
-		<button type="submit"  name="updateprocess5" id="process5-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Blend</button>
-		</div>
-
-</form>
-<br><br>
-
-<script type="text/javascript">
-	findAvg();
-	function evalAverage(inObj)
-	{
-
-		if(inObj.checked)
-		{
-
-			document.getElementById(inObj.id+"-qty").disabled = false;
-			document.getElementById(inObj.id+"-qty").value = document.getElementById(inObj.id+"-balqty").innerHTML;
-			findAvg()
-			
-		}
-		else
-		{
-
-			document.getElementById(inObj.id+"-qty").disabled = true;
-			document.getElementById(inObj.id+"-qty").value = 0;
-			findAvg()
-
-			
-		}
-			
-
-			
-	}
-
-	function findAvg()
-	{
-		var tbody = document.getElementById('blendmasterparenttbody');
-
-			var avgdiv = tbody.children[tbody.children.length-1];
-			var divstore = avgdiv; 
-			
-			var sum = new Array(tbody.children[0].children.length-5).fill(0);
-			var total = new Array(tbody.children[0].children.length-5).fill(0);
-			
-			var totalSelected = 0;
-			for(var i=0;i<tbody.children.length-1;i++)
-			{
-				currrow = tbody.children[i];
-				totalSelected += parseFloat(currrow.children[currrow.children.length-1].children[0].value);
-				for(var j = 3;j<currrow.children.length-2;j++)
-				{
-						if(currrow.children[j].innerHTML)
-						{
-							sum[j-3] += parseFloat(currrow.children[j].innerHTML) * parseFloat(currrow.children[currrow.children.length-1].children[0].value);
-							total[j-3] += parseFloat(currrow.children[currrow.children.length-1].children[0].value);
-						}
-							
-				}
-				
-			}
-
-			avgdiv.innerHTML = "<th colspan=\"3\">Weighted Average</th>";
-
-			for(var j = 3;j<tbody.children[0].children.length-2;j++)
-			{
-				if(sum[j-3]/total[j-3])
-				{
-					avgdiv.innerHTML += "<th>"+ Math.round((sum[j-3]/total[j-3])*100)/100 +"</th>";
-				}
-				else
-				{
-					avgdiv.innerHTML += "<th>0</th>";
-				}
-				
-			}
-
-			
-			avgdiv.innerHTML += "<th></th>";
-			avgdiv.innerHTML += "<th>"+ totalSelected +"</th>";
-
-	}
-
-
-</script>
-<br><br>
 
 
 
 
-<?php }?>
-</div>
-
-
-
-
-<?php
-if(false)
-				{
-					?>
 <div class="tab-pane" id="test-tabdiv" role="tabpanel">
 
 <form method="POST">
@@ -1575,6 +1032,9 @@ if($testPermission)
 	
 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 	<input type="hidden" name="currtab" value="test-tabdiv">
+
+
+
 <div class="form-group row">
 				<table class="table table-striped table-bordered" id="process4table">
 		<thead>
@@ -1582,14 +1042,16 @@ if($testPermission)
 
 		<th>Property</th>
 		<th>Min/Max</th>
+		<th>MPIF Number</th>
 		<th>Value</th>
-
+		<th>Tested By</th>
 
 		</tr>
 		</thead>
 		
 		
 		<tbody id="test-tablediv">
+
 
 
 			<?php
@@ -1610,6 +1072,9 @@ if($testPermission)
 <div class="tabledit-span">Max: <?php echo $testParams[$i][5] ?></div>
 <div class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
 </td>
+
+<td><?php echo $testParams[$i][7];?></td>
+
 
 
 <td>
@@ -1648,6 +1113,20 @@ if($testPermission)
 </td>
 
 
+
+
+<td>
+
+
+<input required type="text" list="labtechlist"  name="testedby[]" placeholder="Tested By" class="form-control">
+
+
+			<datalist id="labtechlist">
+				<option value="Lab1">Lab1</option>
+				<option value="Lab2">Lab2</option>
+				<option value="Lab3">Lab3</option>
+			</datalist>
+</td>
 	
 
 </tr>
@@ -1727,7 +1206,11 @@ if($testPermission)
 			{
 				while($row2 = $result2->fetch_assoc())
 				{
-						$dumParam = $dumParam . "'" . $row2["param"]."',";
+						$currParam = $row2["param"];
+						$result3 = runQuery("SELECT * FROM additional_process_data WHERE processid='$processid' AND param1 ='$dumtestid' AND param2 = '$currParam'");
+
+						$result3 = $result3->fetch_assoc()['param3'];
+						$dumParam = $dumParam . "'" . $row2["param"] . " (Tested By: ".$result3.")" ."',";
 						$dumValue = $dumValue . "'" . $row2["value"]."',";
 
 						if($row2["status"]=="BLOCKED")
@@ -1910,9 +1393,6 @@ else
 
 
 
-<?php
-}
-					?>
 
 
 
@@ -1921,6 +1401,10 @@ else
 
 
 	<?php 
+
+	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='PARENT'");
+			$result  = $result->fetch_assoc();
+			$qty = $result["value"];
 
 		if(!$approvedblend)
 		{
@@ -1933,9 +1417,13 @@ else
 	 	<div class="form-group" style="display:flex; justify-content: center;">
 						
 						<input type="text" required name="approved-by"class="form-control" style="display: inline; text-align: center;" placeholder="Approved By">
+
+						<input type="number" name="finalqty" required min="0.01" step="0.01" max='<?php echo $qty ; ?>' class="form-control" style="display: inline; text-align: center;" placeholder="Final Qty (Kg)" >
 						
 		</div>
 
+
+		
 	 	<div class="col-sm-12">
 		<button type="submit"  name="approveprocess" id="process5-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-check"></i>Approve</button>
 		</div>
@@ -1946,22 +1434,44 @@ else
 	}
 	else
 	{
-		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='approved-by' AND step='PARENT'");
+
+
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='$MASS_TITLE'");
+			$result  = $result->fetch_assoc();
+			$finalqty = $result["value"];
+
+
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='approved-by' AND step='CREATION'");
 
 		$approvedby = "";
 		if($result->num_rows>0)
 		{
-			$approvedby = $result->fetch_assoc()['value'];
+			$approvedby = "Approved By: ".$result->fetch_assoc()['value'];
 		}
 		
+
+			
 	
 ?>
 
 <div class="form-group" style="display:flex; justify-content: center;">
 						
-						<input type="text" disabled name="approved-by"class="form-control" style="display: inline; text-align: center;" placeholder="Approved By" value="<?php echo $approvedby ?>">
+						<input type="text" disabled class="form-control" style="display: inline; text-align: center;" placeholder="Approved By" value="<?php echo $approvedby ?>">
+
+
+
 						
 		</div>
+
+
+	
+<br>
+<br>
+
+<hr>
+<br>
+<br>
+
 
 
 		<?php 

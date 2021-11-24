@@ -21,7 +21,7 @@
     $PAGE = [
         "Page Title" => "SLM | Create new Purchase order",
         "Home Link"  => "/user/",
-        "Menu"		 => "purchase-new",
+        "Menu"		 => "loadingadvice-new",
         "MainMenu"	 => "dispatch_menu",
 
     ];
@@ -35,29 +35,54 @@
 
     	
     
-    	$customer = $_POST["customer"];
- 			
+    	$ponumber = $_POST["ponumber"];
+ 			$transport = $_POST['transport'];
+ 			$company = $_POST['company'];
     
 
 
     	$creationDate = $_POST["creation-date"];
-    	$prefix = $_POST['ponumber'];
     	
-    	$result = runQuery("SELECT * FROM purchase_order WHERE orderid = '$prefix'");
+
+    	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
+
+    	$month = explode("-",explode(" ",$creationDate)[0])[1];
+    	$prefix = "LD/".$year."/";
+    	$sqlprefix = "LD/".$year."/%";
+
+
+    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(laid, '/', -1) AS SIGNED)) max_val FROM loading_advice WHERE laid LIKE '$sqlprefix'");
+
+
 
     	if($result->num_rows==0)
     	{	
+    		$count = 1;
+    	}
+    	else
+    	{
+    		$lastID = $result->fetch_assoc()["max_val"];
+	    	
+	    	$count = intval($lastID)+1;
+    	}
+    	
+        	
+
+    	$prefix = $prefix . str_pad($count, 3, '0', STR_PAD_LEFT);
 
 
-    		$result = runQuery("INSERT INTO purchase_order VALUES('$prefix','$customer','$creationDate','UNFULFILLED')");
+
+    	$result = runQuery("INSERT INTO loading_advice ( SELECT '$prefix',orderid,customer,'$company','$transport','$creationDate','UNFULFILLED' FROM purchase_order WHERE orderid='$ponumber')");
+
+    	$result2 = runQuery("UPDATE purchase_order SET status = 'LOADING ADVICE' WHERE orderid ='$ponumber'");
 
 
     	if($result)
     			{
     				
     				?>
-    					<form id="redirectform" method="POST" action="purchase-edit.php">
-    						<input type="hidden" name="orderid" value="<?php  echo $prefix;?>">
+    					<form id="redirectform" method="POST" action="loadingadvice-edit.php">
+    						<input type="hidden" name="laid" value="<?php  echo $prefix;?>">
     					</form>
     					<script type="text/javascript">
     						document.getElementById("redirectform").submit();
@@ -67,15 +92,12 @@
     			
     			}
 
+    	die();
 
+    	
+    	
 
-
-    	}
-    	else
-    	{
-    		$show_alert = true;
-				$alert = showAlert("error","ID already exists","");
-    	}
+    	
     
 
     
@@ -265,36 +287,48 @@ p {
 					</div>
 
 
-					<div class="form-group" style="display:flex; justify-content: center;" >
-							<div class="input-group input-group-button col-sm-3">
-
-								
-								<input type="text" required name="ponumber" id="ponumber" class="form-control" style="display: inline; text-align: center;" placeholder="Purchase Order Number">
-								
-								
-
-							</div>
-						</div>
 
 
 					
 					<div class="form-group" style="display:flex; justify-content: center">
-						<select required class="form-control col-sm-3" name="customer" >
-							<option selected disabled value=""> Choose a customer</option>
+						<select required class="form-control col-sm-3" name="ponumber" >
+							<option selected disabled value=""> Choose a purchase order</option>
 
 							<?php 
 
-								$result = runQuery("SELECT external_param.externalid,external_param.value FROM external_conn LEFT JOIN external_param ON external_param.externalid = external_conn.externalid WHERE external_conn.type='Customer' AND external_param.param='Name'");
+								$result = runQuery("SELECT * FROM purchase_order WHERE status='UNFULFILLED'");
 
 								if($result->num_rows>0)
 								{
 									while($row = $result->fetch_assoc())
 									{
-										echo "<option value=\"".$row["externalid"]."\">".$row["value"]."</option>";
+										echo "<option value=\"".$row["orderid"]."\">".$row["orderid"]." ( Customer: ".$row["customer"].")</option>";
 									}
 								}
 
 							?>
+
+						</select>
+					</div>
+
+
+					<div class="form-group" style="display:flex; justify-content: center">
+						<select required class="form-control col-sm-3" name="company" >
+							<option selected disabled value=""> Choose company</option>
+							<option value="SLM Metal">SLM Metal</option>
+							<option value="SLM Technology">SLM Technology</option>
+
+
+						</select>
+					</div>
+
+					<div class="form-group" style="display:flex; justify-content: center">
+						<select required class="form-control col-sm-3" name="transport" >
+							<option selected disabled value=""> Choose mode of transport</option>
+							<option value="Truck">Truck</option>
+							<option value="Cargo">Cargo</option>
+							<option value="Courier">Courier</option>
+
 
 						</select>
 					</div>

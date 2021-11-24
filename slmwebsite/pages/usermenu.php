@@ -255,6 +255,14 @@
 		</li>
 
 
+		<li id="process-batch-transfer" class="">
+		<a href="/user/process/batch-transfer.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Transfer Quantity</span>
+		</a>
+		</li>
+
+
 
 
 	</ul>
@@ -380,6 +388,7 @@
 <span class="pcoded-mtext">Dispatch</span>
 </a>
 	<ul class="pcoded-submenu">
+
 		<li id="purchase-new" class="">
 		<a href="/user/dispatch/new-purchase.php" class="waves-effect waves-dark">
 
@@ -391,6 +400,21 @@
 		<a href="/user/dispatch/purchase-view.php" class="waves-effect waves-dark">
 
 		<span class="pcoded-mtext">View Purchase Order</span>
+		</a>
+		</li>
+
+
+		<li id="loadingadvice-new" class="">
+		<a href="/user/dispatch/new-loadingadvice.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">New Loading Advice</span>
+		</a>
+		</li>
+
+		<li id="loadingadvice-view" class="">
+		<a href="/user/dispatch/loadingadvice-view.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">View Loading Advice</span>
 		</a>
 		</li>
 

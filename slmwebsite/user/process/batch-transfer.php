@@ -21,7 +21,7 @@
     $PAGE = [
         "Page Title" => "SLM | Create new Batch",
         "Home Link"  => "/user/",
-        "Menu"		 => "process-batch-new",
+        "Menu"		 => "process-batch-transfer",
         "MainMenu"	 => "process_batch",
 
     ];
@@ -32,58 +32,62 @@
    
     
 
-    if(isset($_POST["updateprocess1"]))
+    if(isset($_POST["transferqty"]))
     {
 
+    	$qty = $_POST['qty'];
+    	$newgrade = $_POST['newGrade'];
+    	$processid = $_POST['finalblendId'];
+    	$newid = $_POST['newbatchid'];
+
+
+    	$result = runQuery("SELECT * FROM processentry WHERE processid='$newid'");
+    	$flag = true;
+    	if($result->num_rows>0)
+    	{
+    		$show_alert = true;
+				$alert = showAlert("error","ID already exists","");
+
+				$flag = $flag && false;
+    	}
     	
-    	
-    	$creationDate = $_POST["creation-date"];
 
-    	$parentid = $_POST['finalblendId'];
-    	
-    	$prefix = $_POST['processid'];
+    	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='$MASS_TITLE'");
 
-    	$overridegrade =  $_POST['overridegrade'];
+    	$result = $result->fetch_assoc();
 
+    	$currqty = floatval($result['value']);
 
+    	###### ADDD MINUSING #####
 
+    	if($qty>$currqty)
+    	{
+    		$show_alert = true;
+				$alert = showAlert("error","There is no enough quantity to transfer","");
 
-
-
-
-
-    	$result = runQuery("SELECT * FROM processentry WHERE processid = '$prefix'");
-
-    	if($result->num_rows==0)
-    	{	
-    		
-    	
-    	
-	    	
-	    	$result = runQuery("INSERT INTO processentry VALUES('$prefix','$processname','CREATION',CURRENT_TIMESTAMP,'UNLOCKED')");
-
-	    	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$parentid' AND param='$MASS_TITLE'");
-	    	$qty = $result->fetch_assoc()["value"];
+				$flag = $flag && false;
+    	}
 
 
-	    	if($overridegrade == "NO")
-	    	{
-	    		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$parentid' AND param='$GRADE_TITLE'");
-	    		$grade = $result->fetch_assoc()["value"];
-	    	}
-	    	else
-	    	{
-	    		$grade = $overridegrade;
-	    	}
 
-	    	
+    	if($flag)
+    	{
 
-	    	$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','PARENT','$parentid','$qty')");
-	    	$result2 = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','OPERATIONAL','$GRADE_TITLE','$grade')");
+    		$prefix = $newid;
 
-	    	$result3 = runQuery("UPDATE processentry SET islocked='BATCHED' WHERE processid='$parentid'");
+	    	$newqty = $currqty  -$qty;
 
-	    	if($result && $result2 && $result3)
+	    	runQuery("INSERT INTO processentry (SELECT '$prefix',processname,currentstep,entrytime,'UNLOCKED' FROM processentry WHERE processid='$processid')");
+
+	    	$result2 = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','OPERATIONAL','$GRADE_TITLE','$newgrade')");
+
+	    	$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','PARENT','$processid','$qty')");
+
+
+
+
+
+	    	if($result && $result2 )
 	    	{
 	    			
 	    			
@@ -99,18 +103,23 @@
 	    			
 	    			
 	    	}
+	    	else
+	    	{
+	    		die();
+	    	}
 
-	   }
-	   else
-	   {
-	   		$show_alert = true;
-				$alert = showAlert("error","ID already exists","");
-	   }
+	    	//runQuery("UPDATE processentryparams SET value='value-$qty' WHERE processid='$processid' AND step='PARENT'");
+
+
+
+
+	    	die();
+    	}
+
+
 
     	
-
     }
-
    
 
 
@@ -231,8 +240,8 @@ p {
 			<div class="page-header-title">
 				<i class="fa fa-shopping-bag bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>Batch</h5>
-					<span>Edit Batch parameters</span>
+					<h5>Transfer Batch</h5>
+					<span>Transfer Batch Quatity</span>
 				</div>
 			</div>
 		</div>
@@ -263,7 +272,7 @@ p {
 
 <ul class="nav nav-tabs md-tabs " role="tablist">
 <li class="nav-item">
-<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-link"></i>Transfer</a>
 <div class="slide"></div>
 </li>
 
@@ -280,35 +289,17 @@ p {
 
 <form method="POST">
 
-		
-<p style="display:block;text-align:center;color:#212121;">Enter the Batch Creation Date</p>
-
-<div class="form-group" style="display:flex; justify-content: center;">
-						
-						<input type="text" required name="creation-date" id="creation-date" class="form-control" style="display: inline; text-align: center;" placeholder="Date">
-
-					</div>
 
 
 
-					<div class="form-group" style="display:flex; justify-content: center;" >
-							<div class="input-group input-group-button col-sm-3">
-
-								
-								<input type="text" required name="processid" id="processid" class="form-control" style="display: inline; text-align: center;" placeholder="Batch Id">
-								
-								
-
-							</div>
-						</div>
 
 						<div class="form-group" style="display:flex; justify-content: center">
 						<select required class="form-control col-sm-3" name="finalblendId" >
-							<option selected disabled value=""> Choose a Final Blend</option>
+							<option selected disabled value=""> Choose a Batch ID</option>
 
 							<?php 
 
-								$result = runQuery("SELECT * FROM processentry WHERE processname='Final Blend' AND islocked <>'BLOCKED' AND islocked <>'FAILED' AND islocked <>'REANNEALED'  AND islocked <>'UNLOCKED' AND islocked <> 'BATCHED' ");
+								$result = runQuery("SELECT * FROM processentry WHERE processname='Batch' AND islocked = 'BATCHED' ");
 
 								if($result->num_rows>0)
 								{
@@ -332,10 +323,10 @@ p {
 						</select>
 					</div>
 
-					<div class="form-group" style="display:flex; justify-content: center">
-
-						<select required class="form-control col-sm-3" name="overridegrade" >
-							<option selected  value="NO"> Use Default Grade</option>
+					
+<div class="form-group" style="display:flex; justify-content: center;" >
+						<select required class="form-control col-sm-3" name="newGrade" >
+							<option selected disabled value=""> Choose a grade</option>
 
 							<?php 
 
@@ -357,29 +348,30 @@ p {
 						</select>
 					</div>
 
-					<script>
-					$(function() {
-					  $('input[name="creation-date"]').daterangepicker({
-					    singleDatePicker: true,
-					    timePicker: true,
-					    timePicker24Hour: true,
-					    showDropdowns: true,
-					    locale: 
-					    {    
-					    	format: 'YYYY-MM-DD HH:mm',
-					    },
-					  	
-					    minYear: 1901,
-					    maxYear: parseInt(moment().format('YYYY'),10)
-					  }, function(start, end, label) {
-					    
-					  });
+					<div class="form-group" style="display:flex; justify-content: center;" >
+							<div class="input-group input-group-button col-sm-3">
+
+								
+								<input type="number" min="0.01" step="0.01" required name="qty" class="form-control" style="display: inline; text-align: center;" placeholder="Transfer Quantity (in Kg)">
+								
+								
+
+							</div>
+						</div>
 
 
-					});
-					$('#creation-date').val('<?php echo DATE('Y-m-d H:i',strtotime("now")) ?>');
+				<div class="form-group" style="display:flex; justify-content: center;" >
+							<div class="input-group input-group-button col-sm-3">
 
-					</script>
+								
+								<input type="text" required name="newbatchid" class="form-control" style="display: inline; text-align: center;" placeholder="New Batch Id">
+								
+								
+
+							</div>
+						</div>
+
+
 
 
 	
@@ -387,7 +379,7 @@ p {
 	<div class="form-group row">
 		
 		<div class="col-sm-12">
-		<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Create New Entry</button>
+		<button type="submit" name="transferqty" id="submitBtn" class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Create New Entry</button>
 		</div>
 	</div>
 

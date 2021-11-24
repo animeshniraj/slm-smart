@@ -29,14 +29,12 @@
 		
 
 		$packagename =  $_POST["packagename"];
-		$material = $_POST["package_material"];
+		$shortname = $_POST["package_shortname"];
 		$weight = $_POST["package_weight"];
-		$l = $_POST["package_l"];
-		$b = $_POST["package_b"];
-		$h = $_POST["package_h"];
+		
 		
 
-		runQuery("INSERT INTO dispatch_package VALUES('$packagename','$material','$weight','$l','$b','$h')");
+		runQuery("INSERT INTO dispatch_package VALUES('$packagename','$shortname','$weight')");
 	}
 
 
@@ -110,9 +108,9 @@
 
 
 		<div class="form-group row">
-			<label class="col-md-2 col-form-label">Material</label>
+			<label class="col-md-2 col-form-label">Short Name</label>
 			<div class="col-md-10">
-			<input type="text" required class="form-control" name="package_material" id="package_material" placeholder="">
+			<input type="text" required class="form-control" name="package_shortname" id="shortname" placeholder="">
 			<span class="messages"></span>
 			</div>
 		</div>
@@ -126,26 +124,7 @@
 			</div>
 		</div>
 
-			<div class="form-group row">
-			<label class="col-md-2 col-form-label">Dimensions(cm)</label>
-			<div class="col-md-3">
-			<input type="number" required class="form-control" min ="0" step="0.01" name="package_l" id="package_l" placeholder="Length (cm)">
-			<span class="messages"></span>
-			</div>
-
-			<div class="col-md-3">
-			<input type="number" required class="form-control" min ="0" step="0.01" name="package_b" id="package_b" placeholder="Breadth (cm)">
-			<span class="messages"></span>
-			</div>
-
-			<div class="col-md-3">
-			<input type="number" required class="form-control" min ="0" step="0.01" name="package_h" id="package_h" placeholder="Height (cm)">
-			<span class="messages"></span>
-			</div>
-
-
-			</div>
-
+	
 
 			
 
@@ -212,9 +191,9 @@
  <tr role="row">
 	<th rowspan="1" colspan="1" >Sl No.</th>
 	<th rowspan="1" colspan="1" >Package Name</th>
-	<th rowspan="1" colspan="1" >Material</th>
+	<th rowspan="1" colspan="1" >Short Name</th>
 	<th rowspan="1" colspan="1" >Gross Weight</th>
-	<th rowspan="1" colspan="1" >Dimensions</th>
+
 
 
 	<th rowspan="1" colspan="1">Options</th>
@@ -246,12 +225,12 @@
 
 
 			echo "<td>".$row["packagename"]."\t</td>";
-			echo "<td>".$row["material"]."\t</td>";
+			echo "<td>".$row["shortname"]."\t</td>";
 
 			echo "<td>".$row["weight"]."</td>";
 			
 
-			echo "<td>Length: ".$row["length"]."cm<br>Breadth: ".$row["length"]."cm<br>Height: ".$row["length"]."cm</td>";
+			
 			
 			
 

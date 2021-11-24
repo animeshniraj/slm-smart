@@ -27,14 +27,15 @@
 
 	require_once('../process/helper.php');
     $PAGE = [
-        "Page Title" => "Edit Disptch Order | SLM SMART",
+        "Page Title" => "Edit Loading Advice | SLM SMART",
         "Home Link"  => "/user/",
-        "Menu"		 => "purchase-view",
+        "Menu"		 => "loadingadvice-view",
         "MainMenu"	 => "dispatch_menu",
 
     ];
 
-    if(!isset($_POST["orderid"]))
+
+    if(!isset($_POST["laid"]))
     {
     	$ERR_TITLE = "Error";
     	$ERR_MSG = "You are not authorized to view this page.";
@@ -43,25 +44,40 @@
 
     }
 
-   $orderid = $_POST["orderid"];
+   $laid = $_POST["laid"];
+
+
+
+   if(isset($_POST["updatebasic"]))
+   {
+
+   		$dumcompany = $_POST['company'];
+   		$dumtransport = $_POST['transport'];
+
+   		runQuery("UPDATE loading_advice SET company='$dumcompany', transport='$dumtransport' WHERE laid='$laid'");
+   }
 
 
   	if(isset($_POST["editid"]))
   	{
   		
-  		$newid = $_POST["orderidName"];
+  		$newid = $_POST["laidName"];
 
-  		$result = runQuery("SELECT * FROM purchase_order WHERE orderid='$newid'");
+  		$result = runQuery("SELECT * FROM loading_advice WHERE laid='$newid'");
     	if($result->num_rows==0)
     	{
-    		runQuery("INSERT INTO purchaseorder_notes (SELECT NULL,'$newid',sender,note,time FROM purchaseorder_notes WHERE orderid='$orderid' ORDER by time)");
-    		runQuery("INSERT INTO purchaseorder_params (SELECT NULL,'$newid',step,param,value,tag FROM purchaseorder_params WHERE orderid='$orderid')");
-    		runQuery("INSERT INTO purchase_order (SELECT '$newid',customer,entrydate,status FROM purchase_order WHERE orderid='$orderid')");
+    		runQuery("INSERT INTO loading_advice (SELECT '$newid',poid,customer,company,transport,entrydate,status FROM loading_advice WHERE laid='$laid')");
 
-    		runQuery("DELETE FROM purchaseorder_notes WHERE orderid='$orderid'");
-    		runQuery("DELETE FROM purchaseorder_params WHERE orderid='$orderid'");
-    		runQuery("DELETE FROM purchase_order WHERE orderid='$orderid'");
-    		$orderid = $newid;
+
+    		
+    		runQuery("INSERT INTO loadingadvice_notes (SELECT NULL,'$newid',sender,note,time FROM loadingadvice_notes WHERE laid='$laid' ORDER by time)");
+    		runQuery("INSERT INTO loadingadvice_params (SELECT NULL,'$newid',step,param,value,tag FROM loadingadvice_params WHERE laid='$laid')");
+    		
+
+    		runQuery("DELETE FROM loadingadvice_notes WHERE laid='$laid'");
+    		runQuery("DELETE FROM loadingadvice_params WHERE laid='$laid'");
+    		runQuery("DELETE FROM loading_advice WHERE laid='$laid'");
+    		$laid = $newid;
     	}
     	else
     	{
@@ -86,7 +102,7 @@
     {
     	if(!isset($_POST["order_batchid"]))
     	{
-    			runQuery("DELETE FROM purchaseorder_params WHERE orderid='$orderid' AND step='BATCH'");
+    			runQuery("DELETE FROM loadingadvice_params WHERE laid='$laid' AND step='BATCH'");
 
     	}
     	else
@@ -97,7 +113,7 @@
 
 	    	$qty = $_POST['order_batchqty'];
 
-	    	runQuery("DELETE FROM purchaseorder_params WHERE orderid='$orderid' AND step='BATCH'");
+	    	runQuery("DELETE FROM loadingadvice_params WHERE laid='$laid' AND step='BATCH'");
 
 
 	    	for($i=0;$i<count($batchids);$i++)
@@ -105,7 +121,7 @@
 	    		$cid =  $batchids[$i];
 	    		$cqty =  $qty[$i];
 
-	    		runQuery("INSERT INTO purchaseorder_params VALUES(NULL,'$orderid','BATCH','$cid','$cqty','batchid')");
+	    		runQuery("INSERT INTO loadingadvice_params VALUES(NULL,'$laid','BATCH','$cid','$cqty','batchid')");
 	    		
 	    	}
 
@@ -120,7 +136,7 @@
 
     	$note = $_POST["note"];
 
-    	runQuery("INSERT INTO purchaseorder_notes VALUES(NULL,'$orderid','$myuserid','$note',CURRENT_TIMESTAMP)");
+    	runQuery("INSERT INTO loadingadvice_notes VALUES(NULL,'$laid','$myuserid','$note',CURRENT_TIMESTAMP)");
 
     }
 
@@ -221,8 +237,8 @@ input[type=number] {
 
 			  		var i = document.createElement("input"); //input element, text
 						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"orderid");
-						i.setAttribute('value',"<?php echo $orderid ?>");
+						i.setAttribute('name',"laid");
+						i.setAttribute('value',"<?php echo $laid ?>");
 
 						form.appendChild(i);
 
@@ -253,7 +269,7 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h5>Edit Order (<?php echo $orderid; ?>)</h5>
+					<h5>Edit Order (<?php echo $laid; ?>)</h5>
 					<span>Edit premix parameters</span>
 				</div>
 			</div>
@@ -292,7 +308,7 @@ input[type=number] {
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#batches-tabdiv" role="tab"><i class="fa fa-shopping-bag"></i>Add Grades</a>
+<a class="nav-link" data-toggle="tab" href="#batches-tabdiv" role="tab"><i class="fa fa-shopping-bag"></i>Add Batches</a>
 <div class="slide"></div>
 </li>
 
@@ -327,14 +343,14 @@ input[type=number] {
 							<form method="POST">
 
 					<div class="form-group" style="display:flex; justify-content: center;">
-						<input type="hidden" name="orderid" value="<?php echo $orderid; ?>">
+						<input type="hidden" name="laid" value="<?php echo $laid; ?>">
 						<input type="hidden" name="currtab" value="creation-tabdiv">
 
 						<div class="col-sm-6">
 							<div class="input-group input-group-button">
 
 								
-								<input name="orderidName"  required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo $orderid; ?>"><div> </div>
+								<input name="laidName"  required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo $laid; ?>"><div> </div>
 								
 								
 							</div>
@@ -357,7 +373,7 @@ input[type=number] {
 
 <?php
 	
-	$result = runQuery("SELECT * FROM purchase_order WHERE orderid='$orderid'");
+	$result = runQuery("SELECT * FROM loading_advice WHERE laid='$laid'");
 
 	$result = $result->fetch_assoc();
 
@@ -366,10 +382,75 @@ input[type=number] {
 	$result2 = $result2->fetch_assoc(); 
 	$customerid = $dumC;
 
+	$tranport_type = $result['transport'];
+	$currCompany = $result['company'];
+
 ?>
 	
 	Customer Name: <?php echo $result2["value"] ?> <br>
 	Customer Id: <?php echo $dumC ?>
+
+	<br>
+	<br>
+
+	<hr>
+
+	<br>
+	<br>
+	<form method="POST">
+		
+		<div class="form-group row" >
+			<label class="col-md-3"> Company</label>
+			<select required class="form-control col-sm-3" name="company" id = "curr_company">
+				<option value="SLM Metal">SLM Metal</option>
+				<option value="SLM Technology">SLM Technology</option>
+
+
+			</select>
+		</div>
+
+		<div class="form-group row" >
+			<label for="transport" class="col-md-3"> Mode of Transport</label>
+			<select required class="form-control col-sm-3" name="transport" id ="curr_transport">
+				<option value="Truck">Truck</option>
+				<option value="Cargo">Cargo</option>
+				<option value="Courier">Courier</option>
+
+
+			</select>
+		</div>
+
+
+		<?php
+
+				if($editidPermission)
+						{
+
+							
+							?>
+
+							<input type="hidden" name="laid" value="<?php echo $laid; ?>">
+							<input type="hidden" name="currtab" value="creation-tabdiv">
+		<div class="form-group row">
+						
+						<div class="col-sm-12">
+						<button type="submit" class="btn btn-primary btn-block col-sm-2 pull-right" name="updatebasic"><i class="feather icon-edit"></i>Update Details</button>
+						</div>
+					</div>
+
+		<?php
+
+			}
+		?>
+
+	</form>
+
+	<script type="text/javascript">
+		
+		document.getElementById('curr_company').value = '<?php echo $currCompany; ?>';
+		document.getElementById('curr_transport').value = '<?php echo $tranport_type; ?>';
+
+	</script>
 
 
 </div>
@@ -382,245 +463,9 @@ input[type=number] {
 
 
 
-	<div class="form-group row">
 
 
-	
-			<div class="col-sm-3">
-				
-					<select class="form-control" id="select-batch">
-						<option disabled selected value=""> Choose a grade</option>
-						<optgroup label="Premix Grades">
-						<?php
 
-							$result = runQuery("SELECT * FROM premix_grades WHERE gradename in (SELECT value FROM external_param WHERE externalid='$customerid' AND param='Grades')");
-
-
-
-							while($row=$result->fetch_assoc())
-							{
-								?>
-
-
-								<option value="<?php echo $row["gradename"] ?>"><?php echo $row["gradename"] ?></option>
-
-								<?php
-							}
-
-						?>
-
-						<optgroup label="Final Blend Grades">
-
-						<?php
-
-							$result = runQuery("SELECT * FROM processgrades WHERE gradename in (SELECT value FROM external_param WHERE externalid='$customerid' AND param='Grades')");
-
-
-
-							while($row=$result->fetch_assoc())
-							{
-								?>
-
-
-								<option value="<?php echo $row["gradename"] ?>"><?php echo $row["gradename"] ?></option>
-
-								<?php
-							}
-
-						?>
-
-
-
-					</select>
-			</div>
-
-
-
-
-
-
-
-			<div class="col-sm-2">
-				
-					<input  type="number" min="0.01" step="0.01"  class="form-control" id="batch-qty" placeholder="Quantity(kg)">
-			</div>
-
-			<div class="col-sm-2">
-				<button type="button" class="btn btn-primary" onclick="addtolist()"><i class="fa fa-plus"></i>Add</button>
-					
-			</div>
-	</div>
-
-
-<script type="text/javascript">
-
-
-	function addtolist()
-	{
-		var batchSelect = document.getElementById('select-batch')
-		var batchid = batchSelect.value;
-		var batch_avail = parseFloat(batchSelect.options[batchSelect.selectedIndex].getAttribute('data-available'))
-		var used = parseFloat(document.getElementById('batch-qty').value)
-
-		
-		if(false)
-		{
-			console.log(11);
-			Swal.fire({
-									icon: "error",
-									title: "Error",
-									html: "Selected quantity is more than available" ,
-									showConfirmButton: true,
-								  	showCancelButton: false,
-								  	confirmButtonText: 'OK',
-								  	
-								})
-		}
-		else
-		{
-				var tr =  document.createElement('tr');
-				var count = parseInt(document.getElementById('products-tbody').children.length) +1;
-				tr.innerHTML = "<td>"+count+"</td><td><input type=\"hidden\" name=\"order_batchid[]\" value=\""+batchid+"\">"+batchid+"</td><td><input type=\"hidden\" name=\"order_batchqty[]\" value=\""+used+"\">"+used+"</td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button></td>"
-				document.getElementById('products-tbody').appendChild(tr);
-				batchSelect.options[batchSelect.selectedIndex].remove();
-		}
-
-	}
-	
-	function loadBatch(type)
-	{
-			  var postData = new FormData();
-       
-        postData.append("action","loadbatch");
-        postData.append("type",type);
-
-
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            
-           console.log(this.responseText)
-            var data = JSON.parse(this.responseText);
-
-            
-            if(data.response)
-            {
-                
-            	var batchSelect = document.getElementById('select-batch')
-            	batchSelect.innerHTML = "";
-            	
-
-            	var opt = document.createElement('option');
-					    opt.value = "";
-					    opt.innerHTML = "Choose a batch";
-					    opt.disabled = true;
-					    opt.selected = true;
-					    batchSelect.appendChild(opt);
-
-					   for(var i=0;i<data.data.length;i++)
-					   {
-					   		opt = document.createElement('option');
-						    opt.value = data.data[i][0];
-						    opt.innerHTML = data.data[i][0] + "(Available:"+data.data[i][1]+" kg)";
-						    opt.setAttribute("data-available", data.data[i][1]);
-		
-						    batchSelect.appendChild(opt);
-					   }
-
-            }
-            else
-            {
-               Swal.fire({
-									icon: "error",
-									title: "Error",
-									html: data.msg ,
-									showConfirmButton: true,
-								  	showCancelButton: false,
-								  	confirmButtonText: 'OK',
-								  	
-								})
-            }
-            
-
-        
-        
-          }
-        };
-        xmlhttp.open("POST", "/query/dispatch.php", true);
-        xmlhttp.send(postData);
-	}
-
-
-
-</script>
-
-
-<form method="POST">
-
-<input type="hidden" name="orderid" value="<?php echo $orderid ?>">
-<input type="hidden" name="currtab" value="batches-tabdiv">
-
-<table class="table table-striped table-bordered" id="process4table">
-		<thead>
-		<tr>
-			<th>Sl. No</th>
-			<th>Item</th>
-			<th>Quantity</th>
-			<th></th>
-		</tr>
-
-	</thead>
-
-	<tbody id="products-tbody">
-			
-
-		<?php
-
-			$result = runQuery("SELECT * FROM purchaseorder_params WHERE orderid='$orderid' AND step='BATCH'");
-			$k=1;
-			while($row=$result->fetch_assoc())
-			{
-				$package ="";
-				$currid = $row["param"];
-				
-
-			
-				?>
-
-				<tr>
-					<td><?php echo $k; ?></td>
-					<td><input type="hidden" name="order_batchid[]" value="<?php echo $row["param"]; ?>"><?php echo $row["param"]; ?></td>
-					<td><input type="hidden" name="order_batchqty[]" value="<?php echo $row["value"]; ?>"><?php echo $row["value"]; ?></td>
-					
-					<td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove();"><i class="fa fa-trash"></i>Remove</button></td>
-
-				</tr>
-
-
-				<?php
-
-				$k++;
-			}
-
-
-		?>
-
-	</tbody>
-
-</table>
-
-
-	<div class="form-group row">
-			
-			<div class="col-sm-12">
-			<button type="submit"  name="addorder" id="addorderbtn" class="btn btn-primary pull-right"><i class="fa fa-save"></i>Save Order</button>
-			<span class="messages"></span>
-			</div>
-			</div>
-
-
-
-</form>
 
 </div>
 
@@ -637,12 +482,12 @@ input[type=number] {
 <form method="POST">
 
 	 <div style="position: absolute; bottom: 0px; margin: 10px;">
-	 	<input type="hidden" name="orderid" value="<?php echo $orderid; ?>">
+	 	<input type="hidden" name="laid" value="<?php echo $laid; ?>">
 	 	<input type="hidden" name="currtab" value="notes-tabdiv">
             <div id="notesDiv">
                 <?php
 
-                		$result = runQuery("SELECT * FROM purchaseorder_notes WHERE orderid='$orderid' ORDER by time");
+                		$result = runQuery("SELECT * FROM loadingadvice_notes WHERE laid='$laid' ORDER by time");
 
                 		if($result->num_rows>0)
                 		{
@@ -721,8 +566,8 @@ function rejectTest(testid)
 
 			  		var i = document.createElement("input"); //input element, text
 						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"orderid");
-						i.setAttribute('value',"<?php echo $orderid ?>");
+						i.setAttribute('name',"laid");
+						i.setAttribute('value',"<?php echo $laid ?>");
 
 						form.appendChild(i);
 
@@ -778,8 +623,8 @@ function approve(approval)
 
 			  		var i = document.createElement("input"); //input element, text
 						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"orderid");
-						i.setAttribute('value',"<?php echo $orderid ?>");
+						i.setAttribute('name',"laid");
+						i.setAttribute('value',"<?php echo $laid ?>");
 
 						form.appendChild(i);
 

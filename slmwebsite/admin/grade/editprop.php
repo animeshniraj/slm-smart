@@ -89,7 +89,7 @@
 
 <div class="page-body">
 <div class="row">
-<div class="col-md-6">
+<div class="col-md-12">
 
 
 
@@ -120,7 +120,7 @@
 		?>
 		<div class="form-group row">
 			
-			<div class="col-md-4">
+			<div class="col-md-3">
 			<input required type="text" required class="form-control" name="grade-propname[]"  placeholder="Name" value="<?php echo $row["gradeparam"]; ?>">
 			<span class="messages"></span>
 			</div>
@@ -150,7 +150,7 @@
 				
 			</div>
 			<?php 
-				if($processname=='Finished')
+				if($processname=='Final Blend')
 				{
 
 			?>
@@ -173,16 +173,18 @@
 
 
 			?>
-			<div class="col-sm-2">
-				<button type="button" onclick="this.closest('.form-group').remove()" class="btn btn-danger m-b-0"><i class="fa fa-trash"></i>Remove</button>
-			</div>
+			
 			<div class="col-sm-2">
 				<input style="display:none"  type="text" class="form-control" name="grade-mpif[]" placeholder="MPIF" value="<?php echo $row["mpif"]; ?>">
 				<span class="messages"></span>
 			</div>
-			<div class="col-sm-2">
+			<div class="col-sm-3">
 				<input  style="display:none" type="text" class="form-control" name="grade-class[]" placeholder="Property Class" value="<?php echo $row["class"]; ?>">
 				<span class="messages"></span>
+			</div>
+
+			<div class="col-sm-2">
+				<button type="button" onclick="this.closest('.form-group').remove()" class="btn btn-danger m-b-0"><i class="fa fa-trash"></i>Remove</button>
 			</div>
 
 			<?php 
