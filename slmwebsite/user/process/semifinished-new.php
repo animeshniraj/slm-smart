@@ -77,7 +77,10 @@
     	$prefix = $dumpre.$year." ".$month."/";
     	$sqlprefix = $dumpre.$year." ".$month."/%";
 
-    
+    	
+    	$binno = $_POST["bin-number"];
+    	$cqty = $_POST["quantity"];
+
 
 
     	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(processid, '/', -1) AS SIGNED)) max_val FROM processentry WHERE processid LIKE '$sqlprefix'");
@@ -110,6 +113,11 @@
     		
 
     			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Pre-Processed','$pre')");
+
+
+    			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','GENERIC','$MASS_TITLE','$cqty')");
+
+    			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','GENERIC','Bin Number','$binno')");
 
     			
     			if($result)
@@ -335,7 +343,17 @@ p {
 
 					</script>
 
+					<div class="form-group" style="display:flex; justify-content: center;">
+						
+						<input type="text" required name="bin-number" id="bin-number" class="form-control col-sm-3" style="display: inline; text-align: center;" placeholder="Bin Number">
+						
+					</div>
 
+					<div class="form-group" style="display:flex; justify-content: center;">
+						
+						<input type="number" min="0" step="0.01" required name="quantity" id="quantity" class="form-control col-sm-3" style="display: inline; text-align: center;" placeholder="Quantity (Kg)">
+						
+					</div>
 
 
 	

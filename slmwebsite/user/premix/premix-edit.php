@@ -444,7 +444,7 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h5>Edit Premix (<?php echo $premixid; ?>)</h5>
+					<h3>Currently editing Premix: (<?php echo $premixid; ?>)</h3>
 					<span>Edit premix parameters</span>
 				</div>
 			</div>

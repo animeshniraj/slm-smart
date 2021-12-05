@@ -40,7 +40,7 @@
 	}
 
     $PAGE = [
-        "Page Title" => "SLM | Admin Dashboard",
+        "Page Title" => "SLM | Create User Profile",
         "Home Link"  => "/admin/",
         "Menu"		 => "user-createuser",
         "MainMenu"	 => "user_menu",	
@@ -68,10 +68,10 @@
 	<div class="row align-items-end">
 		<div class="col-lg-8">
 			<div class="page-header-title">
-				<i class="feather icon-user bg-c-blue"></i>
+			<i class="fa fa-user-plus bg-c-blue"></i>
 				<div class="d-inline">
-					<h2>Create New Users</h2>
-					<span>Create one user or upload file to create multiple.</span>
+					<h2>Create New User</h2>
+					<span>Create an user and assign role</span>
 				</div>
 			</div>
 		</div>
@@ -99,13 +99,14 @@
 	<form id="main" method="post">
 
 		<div class="form-group row">
-		<label class="col-md-4 col-form-label">User ID/Username</label>
+		<label class="col-md-4 col-form-label">User ID/Username <i class="fa fa-user-plus"></i></label>
+		
 		<div class="col-md-8">
 
 			<div class="input-group input-group-button">
-			<input type="text" name="userid" id="userid" required class="form-control" placeholder="">
+			<input type="text" name="userid" id="userid" required class="form-control" placeholder="Provide an unique username">
 			<div class="input-group-append">
-			<button class="btn btn-primary" onclick="checkUserid();" type="button"><i class="fa fa-refresh"></i>Validate</button>
+			<button class="btn btn-primary" onclick="checkUserid();" type="button"><i class="fa fa-check-square-o"></i> Validate</button>
 			
 			</div>
 
@@ -156,7 +157,7 @@
 		<div class="form-group row">
 		<label class="col-md-4"></label>
 		<div class="col-md-8">
-		<button disabled type="submit" name="createuser" id="submitBtn" class="btn btn-primary m-b-0"><i class="fa fa-plus"></i>Add User</button>
+		<button disabled type="submit" name="createuser" id="submitBtn" class="btn btn-primary m-b-0"><i class="fa fa-user-plus"></i> Add User</button>
 		</div>
 		</div>
 	</form>

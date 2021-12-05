@@ -19,7 +19,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "SLM | Create a new Melting ID",
         "Home Link"  => "/user/",
         "Menu"		 => "process-melting-new",
         "MainMenu"	 => "process_melting",
@@ -138,6 +138,19 @@
 </script>
 
 <style type="text/css">
+
+.icofont-i {
+    font-family: icofont!important;
+    speak: none;
+    font-style: normal;
+    font-weight: bold;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 22px;
+}
 	
 section {
   display: flex;
@@ -198,10 +211,10 @@ input[type=radio]:checked + label {
   box-shadow: 0px 0px 20px rgba(64, 153, 255, 0.75);
 }
 input[type=radio]:checked + label::after {
-  color: #3d3f43;
+  color: #990000;
   font-family: FontAwesome;
-  border: 2px solid #4099FF;
-  content: "";
+  border: 2px solid #990000;
+  content:"\f2c5";
   font-size: 24px;
   position: absolute;
   top: -25px;
@@ -240,8 +253,8 @@ p {
 			<div class="page-header-title">
 				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>Melting Process</h5>
-					<span>Edit Melting process parameters</span>
+					<h3>Melting Batch creation</h3>
+					<span>Enter the Melting details to create a new batch</span>
 				</div>
 			</div>
 		</div>
@@ -272,7 +285,7 @@ p {
 
 <ul class="nav nav-tabs md-tabs " role="tablist">
 <li class="nav-item">
-<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab" style="font-size:18px;"><i class="icofont-i icofont-fire-burn"></i> Create a new Melting batch</a>
 <div class="slide"></div>
 </li>
 
@@ -288,7 +301,8 @@ p {
 <div class="tab-pane active" id="creation-tabdiv" role="tabpanel">
 
 <form method="POST">
-					<p style="display:block;text-align:center;color:#212121;">Enter the Heat On Time</p>
+					<p style="display:block;text-align:center;color:#212121;" data-toggle="tooltip" data-placement="bottom" title="Choose the date and time">Enter the Heat On Time</p>
+					
 					<div class="form-group" style="display:flex; justify-content: center;">
 						
 						<input type="text" required name="creation-date" id="creation-date" class="form-control" style="display: inline; text-align: center;" placeholder="Date">
@@ -319,7 +333,8 @@ p {
 
 					</script>
 
-<p style="display:block;text-align:center;">Select the used furnace</p>
+<img src="/pages/png/furnace.png" class="furnace-img img-center">
+<p style="display:block;text-align:center;font-size:18px;cursor:auto;" data-toggle="tooltip" data-placement="bottom" title="Furnace based on quantity">Select the used furnace</p>
 
 <section>
 <br>

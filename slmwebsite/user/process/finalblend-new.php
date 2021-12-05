@@ -77,8 +77,8 @@
     	$prefix = $dumpre.$year." ".$month."/";
     	$sqlprefix = $dumpre.$year." ".$month."/%";
 
+    	$blendno = $_POST["blend-number"];
     	
-
     	
 
     	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(processid, '/', -1) AS SIGNED)) max_val FROM processentry WHERE processid LIKE '$sqlprefix'");
@@ -110,6 +110,8 @@
     		
 
     			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Pre-Processed','$pre')");
+
+    			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','GENERIC','Blend Number','$blendno')");
 
     			
     			if($result)
@@ -336,7 +338,11 @@ p {
 					</script>
 
 
-
+<div class="form-group" style="display:flex; justify-content: center;">
+						
+						<input type="text" required name="blend-number" id="bin-number" class="form-control col-sm-3" style="display: inline; text-align: center;" placeholder="Blend Number">
+						
+					</div>
 
 	
 <br><br>

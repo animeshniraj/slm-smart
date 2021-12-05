@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | Melting Process Dashboard",
+        "Page Title" => "SLM | Melting Process Management",
         "Home Link"  => "/admin/",
         "Menu"		 => "processmanager-melting",
         "MainMenu"	 => "processmanager_menu",
@@ -276,10 +276,10 @@
 	<div class="row align-items-end">
 		<div class="col-lg-8">
 			<div class="page-header-title">
-				<i class="feather icon-sidebar bg-c-blue"></i>
+				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
 					<h2>Melting Process Management</h2>
-					<span>Edit Melting process parameters</span>
+					<span>Edit Melting process parameters and permissions</span>
 				</div>
 			</div>
 		</div>
@@ -349,7 +349,7 @@
 <form method="POST">
 <input type="hidden" name="currtab" value="creation-tabdiv">
 	<div class="form-group row">
-			<label class="col-md-2 col-form-label">User Permissions</label>
+			<label class="col-md-3 col-form-label">User Permissions</label>
 			<div class="col-md-6">
 			<select required class="js-example-basic-multiple col-sm-10" multiple="multiple" id="creationpermission" name="creationpermission[]" >
 					<?php
@@ -370,7 +370,7 @@
 
 		</div>
 		<br><br>
-		<div class="sub-title"><h5>Furnaces</h5></div>
+		<div class="sub-title"><h5 style="float:left;display:inline;">Manage list of Furnaces</h5><i class="fa fa-free-code-camp" style="font-size:20px;padding-left:10px;color:#990000;"></i></div>
 
 			<div id = "furnace-propdiv">
 
@@ -389,18 +389,18 @@
 		?>
 		<div class="form-group row">
 			
-			<div class="col-md-2">
+			<div class="col-md-3">
 			<input required type="text" required class="form-control" name="furnace-name[]"  placeholder="Furnace Name" value="<?php echo $row["furnacename"]; ?>">
 			<span class="messages"></span>
 			</div>
 
-			<div class="col-md-1">
+			<div class="col-md-2">
 			<input required type="text" class="form-control" name="furnace-prefix[]" placeholder="Prefix" value="<?php echo $row["prefix"]; ?>">
 			<span class="messages"></span>
 			</div>
 			
 
-			<div class="col-md-1">
+			<div class="col-md-3">
 				<input type="text" class="form-control" name="furnace-specification[]" placeholder="Specification" value="<?php echo $row["specification"]; ?>">
 				<span class="messages"></span>
 			</div>

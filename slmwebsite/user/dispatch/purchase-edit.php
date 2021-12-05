@@ -46,6 +46,39 @@
    $orderid = $_POST["orderid"];
 
 
+
+   if(isset($_POST["addTentative"]))
+  	{
+
+
+
+
+
+  		$tAllgrades = $_POST['tentative-grade'];
+  		$tDates = $_POST['tentative-date'];
+  		$tQty = $_POST['tentative-qty'];
+  		$tpkg = $_POST['tentative-pkg'];
+
+
+
+
+  		runQuery("DELETE FROM purchaseorder_tentative WHERE orderid='$orderid'");
+  		foreach ($tAllgrades as $currid => $currGrade) {
+  				
+  				for($i=0;$i<count($tDates[$currid]);$i++)
+  				{
+  					$cDate = $tDates[$currid][$i];
+  					$cQty  = $tQty[$currid][$i];
+  					$cpkg = $tpkg[$currid][$i];
+
+  					runQuery("INSERT INTO purchaseorder_tentative VALUES(NULL,'$orderid','$currGrade','$cDate','$cQty','$cpkg','UNFULFILLED')");
+
+  				}
+  		}
+
+
+  	}
+
   	if(isset($_POST["editid"]))
   	{
   		
@@ -56,6 +89,8 @@
     	{
     		runQuery("INSERT INTO purchaseorder_notes (SELECT NULL,'$newid',sender,note,time FROM purchaseorder_notes WHERE orderid='$orderid' ORDER by time)");
     		runQuery("INSERT INTO purchaseorder_params (SELECT NULL,'$newid',step,param,value,tag FROM purchaseorder_params WHERE orderid='$orderid')");
+
+    		runQuery("INSERT INTO purchaseorder_tentative (SELECT NULL,'$newid',grade,date,quantity,status FROM purchaseorder_params WHERE orderid='$orderid')");
     		runQuery("INSERT INTO purchase_order (SELECT '$newid',customer,entrydate,status FROM purchase_order WHERE orderid='$orderid')");
 
     		runQuery("DELETE FROM purchaseorder_notes WHERE orderid='$orderid'");
@@ -87,6 +122,7 @@
     	if(!isset($_POST["order_batchid"]))
     	{
     			runQuery("DELETE FROM purchaseorder_params WHERE orderid='$orderid' AND step='BATCH'");
+    			runQuery("DELETE FROM purchaseorder_params WHERE orderid='$orderid' AND step='DATA'");
 
     	}
     	else
@@ -94,24 +130,25 @@
 
 
     		$batchids= $_POST["order_batchid"];
-
+    		$package = $_POST['order_batchpkg'];
 	    	$qty = $_POST['order_batchqty'];
 
 	    	runQuery("DELETE FROM purchaseorder_params WHERE orderid='$orderid' AND step='BATCH'");
-
+	    	runQuery("DELETE FROM purchaseorder_params WHERE orderid='$orderid' AND step='DATA'");
 
 	    	for($i=0;$i<count($batchids);$i++)
 	    	{
 	    		$cid =  $batchids[$i];
+	    		$cpkg =  $package[$i];
 	    		$cqty =  $qty[$i];
 
 	    		runQuery("INSERT INTO purchaseorder_params VALUES(NULL,'$orderid','BATCH','$cid','$cqty','batchid')");
+	    		runQuery("INSERT INTO purchaseorder_params VALUES(NULL,'$orderid','DATA','$cid','$cpkg','package')");
 	    		
 	    	}
 
     	}
-    	
-    	
+
     }
     
 
@@ -297,7 +334,10 @@ input[type=number] {
 </li>
 
 
-
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#tentative-tabdiv" role="tab"><i class="fa fa-clock-o"></i>Tentative Dispatch</a>
+<div class="slide"></div>
+</li>
 
 
 
@@ -365,6 +405,8 @@ input[type=number] {
 	$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='Name'");
 	$result2 = $result2->fetch_assoc(); 
 	$customerid = $dumC;
+
+	$currStatus =  $result["status"]
 
 ?>
 	
@@ -435,7 +477,31 @@ input[type=number] {
 			</div>
 
 
+			<div class="col-sm-3">
+				
+					<select class="form-control" id="select-package">
+						<option disabled selected=""> Choose a package</option>
 
+
+						<?php
+
+							$result = runQuery("SELECT * FROM dispatch_package");
+
+							while($row=$result->fetch_assoc())
+							{
+								?>
+
+
+								<option value="<?php echo $row["packagename"] ?>"><?php echo $row["packagename"] ?></option>
+
+								<?php
+							}
+
+						?>
+
+
+					</select>
+			</div>
 
 
 
@@ -461,7 +527,7 @@ input[type=number] {
 		var batchid = batchSelect.value;
 		var batch_avail = parseFloat(batchSelect.options[batchSelect.selectedIndex].getAttribute('data-available'))
 		var used = parseFloat(document.getElementById('batch-qty').value)
-
+		var package = document.getElementById('select-package').value;
 		
 		if(false)
 		{
@@ -480,7 +546,7 @@ input[type=number] {
 		{
 				var tr =  document.createElement('tr');
 				var count = parseInt(document.getElementById('products-tbody').children.length) +1;
-				tr.innerHTML = "<td>"+count+"</td><td><input type=\"hidden\" name=\"order_batchid[]\" value=\""+batchid+"\">"+batchid+"</td><td><input type=\"hidden\" name=\"order_batchqty[]\" value=\""+used+"\">"+used+"</td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button></td>"
+				tr.innerHTML = "<td>"+count+"</td><td><input type=\"hidden\" name=\"order_batchid[]\" value=\""+batchid+"\">"+batchid+"</td><td><input type=\"hidden\" name=\"order_batchqty[]\" value=\""+used+"\">"+used+"</td><td><input type=\"hidden\" name=\"order_batchpkg[]\" value=\""+package+"\">"+package+"</td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button></td>"
 				document.getElementById('products-tbody').appendChild(tr);
 				batchSelect.options[batchSelect.selectedIndex].remove();
 		}
@@ -566,6 +632,7 @@ input[type=number] {
 			<th>Sl. No</th>
 			<th>Item</th>
 			<th>Quantity</th>
+			<th>Package</th>
 			<th></th>
 		</tr>
 
@@ -578,12 +645,18 @@ input[type=number] {
 
 			$result = runQuery("SELECT * FROM purchaseorder_params WHERE orderid='$orderid' AND step='BATCH'");
 			$k=1;
+			$allgrades = [];
 			while($row=$result->fetch_assoc())
 			{
 				$package ="";
 				$currid = $row["param"];
 				
+				$result2 = runQuery("SELECT * FROM purchaseorder_params WHERE orderid='$orderid' AND param='$currid' AND step='DATA' AND tag='package'");
+				$result2 = $result2->fetch_assoc();
+				$package = $result2["value"];
 
+
+				array_push($allgrades,[$row["param"],$row["value"],$package])
 			
 				?>
 
@@ -591,7 +664,7 @@ input[type=number] {
 					<td><?php echo $k; ?></td>
 					<td><input type="hidden" name="order_batchid[]" value="<?php echo $row["param"]; ?>"><?php echo $row["param"]; ?></td>
 					<td><input type="hidden" name="order_batchqty[]" value="<?php echo $row["value"]; ?>"><?php echo $row["value"]; ?></td>
-					
+					<td><input type="hidden" name="order_batchpkg[]" value="<?php echo $package; ?>"><?php echo $package; ?></td>
 					<td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove();"><i class="fa fa-trash"></i>Remove</button></td>
 
 				</tr>
@@ -609,6 +682,10 @@ input[type=number] {
 
 </table>
 
+<?php
+	
+	if($currStatus=="UNFULFILLED") {
+?>
 
 	<div class="form-group row">
 			
@@ -616,8 +693,11 @@ input[type=number] {
 			<button type="submit"  name="addorder" id="addorderbtn" class="btn btn-primary pull-right"><i class="fa fa-save"></i>Save Order</button>
 			<span class="messages"></span>
 			</div>
-			</div>
-
+	</div>
+<?php
+	
+	}
+?>
 
 
 </form>
@@ -626,10 +706,280 @@ input[type=number] {
 
 
 
+<div class="tab-pane" id="tentative-tabdiv" role="tabpanel" style="position: relative; min-height: 600px;">
+
+<form method="POST" id="tentative-form">
+
+<input type="hidden" name="orderid" value="<?php echo $orderid ?>">
+<input type="hidden" name="currtab" value="tentative-tabdiv">
+
+
+<?php
+
+$result  = runQuery("SELECT * FROM purchaseorder_params WHERE orderid='$orderid' AND step='DATA' AND tag='package'");
+
+if($result->num_rows>0)
+{
+	$k=0;
+	foreach ($allgrades as $currgrade) {
+		
+
+	?>
+
+	<big>For <?php echo $currgrade[0]?></big>
+
+	<div class="form-group row">
+
+
+	
+			<div class="col-sm-3">
+
+					<div class="form-group" style="display:flex; justify-content: center;">
+						
+						<input type="text" required name="curr-date" id="tentative-date-<?php echo $k; ?>" class="form-control" style="display: inline; text-align: center;" placeholder="Date">
+						
+					</div>
+				
+
+			</div>
+
+
+			<div class="col-sm-3">
+				
+					<select class="form-control" id="tentative-pkg-<?php echo $k; ?>">
+						<option disabled selected=""> Choose a package</option>
+
+
+						<?php
+
+							$result = runQuery("SELECT * FROM dispatch_package");
+
+							while($row=$result->fetch_assoc())
+							{
+								?>
+
+
+								<option value="<?php echo $row["packagename"] ?>"><?php echo $row["packagename"] ?></option>
+
+								<?php
+							}
+
+						?>
+
+
+					</select>
+			</div>
 
 
 
 
+
+			<div class="col-sm-2">
+				
+					<input  type="number" min="0.01" step="0.01"  class="form-control" id="tentative-qty-<?php echo $k; ?>" placeholder="Quantity(kg)">
+			</div>
+
+			<div class="col-sm-2">
+				<button type="button" class="btn btn-primary" onclick="addtotentative(document.getElementById('tentative-tbody-<?php echo $k; ?>'),document.getElementById('tentative-date-<?php echo $k; ?>').value,document.getElementById('tentative-qty-<?php echo $k; ?>').value,document.getElementById('tentative-pkg-<?php echo $k; ?>').value,'<?php echo $currgrade[0] ?>')"><i class="fa fa-plus"></i>Add</button>
+					
+			</div>
+	</div>
+
+	<table class="table table-striped table-bordered" id="tentative-grade-<?php echo $k; ?>">
+
+		<tr>
+			<th>Tentative Date</th>
+			<th>Quantity (in Kg)</th>
+			<th></th>
+		</tr>
+
+
+		<tbody id="tentative-tbody-<?php echo $k; ?>">
+			
+
+			<tr id="tentative-total-<?php echo $k; ?>">
+				<td>Total Quantity</td>
+				<td>0 kg</td>
+				<td></td>
+			</tr>
+		</tbody>
+
+
+
+
+	</table>
+	<?php 
+
+			$dumgrade = $currgrade[0];
+			$result2 = runQuery("SELECT * FROM purchaseorder_tentative WHERE orderid='$orderid' AND grade='$dumgrade'") ;
+			echo "<script>";
+
+			echo "\$( document ).ready(function() {";
+			while($row2 = $result2->fetch_assoc())
+			{
+				//echo "s";
+				echo "addtotentative(document.getElementById('tentative-tbody-".$k."'),'".$row2['date']."',".$row2['quantity'].",'".$row2['package']."','".$currgrade[0]."');\n";
+			}
+			echo "}); \n</script>";
+		?>
+	<br><br>
+	<hr>
+	<br><br>
+
+	<?php
+
+	$k++;
+
+	}
+	?>
+
+
+
+	<?php
+}
+else
+{
+	echo "Nothing to show.";
+}
+
+
+
+?>
+<?php
+	
+	if($currStatus=="UNFULFILLED") {
+?>
+	<div class="form-group row">
+			<input type="hidden" name="addTentative" value="">
+			<div class="col-sm-12">
+			<button  type="button" name="addTentative" id="addTentative" class="btn btn-primary pull-right"><i class="fa fa-save"></i>Save Order</button>
+			<span class="messages"></span>
+			</div>
+	</div>
+<?php
+	
+	}
+?>
+</form>
+
+
+<script type="text/javascript">
+	
+	function addtotentative(tbody,tdate,tqty,tpkg,cgrade)
+	{
+		currTotalTD = tbody.children[tbody.children.length-1].innerHTML;
+		currTotalId = tbody.children[tbody.children.length-1].id
+
+		
+		tbody.children[tbody.children.length-1].remove();
+		var tr =  document.createElement('tr');
+		
+
+		tr.innerHTML = "<td>"+tdate+"(Package: "+tpkg+")</td><td>"+tqty+"</td><td><button class='btn btn-danger' type='button' onclick=\"this.closest('tr').remove();check_all_tentative();\"><i class=\"fa fa-trash\"></i>Remove</button><input type='hidden' name=\"tentative-date['"+currTotalId+"'][]\" value='"+tdate+"'><input type='hidden' name=\"tentative-qty['"+currTotalId+"'][]\" value='"+tqty+"'><input type='hidden' name=\"tentative-pkg['"+currTotalId+"'][]\" value='"+tpkg+"'><input type='hidden' name=\"tentative-grade['"+currTotalId+"']\" value='"+cgrade+"'></td>"
+		tbody.appendChild(tr);
+
+
+
+		var tr =  document.createElement('tr');
+		tr.id = currTotalId
+		tr.innerHTML = currTotalTD;
+		tbody.appendChild(tr);
+		check_all_tentative()
+	}
+
+
+
+	function check_all_tentative()
+	{
+		total_grades = <?php echo count($allgrades);?>
+		
+
+		allGradesQty = [<?php foreach ($allgrades as $currgrade) {
+			echo $currgrade[1].",";
+		} ?>]
+
+		flag = true;
+
+		k = 0;
+
+		for (k=0;k<total_grades;k++)
+		{
+			currTbody = document.getElementById('tentative-tbody-'+String(k))
+			currQty = allGradesQty[k];
+			
+
+			total = 0;
+			for(var j=0;j<currTbody.children.length-1;j++)
+			{
+				
+				total += parseFloat(currTbody.children[j].children[1].innerHTML)
+			}
+
+			
+			cflag = (total==currQty);
+			flag = cflag && flag
+			document.getElementById('tentative-total-'+String(k)).children[1].innerHTML = total + " kg";
+
+			if(cflag)
+			{	
+				document.getElementById('tentative-total-'+String(k)).classList.remove('bg-danger')
+				document.getElementById('tentative-total-'+String(k)).classList.add('bg-success')
+			}
+			else{
+				document.getElementById('tentative-total-'+String(k)).classList.remove('bg-success')
+				document.getElementById('tentative-total-'+String(k)).classList.add('bg-danger')
+			}
+		}
+
+		if(flag)
+		{
+			document.getElementById('addTentative').onclick = function (){
+				document.getElementById('tentative-form').submit();
+			};
+			
+		}
+		else
+		{
+			document.getElementById('addTentative').onclick = function (){
+				
+				Swal.fire({
+				  icon: 'error',
+				  title: 'Error',
+				  text: 'The tentative quantities does not add up to total.',
+				  
+				})
+			};
+		}
+	}
+
+
+</script>
+
+
+					<script>
+					$(function() {
+					  $('input[name="curr-date"]').daterangepicker({
+					    singleDatePicker: true,
+					    timePicker: false,
+					    timePicker24Hour: false,
+					    showDropdowns: true,
+					    locale: 
+					    {    
+					    	format: 'YYYY-MM-DD',
+					    },
+					  	
+					    minYear: 1901,
+					    maxYear: parseInt(moment().format('YYYY'),10)
+					  }, function(start, end, label) {
+					    
+					  });
+
+
+					});
+					$('#creation-date').val('<?php echo DATE('Y-m-d H:i',strtotime("now")) ?>');
+
+					</script>
+</div>
 
 
 <div class="tab-pane" id="notes-tabdiv" role="tabpanel" style="position: relative; min-height: 600px;">

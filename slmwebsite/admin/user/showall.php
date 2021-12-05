@@ -37,7 +37,7 @@
 	}
 
     $PAGE = [
-        "Page Title" => "SLM | Admin Dashboard",
+        "Page Title" => "SLM | All SMART users",
         "Home Link"  => "/admin/",
         "Menu"		 => "user-showall",
         "MainMenu"	 => "user_menu",	
@@ -66,10 +66,10 @@
 	<div class="row align-items-end">
 		<div class="col-lg-8">
 			<div class="page-header-title">
-				<i class="feather icon-user bg-c-blue"></i>
+				<i class="fa fa-users bg-c-blue"></i>
 				<div class="d-inline">
 					<h2>All Users</h2>
-					<span>View All Users</span>
+					<span>Here is the list of all SLM SMART users</span>
 				</div>
 			</div>
 		</div>
@@ -87,7 +87,7 @@
 
 <div class="card">
 <div class="card-header">
-<h5 class="slm-color">All Users</h5>
+<h5 class="slm-color">User Management</h5>
 <div class="card-header-right">
 
 </div>
@@ -103,12 +103,12 @@
 <table id="user-table" class="table table-striped table-bordered nowrap dataTable" role="grid" aria-describedby="user-table_info">
 <thead>
  <tr role="row">
-	<th rowspan="1" colspan="1" >Sl No.</th>
-	<th rowspan="1" colspan="1" >User Id</th>
-	<th rowspan="1" colspan="1" >First Name</th>
+	<th rowspan="1" colspan="1">Sl No.</th>
+	<th rowspan="1" colspan="1">User Id</th>
+	<th rowspan="1" colspan="1">First Name</th>
 	
-	<th rowspan="1" colspan="1" >Last Name</th>
-	<th rowspan="1" colspan="1">Role</th>
+	<th rowspan="1" colspan="1">Last Name</th>
+	<th rowspan="1" colspan="1">Assigned Role</th>
 
 	<th rowspan="1" colspan="1">Options</th>
 </tr>
@@ -140,7 +140,7 @@
 			echo "<td>".$row["fname"]."</td>";
 			echo "<td>".$row["lname"]."</td>";
 			echo "<td>".$row["rolename"]."</td>";
-			echo "<td><form action=\"edituser.php\" method=\"POST\" style=\"display:inline-block\"><input type=\"hidden\" name=\"userid\" value=\"".$row["userid"]."\"><input type=\"hidden\" name=\"edituser\" value=\"\"><a href=\"#\" onclick=\"this.parentNode.submit();\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit User\"><i class=\"fa fa-edit\" style=\"display:inline-block\"></i></a></form><form  method=\"POST\"><input type=\"hidden\" name=\"userid\" value=\"".$row["userid"]."\"><input type=\"hidden\" name=\"deleteuser\" value=\"\"><a href=\"#\" onclick=\"delete_user(this.parentNode);\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete User\"><i class=\"fa fa-trash\" style=\"display:inline-block\"></i></a></form></td>";
+			echo "<td><form action=\"edituser.php\" method=\"POST\" style=\"display:inline;float:left;\"><input type=\"hidden\" name=\"userid\" value=\"".$row["userid"]."\"><input type=\"hidden\" name=\"edituser\" value=\"\"><a href=\"#\" onclick=\"this.parentNode.submit();\"><i class=\"fa fa-edit\" style=\"display:inline;float:left;margin-top:1px;\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit User\"></i></a></form><form  method=\"POST\"><input type=\"hidden\" name=\"userid\" value=\"".$row["userid"]."\"><input type=\"hidden\" name=\"deleteuser\" value=\"\"><a href=\"#\" onclick=\"delete_user(this.parentNode);\" ><i class=\"fa fa-trash\" style=\"display:inline;float:left;margin-left:10px;\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete User\"></i></a></form></td>";
 			echo "</tr>";
 
 

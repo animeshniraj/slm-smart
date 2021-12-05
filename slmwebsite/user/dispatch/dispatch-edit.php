@@ -27,14 +27,15 @@
 
 	require_once('../process/helper.php');
     $PAGE = [
-        "Page Title" => "Edit Disptch Order | SLM SMART",
+        "Page Title" => "Edit Dispatch Order | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "dispatch-view",
         "MainMenu"	 => "dispatch_menu",
 
     ];
 
-    if(!isset($_POST["invoiceid"]))
+
+    if(!isset($_POST["cid"]))
     {
     	$ERR_TITLE = "Error";
     	$ERR_MSG = "You are not authorized to view this page.";
@@ -43,34 +44,36 @@
 
     }
 
-   $invoiceid = $_POST["invoiceid"];
+   $cid = $_POST["cid"];
+
+   
 
 
-  	if(isset($_POST["editid"]))
-  	{
-  		
-  		$newid = $_POST["invoiceidName"][0]."/". $_POST["invoiceidName"][1];
 
-  		$result = runQuery("SELECT * FROM dispatch_order WHERE invoiceid='$newid'");
-    	if($result->num_rows==0)
-    	{
-    		runQuery("INSERT INTO dispatch_notes (SELECT NULL,'$newid',sender,note,time FROM dispatch_notes WHERE invoiceid='$invoiceid' ORDER by time)");
-    		runQuery("INSERT INTO dispatch_params (SELECT NULL,'$newid',step,param,value,tag FROM dispatch_params WHERE invoiceid='$invoiceid')");
-    		runQuery("INSERT INTO dispatch_order (SELECT '$newid',customer,entrydate,status FROM dispatch_order WHERE invoiceid='$invoiceid')");
+   if(isset($_POST['confirminvoice']))
+   {
 
-    		runQuery("DELETE FROM dispatch_notes WHERE invoiceid='$invoiceid'");
-    		runQuery("DELETE FROM dispatch_params WHERE invoiceid='$invoiceid'");
-    		runQuery("DELETE FROM dispatch_order WHERE invoiceid='$invoiceid'");
-    		$invoiceid = $newid;
-    	}
-    	else
-    	{
-    		$show_alert = true;
-			$alert = showAlert("error","ID already exists","");
-    	}
-  		
-  		
-  	}
+ 
+   		$qtys = $_POST['invoice-qty'];
+   		$invoices = $_POST['invoice'];
+
+   		runQuery("DELETE  FROM dispatch_invoices WHERE cid='$cid'");
+   		foreach ($invoices as $batchname => $invoice) {
+   			
+   			for($i=0;$i<count($invoice);$i++)
+   			{
+   				$cinv = $invoice[$i];
+   				$cqty = $qtys[$batchname][$i];
+   				
+   				runQuery("INSERT INTO dispatch_invoices VALUES(NULL,'$cid','$batchname','$cinv','$cqty')");
+
+   			}
+   		}
+
+
+   }
+
+   
 
 
    $currTab = "creation-tabdiv";
@@ -82,34 +85,14 @@
 
 
 
-    if(isset($_POST["addorder"]))
-    {
-    	$batchids= $_POST["order_batchid"];
-    	$package = $_POST['order_batchpkg'];
-    	$qty = $_POST['order_batchqty'];
-
-    	runQuery("DELETE FROM dispatch_params WHERE invoiceid='$invoiceid' AND step='BATCH'");
-    	runQuery("DELETE FROM dispatch_params WHERE invoiceid='$invoiceid' AND step='DATA'");
-
-    	for($i=0;$i<count($batchids);$i++)
-    	{
-    		$cid =  $batchids[$i];
-    		$cpkg =  $package[$i];
-    		$cqty =  $qty[$i];
-
-    		runQuery("INSERT INTO dispatch_params VALUES(NULL,'$invoiceid','BATCH','$cid','$cqty','batchid')");
-    		runQuery("INSERT INTO dispatch_params VALUES(NULL,'$invoiceid','DATA','$cid','$cpkg','package')");
-    	}
-    	
-    }
-    
+   
 
    if(isset($_POST["addNotes"]))
     {
 
     	$note = $_POST["note"];
 
-    	runQuery("INSERT INTO dispatch_notes VALUES(NULL,'$invoiceid','$myuserid','$note',CURRENT_TIMESTAMP)");
+    	runQuery("INSERT INTO dispatch_notes VALUES(NULL,'$cid','$myuserid','$note',CURRENT_TIMESTAMP)");
 
     }
 
@@ -210,8 +193,8 @@ input[type=number] {
 
 			  		var i = document.createElement("input"); //input element, text
 						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"invoiceid");
-						i.setAttribute('value',"<?php echo $invoiceid ?>");
+						i.setAttribute('name',"cid");
+						i.setAttribute('value',"<?php echo $cid ?>");
 
 						form.appendChild(i);
 
@@ -242,8 +225,8 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h5>Edit Order (<?php echo $invoiceid; ?>)</h5>
-					<span>Edit premix parameters</span>
+					<h5>Edit Order (<?php echo $cid; ?>)</h5>
+					<span>Edit dispatch parameters</span>
 				</div>
 			</div>
 		</div>
@@ -281,7 +264,7 @@ input[type=number] {
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#batches-tabdiv" role="tab"><i class="fa fa-shopping-bag"></i>Add Batches</a>
+<a class="nav-link" data-toggle="tab" href="#invoices-tabdiv" role="tab"><i class="fa fa-shopping-bag"></i>Add Invoices</a>
 <div class="slide"></div>
 </li>
 
@@ -305,60 +288,38 @@ input[type=number] {
 <div class="tab-pane" id="creation-tabdiv" role="tabpanel">
 
 
-	<?php
 
-				if($editidPermission)
-						{
-
-							$part1 = substr("$invoiceid",0, strrpos($invoiceid,'/'));
-							$part2 = substr("$invoiceid",(strrpos($invoiceid,'/')+1));
-							?>
-
-							<form method="POST">
-
-					<div class="form-group" style="display:flex; justify-content: center;">
-						<input type="hidden" name="invoiceid" value="<?php echo $invoiceid; ?>">
-						<input type="hidden" name="currtab" value="creation-tabdiv">
-
-						<div class="col-sm-6">
-							<div class="input-group input-group-button">
-
-								
-								<input name="invoiceidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo $part1; ?>"><div> </div>
-								<input name="invoiceidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;"value="<?php echo $part2; ?>"><div> </div>
-								
-							</div>
-						</div>
-					</div>
-
-
-					<div class="form-group row">
-		
-						<div class="col-sm-12">
-						<button type="submit" class="btn btn-primary btn-block col-sm-2 pull-right" name="editid"><i class="feather icon-edit"></i>Edit</button>
-						</div>
-					</div>
-
-
-				</form>
-					<?php 
-						}
-					?>
 
 <?php
-
-	$result = runQuery("SELECT * FROM dispatch_order WHERE invoiceid='$invoiceid'");
+	
+	$result = runQuery("SELECT * FROM dispatch WHERE cid='$cid'");
 
 	$result = $result->fetch_assoc();
 
 	$dumC = $result["customer"];
 	$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='Name'");
 	$result2 = $result2->fetch_assoc(); 
+	$customerid = $dumC;
+
+
+	
 
 ?>
 	
 	Customer Name: <?php echo $result2["value"] ?> <br>
-	Customer Id: <?php echo $dumC ?>
+	Customer Id: <?php echo $dumC ?> 		<br>
+
+
+	<br>
+	<br>
+
+	<hr>
+
+	<br>
+	<br>
+	
+
+
 
 
 </div>
@@ -367,243 +328,249 @@ input[type=number] {
 
 
 
-<div class="tab-pane" id="batches-tabdiv" role="tabpanel" >
+<div class="tab-pane" id="invoices-tabdiv" role="tabpanel" >
 
 
+<form method="POST" id="invoice-form">
+<input type="hidden" name="cid" value="<?php echo $cid; ?>">
+	<input type="hidden" name="currtab" value="invoices-tabdiv">
+
+	<?php
+
+		$result = runQuery("SELECT * FROM loadingadvice_batches WHERE laid in (SELECT laid from dispatch WHERE cid='$cid')");
+
+		$k=1;
+
+		while($row=$result->fetch_assoc())
+		{
+
+			$coaflag = false;
+
+	?>
+
+
+
+	
+
+	<big><?php echo $row["batch"] . " ( ".$row['quantity']." kg ) " ?></big>
+	<br>
+	<br>
+
+	<input type="hidden" id="invoice-tqty-<?php echo $k;?>" value="<?php echo $row['quantity']; ?>">
 
 	<div class="form-group row">
-			<div class="col-sm-2">
-				
-					<select class="form-control" id="select-type" onchange="loadBatch(this.value)">
-						<option disabled selected=""> Choose a type</option>
-						<option value="premix">Premix</option>
-						<option value="final">Final Blend</option>
-					</select>
-					
-			</div>
+
 
 	
 			<div class="col-sm-3">
-				
-					<select class="form-control" id="select-batch">
-						<option disabled selected=""> Choose a batch</option>
-					</select>
+				<input  type="text"   class="form-control" id="invoice-id-<?php echo $k;?>" placeholder="Invoice Id">
+					
 			</div>
-
-
-
-			<div class="col-sm-3">
-				
-					<select class="form-control" id="select-package">
-						<option disabled selected=""> Choose a package</option>
-
-
-						<?php
-
-							$result = runQuery("SELECT * FROM dispatch_package");
-
-							while($row=$result->fetch_assoc())
-							{
-								?>
-
-
-								<option value="<?php echo $row["packagename"] ?>"><?php echo $row["packagename"] ?></option>
-
-								<?php
-							}
-
-						?>
-
-
-					</select>
-			</div>
-
 
 
 			<div class="col-sm-2">
 				
-					<input  type="number" step="0.01"  class="form-control" id="batch-qty" placeholder="Quantity(kg)">
+					<input  type="number" min="0.01" step="0.01"  class="form-control" id="invoice-qty-<?php echo $k;?>" placeholder="Quantity(kg)">
 			</div>
 
 			<div class="col-sm-2">
-				<button type="button" class="btn btn-primary" onclick="addtolist()"><i class="fa fa-plus"></i>Add</button>
+				<button type="button" class="btn btn-primary" onclick="addtolist(document.getElementById('invoice-id-<?php echo $k;?>').value,document.getElementById('invoice-qty-<?php echo $k;?>').value,document.getElementById('invoice-total-<?php echo $k;?>'),<?php echo $k; ?>,'<?php echo $row['batch']; ?>')"><i class="fa fa-plus"></i>Add</button>
 					
 			</div>
 	</div>
 
 
-<script type="text/javascript">
+
+	
+	<div class="form-group" style="display:flex; justify-content: center;">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Invoice</th>
+				<th>Quantity</th>
+				<th></th>
+			</tr>
+		</thead>
+
+		<tbody id="invoice-tbody-<?php echo $k;?>">
+
+			<tr id="invoice-total-<?php echo $k;?>">
+				<td>Total Quantity</td>
+				<td>0 Kg</td>
+				<td></td>
+
+			</tr>
+		</tbody>
+			
+			
+	</table>
+
+	
+
+</div>
+<br>
+	<br>
+	
+	
 
 
-	function addtolist()
-	{
-		var batchSelect = document.getElementById('select-batch')
-		var batchid = batchSelect.value;
-		var batch_avail = parseFloat(batchSelect.options[batchSelect.selectedIndex].getAttribute('data-available'))
-		var used = parseFloat(document.getElementById('batch-qty').value)
-		var package = document.getElementById('select-package').value;
-		
-		if(used>batch_avail)
+
+
+	<?php 
+	$dbatch = $row['batch'];
+		$result3 = runQuery("SELECT * FROM dispatch_invoices WHERE cid='$cid' AND batch='$dbatch'");
+		while($row3=$result3->fetch_assoc())
 		{
-			console.log(11);
-			Swal.fire({
-									icon: "error",
-									title: "Error",
-									html: "Selected quantity is more than available" ,
-									showConfirmButton: true,
-								  	showCancelButton: false,
-								  	confirmButtonText: 'OK',
-								  	
-								})
+
+			$coaflag = true;
+	?>
+
+	<script type="text/javascript">
+
+		$( document ).ready(function() {
+		    addtolist('<?php echo $row3['invoice'];?>','<?php echo $row3['qty'];?>',document.getElementById('invoice-total-<?php echo $k;?>'),<?php echo $k; ?>,'<?php echo $row['batch']; ?>');
+		});
+		
+	</script>
+
+
+
+	
+<?php
+
+	}
+?>
+
+	<?php 
+
+		if($coaflag)
+		{
+
+
+
+	?>
+
+	<div class="form-group row">
+
+			<div class="col-sm-12">
+			<button type="button"  class="btn btn-primary pull-right" onclick="window.open('generatecoa.php?id=<?php echo $row["batch"];?>&cid=<?php echo $cid;?>', '_blank').focus();"><i class="fa fa-page"></i>Generate COA</button>
+			<span class="messages"></span>
+			</div>
+	</div>
+
+
+	<hr>
+	<br>
+	<br>
+
+
+	<?php 
+		}
+
+	?>
+
+
+<?php
+
+
+	$k++;
+}
+?>
+
+
+<script type="text/javascript">
+	function addtolist(invoice,qty,total,k,batchname)
+	{
+		dumTotal = total.cloneNode('true');
+		total.remove();
+
+		invoiceTbody = document.getElementById('invoice-tbody-'+String(k));
+
+
+		var tr =  document.createElement('tr');
+
+		tr.innerHTML = "<td>"+invoice+"</td>" + "<td>"+qty+"</td>" + "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();confirmInvoice();\"><i class=\"fa fa-trash\"></i>Remove</button></td><input type='hidden' name=\"invoice-qty["+batchname+"][]\" value='"+qty+"'><input type='hidden' name=\"invoice["+batchname+"][]\" value='"+invoice+"'>" ; 
+
+		invoiceTbody.appendChild(tr);
+
+		invoiceTbody.appendChild(dumTotal);
+		
+		confirmInvoice()
+
+
+	}
+
+
+	function confirmInvoice()
+	{
+		totalbatches = <?php echo $k-1; ?>
+
+		flag = true;
+
+		for (var i = 1; i <= totalbatches; i++) {
+			currTbody = document.getElementById('invoice-tbody-'+String(i));
+
+			var total = 0;
+			var required = parseFloat(document.getElementById('invoice-tqty-'+String(i)).value);
+			
+
+			for(var j=0;j<currTbody.children.length-1;j++)
+			{
+
+				total += parseFloat(currTbody.children[j].children[1].innerHTML)
+			}
+
+			cflag = (total==required);
+			flag = flag && cflag;
+			document.getElementById('invoice-total-'+String(i)).children[1].innerHTML = String(total) + " kg";
+			
+			if(cflag)
+			{
+				document.getElementById('invoice-total-'+String(i)).classList.remove('bg-danger')
+				document.getElementById('invoice-total-'+String(i)).classList.add('bg-success')
+			}
+			else
+			{
+				document.getElementById('invoice-total-'+String(i)).classList.remove('bg-success')
+				document.getElementById('invoice-total-'+String(i)).classList.add('bg-danger')
+			}
+		}
+
+		if(flag)
+		{
+			
+			document.getElementById('confirminvoice').onclick = function (){
+				document.getElementById('invoice-form').submit();
+			};
 		}
 		else
 		{
-				var tr =  document.createElement('tr');
-				var count = parseInt(document.getElementById('products-tbody').children.length) +1;
-				tr.innerHTML = "<td>"+count+"</td><td><input type=\"hidden\" name=\"order_batchid[]\" value=\""+batchid+"\">"+batchid+"</td><td><input type=\"hidden\" name=\"order_batchqty[]\" value=\""+used+"\">"+used+"</td><td><input type=\"hidden\" name=\"order_batchpkg[]\" value=\""+package+"\">"+package+"</td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button></td>"
-				document.getElementById('products-tbody').appendChild(tr);
-				batchSelect.options[batchSelect.selectedIndex].remove();
+			document.getElementById('confirminvoice').onclick = function (){
+				
+				Swal.fire({
+				  icon: 'error',
+				  title: 'Error',
+				  text: 'The invoice quantities does not add up to total.',
+				  
+				})
+			};
 		}
-
 	}
-	
-	function loadBatch(type)
-	{
-			  var postData = new FormData();
-       
-        postData.append("action","loadbatch");
-        postData.append("type",type);
-
-
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            
-           console.log(this.responseText)
-            var data = JSON.parse(this.responseText);
-
-            
-            if(data.response)
-            {
-                
-            	var batchSelect = document.getElementById('select-batch')
-            	batchSelect.innerHTML = "";
-            	
-
-            	var opt = document.createElement('option');
-					    opt.value = "";
-					    opt.innerHTML = "Choose a batch";
-					    opt.disabled = true;
-					    opt.selected = true;
-					    batchSelect.appendChild(opt);
-
-					   for(var i=0;i<data.data.length;i++)
-					   {
-					   		opt = document.createElement('option');
-						    opt.value = data.data[i][0];
-						    opt.innerHTML = data.data[i][0] + "(Available:"+data.data[i][1]+" kg)";
-						    opt.setAttribute("data-available", data.data[i][1]);
-		
-						    batchSelect.appendChild(opt);
-					   }
-
-            }
-            else
-            {
-               Swal.fire({
-									icon: "error",
-									title: "Error",
-									html: data.msg ,
-									showConfirmButton: true,
-								  	showCancelButton: false,
-								  	confirmButtonText: 'OK',
-								  	
-								})
-            }
-            
-
-        
-        
-          }
-        };
-        xmlhttp.open("POST", "/query/dispatch.php", true);
-        xmlhttp.send(postData);
-	}
-
-
 
 </script>
 
-
-<form method="POST">
-
-<input type="hidden" name="invoiceid" value="<?php echo $invoiceid ?>">
-<input type="hidden" name="currtab" value="batches-tabdiv">
-
-<table class="table table-striped table-bordered" id="process4table">
-		<thead>
-		<tr>
-			<th>Sl. No</th>
-			<th>Item</th>
-			<th>Quantity</th>
-			<th>Package</th>
-			<th></th>
-		</tr>
-
-	</thead>
-
-	<tbody id="products-tbody">
-			
-
-		<?php
-
-			$result = runQuery("SELECT * FROM dispatch_params WHERE invoiceid='$invoiceid' AND step='BATCH'");
-			$k=1;
-			while($row=$result->fetch_assoc())
-			{
-				$package ="";
-				$currid = $row["param"];
-				$result2 = runQuery("SELECT * FROM dispatch_params WHERE invoiceid='$invoiceid' AND param='$currid' AND step='DATA' AND tag='package'");
-				$result2 = $result2->fetch_assoc();
-				$package = $result2["value"];
-
-			
-				?>
-
-				<tr>
-					<td><?php echo $k; ?></td>
-					<td><input type="hidden" name="order_batchid[]" value="<?php echo $row["param"]; ?>"><?php echo $row["param"]; ?></td>
-					<td><input type="hidden" name="order_batchqty[]" value="<?php echo $row["value"]; ?>"><?php echo $row["value"]; ?></td>
-					<td><input type="hidden" name="order_batchpkg[]" value="<?php echo $package; ?>"><?php echo $package; ?></td>
-					<td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove();"><i class="fa fa-trash"></i>Remove</button></td>
-
-				</tr>
-
-
-				<?php
-
-				$k++;
-			}
-
-
-		?>
-
-	</tbody>
-
-</table>
-
-
-	<div class="form-group row">
-			
+<div class="form-group row">
+			<input type="hidden" name="confirminvoice" value="">
 			<div class="col-sm-12">
-			<button type="submit"  name="addorder" id="addorderbtn" class="btn btn-primary pull-right"><i class="fa fa-save"></i>Save Order</button>
+			<button type="button"  id="confirminvoice"  name="confirminvoice" class="btn btn-primary pull-right"><i class="fa fa-check"></i>Confirm</button>
 			<span class="messages"></span>
 			</div>
-			</div>
-
-
+	</div>
 
 </form>
+
+
+
 
 </div>
 
@@ -620,12 +587,12 @@ input[type=number] {
 <form method="POST">
 
 	 <div style="position: absolute; bottom: 0px; margin: 10px;">
-	 	<input type="hidden" name="invoiceid" value="<?php echo $invoiceid; ?>">
+	 	<input type="hidden" name="cid" value="<?php echo $cid; ?>">
 	 	<input type="hidden" name="currtab" value="notes-tabdiv">
             <div id="notesDiv">
                 <?php
 
-                		$result = runQuery("SELECT * FROM dispatch_notes WHERE invoiceid='$invoiceid' ORDER by time");
+                		$result = runQuery("SELECT * FROM dispatch_notes WHERE cid='$cid' ORDER by time");
 
                 		if($result->num_rows>0)
                 		{
@@ -704,8 +671,8 @@ function rejectTest(testid)
 
 			  		var i = document.createElement("input"); //input element, text
 						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"invoiceid");
-						i.setAttribute('value',"<?php echo $invoiceid ?>");
+						i.setAttribute('name',"cid");
+						i.setAttribute('value',"<?php echo $cid ?>");
 
 						form.appendChild(i);
 
@@ -761,8 +728,8 @@ function approve(approval)
 
 			  		var i = document.createElement("input"); //input element, text
 						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"invoiceid");
-						i.setAttribute('value',"<?php echo $invoiceid ?>");
+						i.setAttribute('name',"cid");
+						i.setAttribute('value',"<?php echo $cid ?>");
 
 						form.appendChild(i);
 

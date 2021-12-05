@@ -46,6 +46,32 @@
 
    $laid = $_POST["laid"];
 
+    if(isset($_POST["confirmld"]))
+    {
+
+
+
+
+    	$qtys = $_POST['qty'];
+    	$batches = $_POST['batch'];
+    	$pkgs = $_POST['pkg'];
+    	$grades = $_POST['grades'];
+
+
+    	for ($i=0; $i < count($batches); $i++) { 
+    		
+    		$cgrade = $grades[$i];
+    		$cqty = $qtys[$i];
+    		$cpkg = $pkgs[$i];
+    		$cbatch = $batches[$i];
+
+    		runQuery("UPDATE loadingadvice_batches SET package='$cpkg', batch='$cbatch', quantity='$cqty' WHERE laid='$laid' AND grade='$cgrade'");
+    		
+    	}
+    }
+
+
+
 
 
    if(isset($_POST["updatebasic"]))
@@ -72,8 +98,11 @@
     		
     		runQuery("INSERT INTO loadingadvice_notes (SELECT NULL,'$newid',sender,note,time FROM loadingadvice_notes WHERE laid='$laid' ORDER by time)");
     		runQuery("INSERT INTO loadingadvice_params (SELECT NULL,'$newid',step,param,value,tag FROM loadingadvice_params WHERE laid='$laid')");
-    		
 
+    		runQuery("INSERT INTO loadingadvice_params (SELECT NULL,'$newid',step,param,value,tag FROM loadingadvice_params WHERE laid='$laid')");
+    		
+    		
+    		runQuery("DELETE FROM loadingadvice_batches WHERE laid='$laid'");
     		runQuery("DELETE FROM loadingadvice_notes WHERE laid='$laid'");
     		runQuery("DELETE FROM loadingadvice_params WHERE laid='$laid'");
     		runQuery("DELETE FROM loading_advice WHERE laid='$laid'");
@@ -385,10 +414,14 @@ input[type=number] {
 	$tranport_type = $result['transport'];
 	$currCompany = $result['company'];
 
+	$result3 = runQuery("SELECT * FROM loadingadvice_params WHERE laid='$laid' AND param='Tentative Date'");
+	$result3 = $result3->fetch_assoc(); 
+
 ?>
 	
 	Customer Name: <?php echo $result2["value"] ?> <br>
-	Customer Id: <?php echo $dumC ?>
+	Customer Id: <?php echo $dumC ?> 		<br>
+	Tentative Dispatch Date: <?php echo $result3["value"] ?>
 
 	<br>
 	<br>
@@ -462,7 +495,128 @@ input[type=number] {
 <div class="tab-pane" id="batches-tabdiv" role="tabpanel" >
 
 
+<form method="POST">
 
+<div class="form-group" style="display:flex; justify-content: center;">
+	<input type="hidden" name="laid" value="<?php echo $laid; ?>">
+	<input type="hidden" name="currtab" value="batches-tabdiv">
+
+
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Sl. No</th>
+				<th>Grade</th>
+				<th>Batch</th>
+				<th>Quantity</th>
+				<th>Packaging</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			
+			<?php 
+
+				$result = runQuery("SELECT * FROM loadingadvice_batches WHERE laid='$laid'");
+				$k=1;
+				while($row= $result->fetch_assoc())
+				{
+
+					
+			?>
+
+				<tr>
+					<td><?php echo $k;?></td>
+					<td><input  required type="text" name="grades[]" class="form-control" value="<?php echo $row["grade"];?>"></td></td>
+					<td>
+						<select id="batch-select-<?php echo $k;?>" required class="form-control" name="batch[]">
+							<option disabled value="">Choose a batch</option>
+							<?php
+
+							$dgrade = $row["grade"];
+							$result2 = runQuery("SELECT premixid as processid FROM premix_batch WHERE gradename='$dgrade' ");
+
+							if($result2->num_rows==0)
+							{
+								$result2 = runQuery("SELECT * FROM processentry WHERE processname='BATCH' AND (islocked='LOCKED' OR islocked='BATCHED') AND processid in (SELECT processid FROM processentryparams WHERE param='$GRADE_TITLE' AND value='$dgrade')");
+							}
+
+							
+
+
+							while($row2=$result2->fetch_assoc())
+							{
+								?>
+
+									<option value="<?php echo $row2["processid"] ?>"><?php echo $row2["processid"] ?></option>
+
+								<?php
+							}
+
+							?>
+
+						</select>
+					</td>
+					<td><input required type="text" name="qty[]" class="form-control" value="<?php echo $row["quantity"];?>"></td>
+					<td>
+						<select id="pkg-select-<?php echo $k;?>" required class="form-control" name="pkg[]">
+							<?php
+
+							$result2 = runQuery("SELECT * FROM dispatch_package");
+
+							while($row2=$result2->fetch_assoc())
+							{
+								?>
+
+
+								<option value="<?php echo $row2["packagename"] ?>"><?php echo $row2["packagename"] ?></option>
+
+								<?php
+							}
+
+						?>
+
+
+						</select>
+					</td>
+
+						<script type="text/javascript">
+
+							$( document ).ready(function() {
+							    document.getElementById('pkg-select-<?php echo $k;?>').value='<?php echo $row["package"];?>';
+								document.getElementById('batch-select-<?php echo $k;?>').value='<?php echo $row["batch"];?>';
+							});
+							
+						</script>
+
+						
+				</tr>
+
+
+			<?php
+
+				$k++;
+
+				}
+
+			?>
+
+
+		</tbody>
+	</table>
+
+	
+
+</div>
+<div class="form-group row">
+			
+			<div class="col-sm-12">	
+			<button type="submit"  name="confirmld" class="btn btn-primary pull-right"><i class="fa fa-check"></i>Confirm</button>
+			<span class="messages"></span>
+			</div>
+	</div>
+
+</form>
 
 
 

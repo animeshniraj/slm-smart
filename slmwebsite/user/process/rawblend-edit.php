@@ -1570,7 +1570,7 @@ if($testPermission)
 <td class="tabledit-view-mode"><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
 <td class="tabledit-view-mode"><div class="tabledit-span">Min: <?php echo $testParams[$i][4] ?></div>
 <div class="tabledit-span">Max: <?php echo $testParams[$i][5] ?></div>
-<div class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
+<div style="display: none;" class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
 </td>
 
 

@@ -36,6 +36,10 @@
     	
 
     	runQuery("UPDATE purchase_order SET status='UNFULFILLED' WHERE orderid in (SELECT poid FROM loading_advice WHERE laid='$externalid')");
+
+    	$result = runQuery("UPDATE purchaseorder_tentative SET status='UNFULFILLED' WHERE date in (SELECT value FROM loadingadvice_params WHERE laid='$externalid' AND param='Tentative Date')");
+
+    	runQuery("DELETE FROM loadingadvice_batches WHERE laid='$externalid'");
     	runQuery("DELETE FROM loadingadvice_notes WHERE laid='$externalid'");
     	runQuery("DELETE FROM loadingadvice_params WHERE laid='$externalid'");
     	runQuery("DELETE FROM loading_advice WHERE laid='$externalid'");
@@ -163,7 +167,7 @@
 	<tbody>
 
 		<?php
-				$result = runQuery("SELECT * FROM loading_advice WHERE status='UNFULFILLED' ORDER BY entrydate DESC");
+				$result = runQuery("SELECT * FROM loading_advice ORDER BY entrydate DESC");
 				if($result->num_rows>0)
 				{
 					$k=0;

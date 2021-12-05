@@ -53,7 +53,7 @@
     	$propname = $_POST["propname"];
     	$min = -10000;
     	$max = $_POST['print'];
-    	$quarantine = $_POST['cumulative'];
+    	$quarantine = 1; // cchnage here
 
     	$result = runQuery("SELECT count(*) as val FROM gradeproperties WHERE processname='$processname' AND gradename='$gradename'");
     	$row=$result->fetch_assoc();
@@ -296,12 +296,7 @@
 							<option value="0">  Do not Print</option>
 						</select>
 					</div>
-					<div class="col-sm-6">
-						<select name="cumulative" class="form-control" required>
-							<option value="1"> Cumulative</option>
-							<option value="0"> Non Cumulative</option>
-						</select>
-					</div>
+
 
 
 				</div>

@@ -24,7 +24,27 @@
 <meta name="keywords" content="bootstrap, bootstrap admin template, admin theme, admin dashboard, dashboard template, admin template, responsive" />
 <meta name="author" content="colorlib" />
 
-<link rel="icon" href="https://colorlib.com/polygon/admindek/files/assets/images/favicon.ico" type="image/x-icon">
+<!-- Fav icon -->
+
+<link rel="apple-touch-icon" sizes="57x57" href="/pages/jpg/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/pages/jpg/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/pages/jpg/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/pages/jpg/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/pages/jpg/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/pages/jpg/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/pages/jpg/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/pages/jpg/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/pages/jpg/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="/pages/jpg/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/pages/jpg/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="/pages/jpg/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/pages/jpg/favicon-16x16.png">
+<link rel="manifest" href="/pages/jpg/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/pages/jpg/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+
+<!-- End of Fav icon -->
 
 <link href="/pages/font/opensan.css" rel="stylesheet">
 <link href="/pages/font/opensand.css" rel="stylesheet">

@@ -19,7 +19,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Create new Purchase order",
+        "Page Title" => "SLM | Create new Loading Advice",
         "Home Link"  => "/user/",
         "Menu"		 => "loadingadvice-new",
         "MainMenu"	 => "dispatch_menu",
@@ -75,6 +75,28 @@
     	$result = runQuery("INSERT INTO loading_advice ( SELECT '$prefix',orderid,customer,'$company','$transport','$creationDate','UNFULFILLED' FROM purchase_order WHERE orderid='$ponumber')");
 
     	$result2 = runQuery("UPDATE purchase_order SET status = 'LOADING ADVICE' WHERE orderid ='$ponumber'");
+
+    	$result = runQuery("SELECT date FROM `purchaseorder_tentative` where date>= CURDATE() AND status ='UNFULFILLED' ORDER BY date LIMIT 1");
+
+    	$currDate = $result->fetch_assoc()['date'];
+    	
+    	$result = runQuery("INSERT INTO loadingadvice_params VALUES(NULL,'$prefix','CREATION','Tentative Date','$currDate','date')");
+
+    	$result = runQuery("SELECT * FROM `purchaseorder_tentative` where date ='$currDate'");
+
+    	while($row=$result->fetch_assoc())
+    	{
+    		$dPO = $row["orderid"];
+    		$dId = $row["id"];
+    		$dGrade = $row["grade"];
+    		$dqty = $row["quantity"];
+				$dpackage = $row["package"];
+
+
+
+    		runQuery("INSERT INTO loadingadvice_batches VALUES(NULL,'$prefix','$dGrade','','$dqty','$dpackage')");
+    		runQuery("UPDATE purchaseorder_tentative SET status = 'LOADING ADVICE' WHERE id ='$dId'");
+    	}
 
 
     	if($result)
@@ -296,7 +318,7 @@ p {
 
 							<?php 
 
-								$result = runQuery("SELECT * FROM purchase_order WHERE status='UNFULFILLED'");
+								$result = runQuery("SELECT * FROM purchase_order WHERE status <>'FULFILLED'");
 
 								if($result->num_rows>0)
 								{

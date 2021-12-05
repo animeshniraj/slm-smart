@@ -18,7 +18,7 @@
 	
 	
     $PAGE = [
-        "Page Title" => "SLM | Raw Materials",
+        "Page Title" => "SLM | Manage Raw Materials",
         "Home Link"  => "/admin/",
         "Menu"		 => "processmanager-rawmaterials",
         "MainMenu"	 => "processmanager_menu",
@@ -72,7 +72,7 @@
 				<i class="feather icon-sidebar bg-c-blue"></i>
 				<div class="d-inline">
 					<h2>Raw Materials</h2>
-					<span>Add and remove Raw Materials</span>
+					<span>Add and remove Raw Materials for Melting</span>
 				</div>
 			</div>
 		</div>
@@ -91,7 +91,7 @@
 
 <div class="card">
 <div class="card-header">
-<h5 class="slm-color">All Raw Materials</h5>
+<h5 class="slm-color">Manage Raw Materials</h5>
 <div class="card-header-right">
 
 </div>
@@ -127,7 +127,7 @@
 			
 
 			<div class="col-md-3">
-				<button type="button" onclick="this.closest('.form-group').remove()" class="btn btn-danger m-b-0" data-toggle="tooltip" data-placement="top" title="Remove Material"><i class="fa fa-trash"></i></button>
+				<button type="button" onclick="this.closest('.form-group').remove()" class="btn btn-danger m-b-0" data-toggle="tooltip" data-placement="top" title="Remove Material"><i class="fa fa-trash" style="margin:0;"></i></button>
 			</div>
 
 			

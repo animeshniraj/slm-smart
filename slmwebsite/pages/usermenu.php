@@ -418,6 +418,37 @@
 		</a>
 		</li>
 
+
+
+		<li id="dispatch-new" class="">
+		<a href="/user/dispatch/new-dispatch.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">New Dispatch</span>
+		</a>
+		</li>
+
+		<li id="dispatch-view" class="">
+		<a href="/user/dispatch/dispatch-view.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">View Dispatch</span>
+		</a>
+		</li>
+
+
+		<li id="sdispatch-new" class="">
+		<a href="/user/dispatch/new-sdispatch.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">New Sample Dispatch</span>
+		</a>
+		</li>
+
+		<li id="sdispatch-view" class="">
+		<a href="/user/dispatch/sdispatch-view.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">View Sample Dispatch</span>
+		</a>
+		</li>
+
 	</ul>
 </li>
 

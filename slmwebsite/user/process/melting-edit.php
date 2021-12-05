@@ -531,12 +531,12 @@
   box-shadow: 0px 0px 20px rgba(64, 153, 255, 0.75);
 }
 #creation-tabdiv input[type=radio]:checked + label::after {
-  color: #3d3f43;
-  font-family: FontAwesome;
-  border: 2px solid #4099FF;
-  content: "";
-  font-size: 24px;
-  position: absolute;
+	color: #990000;
+  	font-family: FontAwesome;
+  	border: 2px solid #990000;
+  	content:"\f2c5";
+  	font-size: 24px;
+  	position: absolute;
   top: -25px;
   left: 50%;
   transform: translateX(-50%);

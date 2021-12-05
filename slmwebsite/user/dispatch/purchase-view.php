@@ -36,6 +36,7 @@
     	
     	runQuery("DELETE FROM purchaseorder_notes WHERE orderid='$externalid'");
     	runQuery("DELETE FROM purchaseorder_params WHERE orderid='$externalid'");
+    	runQuery("DELETE FROM purchaseorder_tentative WHERE orderid='$externalid'");
     	runQuery("DELETE FROM purchase_order WHERE orderid='$externalid'");
     }
 

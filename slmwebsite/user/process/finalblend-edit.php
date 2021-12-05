@@ -523,6 +523,11 @@
     #$parentParams = $dum["Parents"];
     #$parent_total = $dum["Total"];
 
+
+    $result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='GENERIC' AND param='Blend Number'");
+
+    $blendnumber = $result2->fetch_assoc()['value'];
+
    
    $blendmasterData = getAllBlendmasterGrades($processid,$processname);
 
@@ -716,7 +721,7 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h3 style="margin-bottom:0;">Currently updating: <?php echo $processid; ?></h3>
+					<h3 style="margin-bottom:0;">Currently updating: <?php echo $processid; ?> (Blend No: <?php echo $blendnumber; ?>)</h3>
 					<p class="created">(Created on: <?php echo $entrytime; ?>)</p>
 				</div>
 			</div>

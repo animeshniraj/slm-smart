@@ -461,7 +461,9 @@
     $parentParams = $dum["Parents"];
     $parent_total = $dum["Total"];
 
+ $result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='GENERIC' AND param='Bin Number'");
 
+    $binnumber = $result2->fetch_assoc()['value'];
 
 
  
@@ -654,7 +656,7 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h3 style="margin-bottom:0;">Currently updating: <?php echo $processid; ?></h3>
+					<h3 style="margin-bottom:0;">Currently updating: <?php echo $processid; ?> (Bin No: <?php echo $binnumber; ?>)</h3>
 					<p class="created">(Created on: <?php echo $entrytime; ?>)</p>
 				</div>
 			</div>
@@ -1226,7 +1228,7 @@ if($testPermission)
 <td class="tabledit-view-mode"><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
 <td class="tabledit-view-mode"><div class="tabledit-span">Min: <?php echo $testParams[$i][4] ?></div>
 <div class="tabledit-span">Max: <?php echo $testParams[$i][5] ?></div>
-<div class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
+<div style="display: none;" class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
 </td>
 
 

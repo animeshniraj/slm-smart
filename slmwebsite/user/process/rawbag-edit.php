@@ -1159,7 +1159,7 @@ if($testPermission)
 
 					?>
 	<div class="form-group row">
-			<label class="col-sm-2">Paste Result</label>
+		<!--	<label class="col-sm-2">Paste Result</label>
 			<div class="col-sm-10">
 				<div class="input-group input-group-button">
 					<input  type="text"  class="form-control" id="test-pastevalue" placeholder="">
@@ -1168,6 +1168,7 @@ if($testPermission)
 					</div>
 				</div>
 			</div>
+				-->	
 		</div>
 
 		<script type="text/javascript">
@@ -1232,7 +1233,7 @@ if($testPermission)
 <td class="tabledit-view-mode"><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
 <td class="tabledit-view-mode"><div class="tabledit-span">Min: <?php echo $testParams[$i][4] ?></div>
 <div class="tabledit-span">Max: <?php echo $testParams[$i][5] ?></div>
-<div class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
+<div style="display: none;" class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
 </td>
 
 
