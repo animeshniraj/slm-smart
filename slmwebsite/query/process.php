@@ -36,7 +36,7 @@
 	
 	function getAllRemainingMelting($fid)
 	{
-		$prefix = $fid."%";
+		$prefix = "%-I".$fid."-%";
 		$allIds = [];
 
 		$result = runQuery("SELECT * FROM processentry WHERE processname='Melting' AND processid LIKE '$prefix' AND islocked <> 'BLOCKED'");
@@ -76,7 +76,8 @@
 
 	function getAllRemainingAnnealing($fid)
 	{
-		$prefix = $fid."%";
+		require_once('../../requiredlibs/includeall.php');
+		$prefix = "%".$fid."%";
 		$allIds = [];
 
 		$result = runQuery("SELECT * FROM processentry WHERE processname='Annealing' AND processid LIKE '$prefix' AND islocked <> 'BLOCKED'");
@@ -89,8 +90,9 @@
 				
 				if(($total-$used)>0)
 				{
-					
-					array_push($allIds,[$row["processid"],$row["entrytime"],0,$total,($total-$used)]);
+					$dumblendid = getBlendID_annealing($row["processid"]);
+
+					array_push($allIds,[$row["processid"],$row["entrytime"],$dumblendid,$total,($total-$used)]);
 				}
 			}
 
@@ -215,7 +217,7 @@
 					"response" => true,
 					"id" => strtoupper($processid),
 					"entrytime" => getEntryTime($processid),
-					"heatno" => 0,
+					"heatno" => getBlendID_annealing($processid),
 					"total" =>$total,
 					"available"=> $total-$used,
 

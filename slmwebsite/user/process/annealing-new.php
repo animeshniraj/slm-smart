@@ -60,10 +60,13 @@
     	$furnacename = $_POST["furnacename"];
 
     	$creationDate = $_POST["creation-date"];
+
+    	$finalblendgrade = $_POST["finalblendgrade"];
     	
     	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
-    	$prefix = $furnaceid."-".$year."-";
-    	$sqlprefix = $furnaceid."-".$year."-%";
+    	$month = explode("-",explode(" ",$creationDate)[0])[1];
+    	$prefix = $year."/".$month."-".$furnaceid."-";
+    	$sqlprefix = $year."/".$month."-".$furnaceid."-%";
 
     	
 
@@ -92,13 +95,15 @@
     			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Furnace','$furnacename')");
     			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Date','$creationDate')");
     			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Feed Time','$creationDate')");
+    			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Final Blend Grade','$finalblendgrade')");
 
     			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Pre-Processed','$pre')");
 
     			
     			if($result)
     			{
-    				
+    				addprocesslog('PROCESS',$prefix,$session->user->getUserid(),'New Annealing Process ('.$prefix.') created');
+
     				?>
     					<form id="redirectform" method="POST" action="annealing-edit.php">
     						<input type="hidden" name="processid" value="<?php  echo $prefix;?>">
@@ -323,6 +328,32 @@ p {
 
 					</script>
 
+
+						<div class="form-group" style="display:flex; justify-content: center">
+
+						<select required class="form-control col-sm-3" name="finalblendgrade" >
+							<option selected  disabled value=""> Choose a Final Blend Grade</option>
+
+							<?php 
+
+								$result = runQuery("SELECT * FROM processgrades WHERE processname='Final Blend'");
+
+								if($result->num_rows>0)
+								{
+									while($row = $result->fetch_assoc())
+									{
+
+										
+
+										echo "<option value=\"".$row["gradename"]."\">".$row["gradename"]."</option>";
+									}
+								}
+
+							?>
+
+						</select>
+					</div>
+
 <p style="display:block;text-align:center;">Select the used furnace</p>
 
 <section>
@@ -351,6 +382,39 @@ p {
 
 	<?php 
 		}}
+
+
+		$result = runQuery("SELECT * FROM processentry WHERE processname='$processname' AND islocked='UNLOCKED'");
+
+		while($row=$result->fetch_assoc())
+		{
+			$dpid = $row['processid'];
+
+			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$dpid' AND param='Hopper Discharge Time' AND step='GENERIC'");
+			$dlock = false;
+
+			if($result2->num_rows==0)
+			{
+				$dlock = true;
+			}
+			elseif($result2->num_rows==1)
+			{
+				$pval = $result2->fetch_assoc()['value'];
+
+				if($pval=="")
+				{
+					$dlock = true;
+				}
+			}
+
+
+			if($dlock)
+			{
+
+
+				echo "<script>document.getElementById('control_".substr($dpid,6,-4)."').disabled=true;</script>";
+			}
+		}
 	?>
 
 </section>
@@ -360,15 +424,15 @@ p {
 
 <section>
 <div>
-  <input required type="radio" id="control_1" name="preprocessed" value="Pre-Processed">
+  <input required type="radio" id="control_1" name="preprocessed" value="Sponge">
   <label for="control_1">
-    <h2>Sponged</h2>
+    <h2>Sponge</h2>
     <p></p>
   </label>
 </div>
 
 <div>
-  <input required type="radio" id="control_2" name="preprocessed" value="New">
+  <input required type="radio" id="control_2" name="preprocessed" value="Atomized">
   <label for="control_2">
     <h2>Atomized</h2>
     <p></p>

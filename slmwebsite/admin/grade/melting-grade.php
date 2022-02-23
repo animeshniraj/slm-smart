@@ -43,7 +43,7 @@
 
     	runQuery("INSERT INTO gradeproperties VALUES(NULL,'$processname','$gradename','$propname','$min','$max','$quarantine','$count')");
 
-    	
+    	addprocesslog('GRADE',$gradename,$session->user->getUserid(),'New property '.$propname.' added.');
 
     }
 
@@ -54,6 +54,7 @@
     	$propname = $_POST["deletepropname"];
     	$result = runQuery("DELETE FROM gradeproperties WHERE processname='$processname' AND gradename='$gradename' AND properties='$propname'");
     	
+    	addprocesslog('GRADE',$gradename,$session->user->getUserid(),'Property '.$propname.' deleted.');
 
     }
 
@@ -71,6 +72,8 @@
     		$count = $i+1;
     		runQuery("INSERT INTO gradeproperties VALUES(NULL,'$processname','$gradename','$propnames[$i]','$min[$i]','$max[$i]','$quarantine[$i]','$count')");
     	}
+
+    	addprocesslog('GRADE',$gradename,$session->user->getUserid(),'Grade Properties updated.');
 
     }
 

@@ -27,7 +27,7 @@
 
 	require_once('../process/helper.php');
     $PAGE = [
-        "Page Title" => "Edit Disptch Order | SLM SMART",
+        "Page Title" => "Edit Purchase Order | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "purchase-view",
         "MainMenu"	 => "dispatch_menu",
@@ -46,6 +46,14 @@
    $orderid = $_POST["orderid"];
 
 
+
+   if(isset($_POST['closepo']))
+   {
+
+   		runQuery("UPDATE purchaseorder_tentative SET status='CLOSED' WHERE orderid='$orderid' AND status='UNFULFILLED'");
+   		runQuery("UPDATE purchase_order SET status='FULFILLED' WHERE orderid='$orderid'");
+
+   }
 
    if(isset($_POST["addTentative"]))
   	{
@@ -130,7 +138,7 @@
 
 
     		$batchids= $_POST["order_batchid"];
-    		$package = $_POST['order_batchpkg'];
+    		//$package = $_POST['order_batchpkg'];
 	    	$qty = $_POST['order_batchqty'];
 
 	    	runQuery("DELETE FROM purchaseorder_params WHERE orderid='$orderid' AND step='BATCH'");
@@ -139,11 +147,11 @@
 	    	for($i=0;$i<count($batchids);$i++)
 	    	{
 	    		$cid =  $batchids[$i];
-	    		$cpkg =  $package[$i];
+	    		//$cpkg =  $package[$i];
 	    		$cqty =  $qty[$i];
 
 	    		runQuery("INSERT INTO purchaseorder_params VALUES(NULL,'$orderid','BATCH','$cid','$cqty','batchid')");
-	    		runQuery("INSERT INTO purchaseorder_params VALUES(NULL,'$orderid','DATA','$cid','$cpkg','package')");
+	    		//runQuery("INSERT INTO purchaseorder_params VALUES(NULL,'$orderid','DATA','$cid','$cpkg','package')");
 	    		
 	    	}
 
@@ -226,7 +234,7 @@ input[type=number] {
 	function titleicontoRefresh()
 	{
 		var titleicon = document.getElementById('titleicon');
-		titleicon.classList.remove("fa-shopping-bag");
+		titleicon.classList.remove("fa-file-text-o");
 		titleicon.classList.add("fa-refresh");
 
 	}
@@ -234,7 +242,7 @@ input[type=number] {
 	{
 		var titleicon = document.getElementById('titleicon');
 		titleicon.classList.remove("fa-refresh");
-		titleicon.classList.add("fa-shopping-bag");
+		titleicon.classList.add("fa-file-text-o");
 		
 
 	}
@@ -287,11 +295,11 @@ input[type=number] {
 	<div class="row align-items-end">
 		<div class="col-lg-8">
 			<div class="page-header-title">
-				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
+				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-file-text-o bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h5>Edit Order (<?php echo $orderid; ?>)</h5>
-					<span>Edit premix parameters</span>
+					<h3>Edit Order (<?php echo $orderid; ?>)</h3>
+					<span>Enter purchase order details</span>
 				</div>
 			</div>
 		</div>
@@ -323,26 +331,26 @@ input[type=number] {
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i> Creation</a>
 <div class="slide"></div>
 </li>
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#batches-tabdiv" role="tab"><i class="fa fa-shopping-bag"></i>Add Grades</a>
+<a class="nav-link" data-toggle="tab" href="#batches-tabdiv" role="tab"><i class="fa fa-shopping-bag"></i> Add Grades</a>
 <div class="slide"></div>
 </li>
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#tentative-tabdiv" role="tab"><i class="fa fa-clock-o"></i>Tentative Dispatch</a>
+<a class="nav-link" data-toggle="tab" href="#tentative-tabdiv" role="tab"><i class="fa fa-clock-o"></i> Tentative Dispatch</a>
 <div class="slide"></div>
 </li>
 
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i>Notes</a>
+<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i> Notes</a>
 <div class="slide"></div>
 </li>
 
@@ -366,11 +374,11 @@ input[type=number] {
 
 							<form method="POST">
 
+					<h5 style="text-align:center;font-weight:boldl">Purchase Order No.</h5>		
 					<div class="form-group" style="display:flex; justify-content: center;">
 						<input type="hidden" name="orderid" value="<?php echo $orderid; ?>">
 						<input type="hidden" name="currtab" value="creation-tabdiv">
-
-						<div class="col-sm-6">
+						<div class="col-sm-3">
 							<div class="input-group input-group-button">
 
 								
@@ -385,7 +393,7 @@ input[type=number] {
 					<div class="form-group row">
 		
 						<div class="col-sm-12">
-						<button type="submit" class="btn btn-primary btn-block col-sm-2 pull-right" name="editid"><i class="feather icon-edit"></i>Edit</button>
+						<button type="submit" class="btn btn-primary btn-block col-sm-2 pull-right" name="editid"><i class="feather icon-edit"></i>Update P.O.</button>
 						</div>
 					</div>
 
@@ -394,6 +402,40 @@ input[type=number] {
 					<?php 
 						}
 					?>
+
+					<form method="POST" id="closepoform">
+						<input type="hidden" name="orderid" value="<?php echo $orderid; ?>">
+						<input type="hidden" name="currtab" value="creation-tabdiv">
+						<input type="hidden" name="closepo" value="">
+						
+
+						<div class="form-group row">
+			
+							<div class="col-sm-12">
+							<button type="button" onclick="closepoalert()" class="btn btn-primary btn-block col-sm-2 pull-right"><i class="fa fa-times"></i>Close PO.</button>
+							</div>
+						</div>
+					</form>
+
+
+					<script type="text/javascript">
+						function closepoalert()
+						{
+							Swal.fire({
+							  icon: 'info',
+							  title: 'Close PO?',
+							  html: 'Are you sure you want to close this PO. All pending dispatches will be closed. This process is not reversible.',
+							  confirmButtonText: 'Yes',
+							  cancelButtonText: 'No',
+							  showCancelButton: true,
+							  
+							}).then((result) => {
+
+								document.getElementById('closepoform').submit();
+
+							});
+						}
+					</script>
 
 <?php
 	
@@ -410,9 +452,14 @@ input[type=number] {
 
 ?>
 	
-	Customer Name: <?php echo $result2["value"] ?> <br>
-	Customer Id: <?php echo $dumC ?>
-
+	<div class="row" style="border:2px solid #800000;border-radius:10px;width:50%;">
+		<div class="col-md-4">
+			<img src="customers.png" style="width:75px;padding:10px;">
+		</div>
+		<div class="col-md-8 mt-2">
+			<h4>Customer: <?php echo $result2["value"] ?><br>Customer ID: <?php echo $dumC ?></h4>
+		</div>
+	</div>
 
 </div>
 
@@ -451,7 +498,7 @@ input[type=number] {
 
 						?>
 
-						<optgroup label="Final Blend Grades">
+						<optgroup label="Iron Powder Grades">
 
 						<?php
 
@@ -477,7 +524,7 @@ input[type=number] {
 			</div>
 
 
-			<div class="col-sm-3">
+		<!--	<div class="col-sm-3">
 				
 					<select class="form-control" id="select-package">
 						<option disabled selected=""> Choose a package</option>
@@ -501,7 +548,7 @@ input[type=number] {
 
 
 					</select>
-			</div>
+			</div> -->
 
 
 
@@ -527,7 +574,7 @@ input[type=number] {
 		var batchid = batchSelect.value;
 		var batch_avail = parseFloat(batchSelect.options[batchSelect.selectedIndex].getAttribute('data-available'))
 		var used = parseFloat(document.getElementById('batch-qty').value)
-		var package = document.getElementById('select-package').value;
+		//var package = document.getElementById('select-package').value;
 		
 		if(false)
 		{
@@ -546,7 +593,7 @@ input[type=number] {
 		{
 				var tr =  document.createElement('tr');
 				var count = parseInt(document.getElementById('products-tbody').children.length) +1;
-				tr.innerHTML = "<td>"+count+"</td><td><input type=\"hidden\" name=\"order_batchid[]\" value=\""+batchid+"\">"+batchid+"</td><td><input type=\"hidden\" name=\"order_batchqty[]\" value=\""+used+"\">"+used+"</td><td><input type=\"hidden\" name=\"order_batchpkg[]\" value=\""+package+"\">"+package+"</td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button></td>"
+				tr.innerHTML = "<td>"+count+"</td><td><input type=\"hidden\" name=\"order_batchid[]\" value=\""+batchid+"\">"+batchid+"</td><td><input type=\"hidden\" name=\"order_batchqty[]\" value=\""+used+"\">"+used+"</td><td><button type=\"button\" class=\"btn btn-danger btn-sm rmv\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Remove Grades\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i></button></td>"
 				document.getElementById('products-tbody').appendChild(tr);
 				batchSelect.options[batchSelect.selectedIndex].remove();
 		}
@@ -626,14 +673,13 @@ input[type=number] {
 <input type="hidden" name="orderid" value="<?php echo $orderid ?>">
 <input type="hidden" name="currtab" value="batches-tabdiv">
 
-<table class="table table-striped table-bordered" id="process4table">
+<table class="table table-striped table-bordered table-xs" id="process4table">
 		<thead>
 		<tr>
 			<th>Sl. No</th>
 			<th>Item</th>
 			<th>Quantity</th>
-			<th>Package</th>
-			<th></th>
+			<th>Remove</th>
 		</tr>
 
 	</thead>
@@ -653,7 +699,7 @@ input[type=number] {
 				
 				$result2 = runQuery("SELECT * FROM purchaseorder_params WHERE orderid='$orderid' AND param='$currid' AND step='DATA' AND tag='package'");
 				$result2 = $result2->fetch_assoc();
-				$package = $result2["value"];
+				//$package = $result2["value"];
 
 
 				array_push($allgrades,[$row["param"],$row["value"],$package])
@@ -664,8 +710,8 @@ input[type=number] {
 					<td><?php echo $k; ?></td>
 					<td><input type="hidden" name="order_batchid[]" value="<?php echo $row["param"]; ?>"><?php echo $row["param"]; ?></td>
 					<td><input type="hidden" name="order_batchqty[]" value="<?php echo $row["value"]; ?>"><?php echo $row["value"]; ?></td>
-					<td><input type="hidden" name="order_batchpkg[]" value="<?php echo $package; ?>"><?php echo $package; ?></td>
-					<td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove();"><i class="fa fa-trash"></i>Remove</button></td>
+					<!--<td><input type="hidden" name="order_batchpkg[]" value="<?php echo $package; ?>"><?php echo $package; ?></td>-->
+					<td><button type="button" class="btn btn-danger" onclick="this.closest('tr').remove();"><i class="fa fa-trash"></i></button></td>
 
 				</tr>
 
@@ -716,7 +762,7 @@ input[type=number] {
 
 <?php
 
-$result  = runQuery("SELECT * FROM purchaseorder_params WHERE orderid='$orderid' AND step='DATA' AND tag='package'");
+$result  = runQuery("SELECT * FROM purchaseorder_params WHERE orderid='$orderid' AND step='BATCH'");
 
 if($result->num_rows>0)
 {
@@ -747,7 +793,7 @@ if($result->num_rows>0)
 			<div class="col-sm-3">
 				
 					<select class="form-control" id="tentative-pkg-<?php echo $k; ?>">
-						<option disabled selected=""> Choose a package</option>
+						<option disabled selected value=""> Choose a package</option>
 
 
 						<?php
@@ -785,7 +831,7 @@ if($result->num_rows>0)
 			</div>
 	</div>
 
-	<table class="table table-striped table-bordered" id="tentative-grade-<?php echo $k; ?>">
+	<table class="table table-striped table-bordered table-xs" id="tentative-grade-<?php echo $k; ?>">
 
 		<tr>
 			<th>Tentative Date</th>
@@ -813,11 +859,12 @@ if($result->num_rows>0)
 			$dumgrade = $currgrade[0];
 			$result2 = runQuery("SELECT * FROM purchaseorder_tentative WHERE orderid='$orderid' AND grade='$dumgrade'") ;
 			echo "<script>";
-
+			
 			echo "\$( document ).ready(function() {";
 			while($row2 = $result2->fetch_assoc())
 			{
 				//echo "s";
+				
 				echo "addtotentative(document.getElementById('tentative-tbody-".$k."'),'".$row2['date']."',".$row2['quantity'].",'".$row2['package']."','".$currgrade[0]."');\n";
 			}
 			echo "}); \n</script>";
@@ -839,7 +886,7 @@ if($result->num_rows>0)
 }
 else
 {
-	echo "Nothing to show.";
+	echo "Update the previous tab with grade and quantity details first.";
 }
 
 
@@ -867,6 +914,8 @@ else
 	
 	function addtotentative(tbody,tdate,tqty,tpkg,cgrade)
 	{
+
+		
 		currTotalTD = tbody.children[tbody.children.length-1].innerHTML;
 		currTotalId = tbody.children[tbody.children.length-1].id
 
@@ -933,22 +982,34 @@ else
 
 		if(flag)
 		{
-			document.getElementById('addTentative').onclick = function (){
-				document.getElementById('tentative-form').submit();
-			};
+
+			if(document.body.contains(document.getElementById('addTentative')))
+			{
+					document.getElementById('addTentative').onclick = function (){
+						document.getElementById('tentative-form').submit();
+					};
+			}
+			
+			
 			
 		}
 		else
 		{
-			document.getElementById('addTentative').onclick = function (){
+
+			if(document.body.contains(document.getElementById('addTentative')))
+			{
+					document.getElementById('addTentative').onclick = function (){
 				
-				Swal.fire({
-				  icon: 'error',
-				  title: 'Error',
-				  text: 'The tentative quantities does not add up to total.',
-				  
-				})
-			};
+						Swal.fire({
+						  icon: 'error',
+						  title: 'Error',
+						  text: 'The tentative quantities does not add up to total.',
+						  
+						})
+					};
+			}
+			
+			
 		}
 	}
 

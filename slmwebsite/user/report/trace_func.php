@@ -47,14 +47,14 @@
 			"children"=> []
 		];
 
-		$result = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND processid='$processid'");
+		$result = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param <> 'approved-by' AND processid='$processid'");
 		if($result->num_rows>0)
 		{
 			while($row=$result->fetch_assoc())
 			{
 				$newid = $row['param'];
 				$qty  = $row['value'];				
-				$result1 = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND processid='$newid'");
+				$result1 = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param <> 'approved-by' AND processid='$newid'");
 				$split = round($qty/$mainqty,2);
 				$split_percent = round($split*100,3);
 				if($result1->num_rows==0)
@@ -108,7 +108,7 @@
 			
 		];
 
-		$result = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND processid='$processid'");
+		$result = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param <> 'approved-by' AND processid='$processid'");
 		if($result->num_rows>0)
 		{
 			while($row=$result->fetch_assoc())
@@ -125,7 +125,7 @@
 
 
 
-				$result1 = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND processid='$newid'");
+				$result1 = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param <> 'approved-by' AND processid='$newid'");
 				if($result1->num_rows==0)
 				{
 					$dumdata = [
@@ -169,14 +169,14 @@
 			"children"=> []
 		];
 
-		$result = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param='$processid'");
+		$result = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param <> 'approved-by' AND param='$processid'");
 		if($result->num_rows>0)
 		{
 			while($row=$result->fetch_assoc())
 			{
 				$newid = $row['processid'];
 				$qty  = $row['value'];				
-				$result1 = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param='$newid'");
+				$result1 = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param <> 'approved-by' AND param='$newid'");
 				$split = round($qty/$mainqty,2);
 				$split_percent = round($split*100,3);
 				if($result1->num_rows==0)
@@ -235,7 +235,7 @@
 			
 		];
 
-		$result = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param='$processid'");
+		$result = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param <> 'approved-by'AND param='$processid'");
 		if($result->num_rows>0)
 		{
 			while($row=$result->fetch_assoc())
@@ -249,7 +249,7 @@
 
 
 
-				$result1 = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param='$newid'");
+				$result1 = runQuery("SELECT * FROM processentryparams WHERE STEP='PARENT' AND param <> 'approved-by' AND param='$newid'");
 				if($result1->num_rows==0)
 				{
 					$dumdata = [

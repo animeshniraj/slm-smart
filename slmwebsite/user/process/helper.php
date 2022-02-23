@@ -17,7 +17,7 @@
 
 
 
-    function datetimeInput($parameter,$prop,$value,$disabled = '')
+    function datetimeInput($parameter,$prop,$value,$disabled = '',$dmin='',$dmax='')
     {
         $prop = preg_replace('/\s+/', '_', $prop);
         if($disabled=="readonly")
@@ -26,12 +26,16 @@
         }
         else if($disabled=="readonly required" || $disabled=="required")
         {
-            echo "<div class=\"form-group row\">\n<label class=\"col-sm-2 col-form-label\">".$parameter."</label>\n<div class=\"col-sm-10\">\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"text\" name=\"paramsvalue[]\" value=\"".$value."\" id=\"".$prop."\" ".$disabled." class=\"form-control\">\n</div>\n</div>";
+            
+                echo "<div class=\"form-group row\">\n<label class=\"col-sm-2 col-form-label\">".$parameter."</label>\n<div class=\"col-sm-10\">\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"text\" name=\"paramsvalue[]\" value=\"".$value."\" id=\"".$prop."\" ".$disabled." class=\"form-control\">\n<script>\n$(function() {\n$('#".$prop."').daterangepicker({\nsingleDatePicker: true,timePicker: true,timePicker24Hour: true,\nshowDropdowns: true,\nminYear: 1901,\nmaxYear: parseInt(moment().format('YYYY'),10),\nlocale: {\n    format: 'DD-MM-YYYY HH:mm'\n}\n\n    \n}, function(start, end, label) {\n\n});\n});\n $('#".$prop."').val('".$value."');</script>\n</div>\n</div>";
+            
+            
         }
         
         else
         {
-            echo "<div class=\"form-group row\">\n<label class=\"col-sm-2 col-form-label\">".$parameter."</label>\n<div class=\"col-sm-10\">\n\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"text\" name=\"paramsvalue[]\" id=\"".$prop."\" ".$disabled." class=\"form-control\" placeholder=\"\">\n<script>\n$(function() {\n$('#".$prop."').daterangepicker({\nsingleDatePicker: true,timePicker: true,timePicker24Hour: true,\nshowDropdowns: true,\nminYear: 1901,\nmaxYear: parseInt(moment().format('YYYY'),10),\nlocale: {\n    format: 'DD-MM-YYYY HH:mm'\n}\n\n    \n}, function(start, end, label) {\n\n});\n});\n $('#".$prop."').val('".$value."');</script>\n</div>\n</div>";
+
+            echo "<div class=\"form-group row\">\n<label class=\"col-sm-2 col-form-label\">".$parameter."</label>\n<div class=\"col-sm-10\">\n\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"text\" name=\"paramsvalue[]\" id=\"".$prop."\" ".$disabled." class=\"form-control\" placeholder=\"\">\n<script>\n$(function() {\n$('#".$prop."').daterangepicker({\nsingleDatePicker: true,timePicker: true,timePicker24Hour: true,\nshowDropdowns: true,\nminYear: 1901,\nmaxYear: parseInt(moment().format('YYYY'),10),minDate: '".$dmin."',\nlocale: {\n    format: 'DD-MM-YYYY HH:mm'\n}\n\n    \n}, function(start, end, label) {\n\n});\n});\n $('#".$prop."').val('".$value."');</script>\n</div>\n</div>";
 
             if($value=="")
             {
@@ -111,12 +115,13 @@
             $max = 100000;
             $quarantine =">100000";
         }
-        echo "<div class=\"form-group row\">\n<div class=\"col-sm-12\">\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"hidden\" name=\"quarantine[]\" value=\"".$quarantine."\"><input required type=\"number\" value=\"".$value."\" step=0.001 name=\"paramsvalue[]\" id=\"".$prop."\" ".$disabled." class=\"form-control\">\n</div>\n</div>";
+        echo "<div class=\"form-group row\">\n<div class=\"col-sm-12\">\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"hidden\" name=\"quarantine[]\" value=\"".$quarantine."\"><input type=\"number\" value=\"".$value."\" step=0.001 name=\"paramsvalue[]\" id=\"".$prop."\" ".$disabled." class=\"form-control\">\n</div>\n</div>";
     }
 
 
     function optionInput($parameter,$prop,$currvalue,$options,$disabled = '')
     {
+        global $GRADE_TITLE;
         $prop = preg_replace('/\s+/', '_', $prop);
         $dumval =  "<div class=\"form-group row\">\n<label class=\"col-sm-2 col-form-label\">".$parameter."</label>\n<div class=\"col-sm-10\">\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><select name=\"paramsvalue[]\" id=\"".$prop."\" ".$disabled." class=\"form-control\">";
 
@@ -124,8 +129,11 @@
 
         foreach($options as $value)
         {
-            if($value)
+            if($value && $parameter==$GRADE_TITLE)
             {
+                $dumval = $dumval ."<option value=\"".$value."\">".explode('#',$value)[0]."</option>";
+            }
+            elseif ($value ) {
                 $dumval = $dumval ."<option value=\"".$value."\">".$value."</option>";
             }
             

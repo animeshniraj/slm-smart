@@ -91,7 +91,7 @@
 <div class="navbar-wrapper">
 <div class="navbar-logo">
 <a href="<?php echo $PAGE["Home Link"]; ?>">
-<img class="img-fluid" src="/pages/png/slmlogo.png" alt="Theme-Logo" />
+<img class="img-fluid" src="/pages/png/slmwhite.png" alt="Theme-Logo" />
 </a>
 <a class="mobile-menu" id="mobile-collapse" href="#!">
 <i class="feather icon-menu icon-toggle-right"></i>
@@ -109,7 +109,7 @@
 <span class="input-group-prepend search-close">
 <i class="feather icon-x input-group-text" id="mainsearchclose"></i>
 </span>
-<input type="text" id="mainsearchkey" class="form-control" placeholder="Enter Keyword">
+<input type="text" id="mainsearchkey" class="form-control" placeholder="Search any ID" onkeydown="upperCaseF(this)">
 <span class="input-group-append search-btn">
 <i class="feather icon-search input-group-text" onclick="mainSearch(this)"></i>
 </span>
@@ -190,6 +190,12 @@
         }
 
 
+
+        function upperCaseF(a){
+    setTimeout(function(){
+        a.value = a.value.toUpperCase();
+    }, 1);
+}
 
 </script>
 

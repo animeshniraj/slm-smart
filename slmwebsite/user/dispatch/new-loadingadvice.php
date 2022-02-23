@@ -82,7 +82,7 @@
     	
     	$result = runQuery("INSERT INTO loadingadvice_params VALUES(NULL,'$prefix','CREATION','Tentative Date','$currDate','date')");
 
-    	$result = runQuery("SELECT * FROM `purchaseorder_tentative` where date ='$currDate'");
+    	$result = runQuery("SELECT * FROM `purchaseorder_tentative` where date ='$currDate' AND orderid='$ponumber'");
 
     	while($row=$result->fetch_assoc())
     	{
@@ -91,7 +91,6 @@
     		$dGrade = $row["grade"];
     		$dqty = $row["quantity"];
 				$dpackage = $row["package"];
-
 
 
     		runQuery("INSERT INTO loadingadvice_batches VALUES(NULL,'$prefix','$dGrade','','$dqty','$dpackage')");
@@ -301,7 +300,7 @@ p {
 <form method="POST" id="newstock">
 
 		
-<p style="display:block;text-align:center;color:#212121;">Enter the Date</p>
+<p style="display:block;text-align:center;color:#212121;">Enter the Delivery Date</p>
 					<div class="form-group" style="display:flex; justify-content: center;">
 						
 						<input type="text" required name="creation-date" id="creation-date" class="form-control" style="display: inline; text-align: center;" placeholder="Date">
@@ -390,10 +389,10 @@ p {
 					<input type="hidden" name="updateprocess1" value="">
 	
 
-	<div class="form-group row">
+	<div class="form-group row justify-content-center">
 		
-		<div class="col-sm-12">
-		<button type="submit" class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Create New Entry</button>
+		<div class="col-sm-6">
+		<button type="submit" class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Create New Loading Advice</button>
 		</div>
 	</div>
 
@@ -402,7 +401,7 @@ p {
 
 </div>
 
-<
+
 
 
 

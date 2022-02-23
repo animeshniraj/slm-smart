@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | Welcome to Dashboard",
+        "Page Title" => "SLM | Welcome to SLM SMART Admin dashboard",
         "Home Link"  => "/admin/",
         "Menu"		 => "dashboard_menu",
         "MainMenu"	 => "",

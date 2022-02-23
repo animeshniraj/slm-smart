@@ -19,7 +19,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Create new Raw Bag",
+        "Page Title" => "Create New Raw Bag | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-rawbag-new",
         "MainMenu"	 => "process_rawbag",
@@ -59,15 +59,17 @@
     	
     	
     	$creationDate = $_POST["creation-date"];
+
+    	$rawbagno = $_POST['rawbagno'];
     	
     	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
 
     	$month = explode("-",explode(" ",$creationDate)[0])[1];
-    	$prefix = "R".$year." ".$month."/";
-    	$sqlprefix = "R".$year." ".$month."/%";
+    	$prefix = $year.'/'.$month.'-R-';
+    	$sqlprefix = $year.'/'.$month.'-R-%';
 
 
-    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(processid, '/', -1) AS SIGNED)) max_val FROM processentry WHERE processid LIKE '$sqlprefix'");
+    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(processid, '-', -1) AS SIGNED)) max_val FROM processentry WHERE processid LIKE '$sqlprefix'");
 
     	if($result->num_rows==0)
     	{	
@@ -87,10 +89,11 @@
     	
     	
     	$result = runQuery("INSERT INTO processentry VALUES('$prefix','$processname','CREATION',CURRENT_TIMESTAMP,'UNLOCKED')");
+    	$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','GENERIC','Raw Bag No.','$rawbagno')");
 
     	if($result)
     	{
-    			
+    			addprocesslog('PROCESS',$prefix,$session->user->getUserid(),'New Raw Bag Process ('.$prefix.') created');
     			
     				?>
     					<form id="redirectform" method="POST" action="rawbag-edit.php">
@@ -226,8 +229,8 @@ p {
 			<div class="page-header-title">
 				<i class="fa fa-shopping-bag bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>Raw Bag</h5>
-					<span>Edit Raw Bag parameters</span>
+					<h3>Raw Bag</h3>
+					<span>Enter the details to create a Raw Bag</span>
 				</div>
 			</div>
 		</div>
@@ -307,12 +310,16 @@ p {
 
 					</script>
 
-
+					<div class="form-group" style="display:flex; justify-content: center;">
+						
+						<input type="text" required name="rawbagno" id="rawbagno" class="form-control col-sm-3" style="display: inline; text-align: center;" placeholder="Raw Bag Number">
+						
+					</div>
 	
 
-	<div class="form-group row">
+	<div class="form-group row justify-content-md-center">
 		
-		<div class="col-sm-12">
+		<div class="col-sm-4">
 		<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Create New Entry</button>
 		</div>
 	</div>

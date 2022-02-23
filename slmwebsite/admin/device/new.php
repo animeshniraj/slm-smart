@@ -26,7 +26,15 @@
 		
 		if($result->num_rows==0)
 		{
-			$result = runQuery("INSERT devices VALUES('$devicename','$devicehostname','$deviceip','$type')");
+			if($type == "SCALE")
+			{
+				$result = runQuery("INSERT devices VALUES('$devicename','$devicehostname','$deviceip','$type','kg',1)");
+			}
+			else
+			{
+				$result = runQuery("INSERT devices VALUES('$devicename','$devicehostname','$deviceip','$type','NULL',0)");
+			}
+			
 		}
 		else
 		{

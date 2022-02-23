@@ -54,7 +54,7 @@
      if(isset($_POST["updateprocess1"]))
     {
     	
-    	$newprocessid = $_POST["processidName"][0].$_POST["processidName"][1].$_POST["processidName"][2];
+    	$newprocessid = $_POST["processidName"][0].$_POST["processidName"][1];
 
 
     	$result = runQuery("SELECT * FROM processentry WHERE processid='$newprocessid'");
@@ -84,6 +84,8 @@
     		runQuery("UPDATE processnotes SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("UPDATE processentryparams SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("DELETE FROM processentry WHERE processid='$processid'");
+
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Final Blend Process '.$processid.' ID changed to '.$newprocessid);
 	    	$processid = $newprocessid;
     	}
     	else
@@ -123,7 +125,7 @@
     	}
     	
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Final Blend Process ('.$processid.') Generic properties updated');
     	
 
 
@@ -151,7 +153,7 @@
     		runQuery("UPDATE processentry SET currentstep='OPERATIONAL' WHERE processid='$processid'");
     	}
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Final Blend Process ('.$processid.') Operational properties updated');
 
     }
 
@@ -166,84 +168,12 @@
     		$dumgrade = $allbmgrades[$i];
     		runQuery("INSERT INTO blendmastergrade VALUES(NULL,'$processid','$dumgrade')");
     	}
+
+    		addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Final Blend Process ('.$processid.') Blend Master updated');
     }
 
 
-    if(isset($_POST["updateprocess4"]))
-    {
-
-    	$allParams = $_POST['allparams'];
-    	$paramsvalue = $_POST['paramsvalue'];
-    	$qvalue = $_POST['quarantine'];
-
-    		$sqlprefix = $processid."/%";
-    		$prefix = $processid."/";
-    		
-    		$result = runQuery("SELECT * FROM processtest WHERE testid LIKE '$sqlprefix' ORDER BY entrytime DESC LIMIT 1");
-
-	    	if($result->num_rows==0)
-	    	{	
-	    		$alpha = "A";
-	    	}
-	    	else
-	    	{
-	    		$lastID = $result->fetch_assoc()["testid"];
-		    	$lastID = substr($lastID, 0, strpos($lastID, $prefix)).substr($lastID, strpos($lastID, $prefix)+strlen($prefix));
-		    	$alpha = ++$lastID;
-	    	}
-	    	$prefix = $prefix . $alpha;
-
-	    
-	    	runQuery("INSERT INTO processtest VALUES('$prefix','$processid','$processname',CURRENT_TIMESTAMP,'DEFAULT')");
-	    	
-	    	for($i=0;$i<count($allParams);$i++)
-	    	{
-	    		
-	    		if($qvalue[$i])
-	    		{
-
-	    			runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
-	    		}
-	    		elseif($sym==">")
-	    		{
-	    			$sym = $qvalue[$i][0];
-	    			$currv = str_replace($sym,"",$qvalue[$i]);
-
-	    			if(floatval($paramsvalue[$i])>floatval($currv))
-	    			{
-	    				runQuery("UPDATE processentry SET islocked ='BLOCKED' WHERE processid='$processid'");
-	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
-	    			}
-	    			else
-	    			{
-	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
-	    			}
-	    		}
-	    		else
-	    		{
-	    			$sym = $qvalue[$i][0];
-	    			$currv = str_replace($sym,"",$qvalue[$i]);
-	    			if(floatval($paramsvalue[$i])<floatval($currv))
-	    			{
-	    				runQuery("UPDATE processentry SET islocked ='BLOCKED' WHERE processid='$processid'");
-	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
-	    			}
-	    			else
-	    			{
-	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
-	    			}
-	    		}
-	    		
-	    	}
-
-    	if($currStep=="OPERATIONAL")
-    	{
-    		runQuery("UPDATE processentry SET currentstep='TEST' WHERE processid='$processid'");
-    	}
-
-
-
-    }
+    
 
 
     if(isset($_POST["updateprocess5"]))
@@ -272,7 +202,7 @@
 	    	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','GENERIC','$MASS_TITLE','$total1')");
     	}
  
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Final Blend Process ('.$processid.') Parent Id updated');
     
     }
 
@@ -284,7 +214,7 @@
     	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','PARENT','approved-by','$approved')");
     	runQuery("UPDATE processentry SET islocked='LOCKED' WHERE processid='$processid'");
 
-
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Final Blend Process ('.$processid.') approved');
 
     }
 
@@ -473,18 +403,40 @@
 
 
 
-				$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumParam'");
+    		if(substr($dumParam,0,5)=="Sieve")
+    		{
+
+    			$print = "Printed";
+    			$cum = "Cumulative";
 
 
-    		$result2 = $result2->fetch_assoc();
+
+
+	    		array_push($testParams,[$dumParam,"","","DECIMAL",$row["min"],$row["max"],"-","5",$print.", ".$cum]);
+
+    		}
+    		else
+    		{
+
+    			$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumParam'");
+
+
+	    		$result2 = $result2->fetch_assoc();
 
 
 
-    		//array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"]]);
+	    		array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"],$result2['mpif'],$result2['class']]);
+
+    		}
+    		
+
+
+    		
+    		
     	}
     }
 
-    
+
 
     $result = runQuery("SELECT * FROM processpermission WHERE processname='$processname' AND step='TEST' AND role ='$myrole'");
     if( $currStep=="OPERATIONAL" || $currStep=="TEST")
@@ -830,10 +782,10 @@ input[type=number] {
 							<div class="input-group input-group-button">
 
 								
-								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 0,2) ?>"><div></div>
-								<input name="processidName[]" type="hidden" value=" "><div></div>
+								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 0,9) ?>"><div></div>
 								
-								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 2) ?>">
+								
+								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 9) ?>">
 
 
 							</div>
@@ -1301,18 +1253,66 @@ if($operationalPermission)
 <style>
 
 .tab-pane.bm2{padding:0!important;}
-	.table.bms{font-size:10px!important;}
+.table.bms{font-size:12px!important;}
 .table td, .table th {padding:0.45rem 0.25rem;}
-.table th.bm{background-color:#990000;color:#fff;text-wrap:normal;word-wrap:break-word;width:150px;}
+.table th.bm{background-color:#990000;color:#fff;text-wrap:normal;word-wrap:break-word;width:150px;text-align:center;}
 </style>
 
+<script type="text/javascript">
+	
+	function printblendmaster()
+	{
+		var form  = document.createElement('form');
+			  		form.setAttribute('method','POST');
+			  		form.setAttribute('action','/user/report/printblendmaster.php');
+			  		form.setAttribute('target','_blank');
+
+			  		var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"print");
+						i.setAttribute('value',"<?php echo $processname ?>");
+
+						form.appendChild(i);
+
+
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"data");
+						i.setAttribute('value',document.getElementById('blendmasterparenttable').innerHTML);
+
+						form.appendChild(i);
+
+						
+
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"specdata");
+						i.setAttribute('value',document.getElementById('blendmasterspectable').innerHTML);
+
+						form.appendChild(i);
+
+					
+
+						document.body.appendChild(form);
+						form.submit();
+	}
+
+</script>
 
 
 <div class="tab-pane bm2" id="blendmaster-tabdiv" role="tabpanel">
 <?php if($blendmasterpermission){?>
-	<table class="table table-striped table-bordered bms">
-	
-	
+
+
+	<div>
+		<button type="button"  onclick="printblendmaster()"  class="btn btn-primary m-b-0 pull-right"><i class="fa fa-print"></i>Print Blend Master</button>		
+	</div>
+	<br>
+	<br>
+
+	<table id="blendmasterparenttable" class="table table-striped table-bordered bms">
+	<thead id="blendmasterparentthead">
+	<tr>
 
 	<?php
 		$blenmasterparams = $blendmasterData[1];
@@ -1325,7 +1325,8 @@ if($operationalPermission)
 	?>
 
 
-	<th rowspan="1" class="bm">Blend Qty</th>
+	<th rowspan="1" class="bm" style="width:5%!important;">Blend Qty.</th>
+</tr></thead>
 	<form method="POST">
 
 		<input type="hidden" name="processid" value="<?php echo $processid; ?>">
@@ -1359,7 +1360,7 @@ if($operationalPermission)
 		<?php if($j == count($blendmasterData[$i])-1){ ?>	
 			<td id = "bmparent-<?php echo $i."-balqty"; ?>"><?php echo $blendmasterData[$i][$j]; ?></td>
 		<?php }else{ ?>
-		<td id = "bmparent-<?php echo $i."-"."$j"; ?>"><?php echo $blendmasterData[$i][$j]; ?></td>
+		<td  id = "bmparent-<?php echo $i."-"."$j"; ?>"><?php echo $blendmasterData[$i][$j]; ?></td>
 
 		<?php } ?>
 
@@ -1369,12 +1370,12 @@ if($operationalPermission)
 			$max = $blendmasterData[$i][1]+$blendmasterData[$i][count($blendmasterData[$i])-1];
 			if($blendmasterData[$i][0]=="checked")
 			{
-							echo "<td ><input id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  value=\"".$blendmasterData[$i][1]."\"></td>";
+							echo "<td ><input  onchange ='findAvg()' id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  value=\"".$blendmasterData[$i][1]."\"></td>";
 
 			}
 			else
 			{
-							echo "<td ><input id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  disabled value=\"".$blendmasterData[$i][1]."\"></td>";
+							echo "<td ><input onchange ='findAvg()' id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  disabled value=\"".$blendmasterData[$i][1]."\"></td>";
 
 			}
 			echo "</tr>";
@@ -1390,7 +1391,9 @@ if($operationalPermission)
 
 </table>
 
-<table class="table">
+<table id="blendmasterspectable" class="table table-striped table-bordered">
+	<thead>
+	<tr>
 	<th rowspan="1" colspan="1" >Grade - <?php echo $currGradeName ?></th>
 	
 
@@ -1406,9 +1409,17 @@ if($operationalPermission)
 			}
 
 	?>
+	</tr>
 
 
-<tbody>
+	</thead>
+
+
+
+<script type="text/javascript">
+	let blendtest = [];
+</script>
+<tbody id="spec-tbody">
 	
 	<tr>
 		<td>Specs</td>
@@ -1416,10 +1427,47 @@ if($operationalPermission)
 
 			for($i=0;$i<count($testParams);$i++)
 			{
+				if($testParams[$i][4]=="BAL" || $testParams[$i][5]=="BAL")
+				{
+					?>
+						<td style="color: white" id="blendtest-<?php echo $i; ?>"><?php echo $testParams[$i][4]?> - <?php echo $testParams[$i][5] ?></td>
+
+					<?php
+				}
+				elseif($testParams[$i][4]==0 && $testParams[$i][5])
+				{
+					?>
+						<td style="color: white"  id="blendtest-<?php echo $i; ?>"><<?php echo $testParams[$i][5] ?></td>
+
+					<?php
+				}
+				elseif($testParams[$i][4] && $testParams[$i][5]==0)
+				{
+					?>
+						<td style="color: white"  id="blendtest-<?php echo $i; ?>">><?php echo $testParams[$i][4] ?></td>
+
+					<?php
+				}
+				else
+				{
+
+
 				?>
 
-					<td><?php echo $testParams[$i][4]."-".$testParams[$i][5] ?></td>
+					<td style="color: white" id="blendtest-<?php echo $i; ?>"><?php echo $testParams[$i][4]?> - <?php echo $testParams[$i][5] ?></td>
+					
+					<?php
+				}
+					if($testParams[$i][7]!="Chemical")
+					{
+					?>
+					<script type="text/javascript">
+						blendtest.push(["blendtest-<?php echo $i;?>","<?php echo $testParams[$i][0]; ?>","<?php echo $testParams[$i][4]?>","<?php echo $testParams[$i][5]?>"])
+					</script>
 
+					<?php
+						}
+					?>
 				<?php
 			}
 
@@ -1456,6 +1504,7 @@ if($operationalPermission)
 		{
 
 			document.getElementById(inObj.id+"-qty").disabled = true;
+			document.getElementById(inObj.id+"-balqty").innerHTML = document.getElementById(inObj.id+"-qty").value
 			document.getElementById(inObj.id+"-qty").value = 0;
 			findAvg()
 
@@ -1469,6 +1518,9 @@ if($operationalPermission)
 	function findAvg()
 	{
 		var tbody = document.getElementById('blendmasterparenttbody');
+		var thead = document.getElementById('blendmasterparentthead');
+		dumtest = [];
+		dumhead = [];
 
 			var avgdiv = tbody.children[tbody.children.length-1];
 			var divstore = avgdiv; 
@@ -1488,6 +1540,9 @@ if($operationalPermission)
 							sum[j-3] += parseFloat(currrow.children[j].innerHTML) * parseFloat(currrow.children[currrow.children.length-1].children[0].value);
 							total[j-3] += parseFloat(currrow.children[currrow.children.length-1].children[0].value);
 						}
+
+						
+						
 							
 				}
 				
@@ -1497,13 +1552,17 @@ if($operationalPermission)
 
 			for(var j = 3;j<tbody.children[0].children.length-2;j++)
 			{
+				dumhead.push(thead.children[0].children[j].innerHTML)
 				if(sum[j-3]/total[j-3])
 				{
 					avgdiv.innerHTML += "<th>"+ Math.round((sum[j-3]/total[j-3])*100)/100 +"</th>";
+					dumtest[thead.children[0].children[j].innerHTML] = Math.round((sum[j-3]/total[j-3])*100)/100;
+
 				}
 				else
 				{
 					avgdiv.innerHTML += "<th>0</th>";
+					dumtest[thead.children[0].children[j].innerHTML] = 0;
 				}
 				
 			}
@@ -1511,7 +1570,113 @@ if($operationalPermission)
 			
 			avgdiv.innerHTML += "<th></th>";
 			avgdiv.innerHTML += "<th>"+ totalSelected +"</th>";
+			changecolor(dumtest,dumhead)
 
+	}
+
+	function changecolor(testval,allhead)
+	{
+		
+		var spectbody = document.getElementById('spec-tbody');
+
+		var lastrow = spectbody.children[spectbody.children.length-1];
+
+		
+		spechead = blendtest.map(function(value,index) { return value[1]; });
+		
+
+		carryover = 0;
+		for(var i=0;i<allhead.length;i++)
+		{
+			curr = allhead[i];
+			
+			if(curr.substring(0,5)=="Sieve")
+			{
+				if(!spechead.includes(curr))
+				{
+					carryover+= testval[curr];
+				}
+				else
+				{
+					testval[curr]+=carryover;
+
+					testval[curr] = Math.round(testval[curr]*1000)/1000;
+					carryover=0;
+				}
+			}
+		}
+
+		if(lastrow.children[0].innerHTML=='Value')
+		{
+			lastrow.remove();
+		}
+
+		var tr = document.createElement('tr');
+		tr.innerHTML = "<td>Value</td>"
+		for(var i=0;i<blendtest.length;i++)
+		{
+				
+				
+				flag = true;
+				if(blendtest[i][2]=="BAL" || blendtest[i][3]=="BAL")
+				{
+					document.getElementById(blendtest[i][0]).style.backgroundColor = "green";
+					flag = true;
+					tr.innerHTML += "<td style='background-color: green; color: white;'>"+testval[blendtest[i][1]]+"</td>";
+					continue;
+
+				}
+				if(blendtest[i][2] && testval[blendtest[i][1]])
+				{
+					if(testval[blendtest[i][1]]<blendtest[i][2])
+					{
+						flag = flag && false;
+					}
+					else
+					{
+						flag = flag && true;
+					}
+				}
+				if(blendtest[i][3] && testval[blendtest[i][1]])
+				{
+					if(testval[blendtest[i][1]]>blendtest[i][3])
+					{
+						flag = flag && false;
+					}
+					else
+					{
+						flag = flag && true;
+					}
+					
+				}
+
+				if(flag)
+				{
+					document.getElementById(blendtest[i][0]).style.backgroundColor = "green";
+					if(testval[blendtest[i][1]] || testval[blendtest[i][1]]==0)
+					{
+						tr.innerHTML += "<td style='background-color: green; color: white;'>"+testval[blendtest[i][1]]+"</td>";
+					}
+					else
+					{
+						tr.innerHTML += "<td style='background-color: green; color: white;'>-</td>";
+					}
+				}
+				else
+				{
+					document.getElementById(blendtest[i][0]).style.backgroundColor = "red";
+					if(testval[blendtest[i][1]])
+					{
+						tr.innerHTML += "<td style='background-color: red; color: white;'>"+testval[blendtest[i][1]]+"</td>";
+					}
+					else
+					{
+						tr.innerHTML += "<td style='background-color: red; color: white;'>-</td>";
+					}
+				}
+		}
+
+		spectbody.appendChild(tr);
 	}
 
 

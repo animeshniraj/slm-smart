@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Edit Melting Batch",
+        "Page Title" => "SLM | Edit Heat ID",
         "Home Link"  => "/user/",
         "Menu"		 => "process-melting-view",
         "MainMenu"	 => "process_melting",
@@ -84,7 +84,9 @@
     		runQuery("UPDATE processnotes SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("UPDATE processentryparams SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("DELETE FROM processentry WHERE processid='$processid'");
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Melting Process '.$processid.' ID changed to '.$newprocessid);
 	    	$processid = $newprocessid;
+
     	}
     	else
     	{
@@ -123,6 +125,7 @@
     	}
     	
     	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Melting Process ('.$processid.') Generic properties updated');
     	
     	
 
@@ -146,6 +149,8 @@
     	{
     		runQuery("UPDATE processentry SET currentstep='OPERATIONAL' WHERE processid='$processid'");
     	}
+
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Melting Process ('.$processid.') Operational properties updated');
     	
     	
 
@@ -201,6 +206,8 @@
 	    			{
 	    				runQuery("UPDATE processentry SET islocked ='BLOCKED' WHERE processid='$processid'");
 	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
+
+	    				addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Melting Process ('.$processid.') blocked');
 	    			}
 	    			else
 	    			{
@@ -214,6 +221,8 @@
 	    			{
 	    				runQuery("UPDATE processentry SET islocked ='BLOCKED' WHERE processid='$processid'");
 	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
+
+	    				addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Melting Process ('.$processid.') blocked');
 	    			}
 	    			else
 	    			{
@@ -225,7 +234,7 @@
 	    		
 	    	}
 
-
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Melting Process ('.$processid.') new Test added');
 
     	if($currStep=="OPERATIONAL")
     	{
@@ -259,6 +268,9 @@
     		runQuery("DELETE FROM processentryparams WHERE processid='$processid' AND step='STOCK' AND param='$allParams[$i]'");
     		runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','STOCK','$allParams[$i]','$paramsvalue[$i]')");
     	}
+
+
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Melting Process ('.$processid.') Raw Materials updated');
     	
 
     }
@@ -336,6 +348,7 @@
     		}
     		array_push($genericParams,[$dumParam,$dumval,$row["allowedvalues"],$row["type"],$row["islocked"]]);
     	}
+
 
 
     }
@@ -643,7 +656,7 @@ input[type=number] {
 			<div class="page-header-title">
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;" class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
-					<h3 style="margin-bottom:0;">Currently updating Batch ID: <?php echo $processid; ?> </h3>
+					<h3 style="margin-bottom:0;">Currently updating Heat ID: <?php echo $processid; ?> </h3>
 					<p class="created">(Created on: <?php echo $entrytime; ?>)</p>
 				</div>
 			</div>
@@ -940,6 +953,7 @@ input[type=number] {
 					}
 					else if($genericParams[$i][3] == "DATE TIME")
 					{
+
 						datetimeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly required');
 					}
 
@@ -1472,7 +1486,7 @@ if($testPermission)
 		?>
 
 <div class="row">
-<div class=col-md-6>
+<div class=col-md-12>
 
 	<div class="form-group row">
 		<label class="col-sm-4" style="margin-top:.5rem;">Select Raw Material</label>
@@ -1491,7 +1505,7 @@ if($testPermission)
 <thead>
 <tr>
 
-<th>Raw Material</th>
+<th style="width:50%;">Raw Material</th>
 <th>Quantity (in Kg)</th>
 
 </tr>
@@ -1636,7 +1650,7 @@ echo "</tbody></table>";
 
 
 
-<div class="col-md-6">
+<div class="col-md-12">
 <h5 style="text-align:center;">Forward Tracking</h5>
 <hr>
 

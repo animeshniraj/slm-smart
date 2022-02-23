@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "Edit Raw Blend | User Dashboard",
+        "Page Title" => "SLM SMART | Edit Raw Blend",
         "Home Link"  => "/user/",
         "Menu"		 => "process-rawblend-view",
         "MainMenu"	 => "process_rawblend",
@@ -54,7 +54,7 @@
      if(isset($_POST["updateprocess1"]))
     {
     	
-    	$newprocessid = $_POST["processidName"][0].$_POST["processidName"][1].$_POST["processidName"][2];
+    	$newprocessid = $_POST["processidName"][0].$_POST["processidName"][1];
 
 
     	$result = runQuery("SELECT * FROM processentry WHERE processid='$newprocessid'");
@@ -84,6 +84,7 @@
     		runQuery("UPDATE processnotes SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("UPDATE processentryparams SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("DELETE FROM processentry WHERE processid='$processid'");
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process '.$processid.' ID changed to '.$newprocessid);
 	    	$processid = $newprocessid;
     	}
     	else
@@ -123,7 +124,7 @@
     	}
     	
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process ('.$processid.') Generic properties updated');
     	
 
 
@@ -152,7 +153,7 @@
     	}
     	
     	
-
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process ('.$processid.') Operational properties updated');
     }
 
 
@@ -166,6 +167,8 @@
     		$dumgrade = $allbmgrades[$i];
     		runQuery("INSERT INTO blendmastergrade VALUES(NULL,'$processid','$dumgrade')");
     	}
+
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process ('.$processid.') Blend Master updated');
     }
 
 
@@ -241,7 +244,7 @@
     		runQuery("UPDATE processentry SET currentstep='TEST' WHERE processid='$processid'");
     	}
 
-
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process ('.$processid.') Test added');
 
     }
 
@@ -272,7 +275,7 @@
 	    	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','GENERIC','$MASS_TITLE','$total1')");
     	}
  
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process ('.$processid.') parent IDs updated');
     
     }
 
@@ -454,14 +457,31 @@
 
 
 
-				$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumParam'");
+    		if(substr($dumParam,0,5)=="Sieve")
+    		{
+
+    			$print = "Printed";
+    			$cum = "Cumulative";
 
 
-    		$result2 = $result2->fetch_assoc();
+
+
+	    		array_push($testParams,[$dumParam,"","","DECIMAL",$row["min"],$row["max"],"-","5",$print.", ".$cum]);
+
+    		}
+    		else
+    		{
+
+    			$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumParam'");
+
+
+	    		$result2 = $result2->fetch_assoc();
 
 
 
-    		array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"]]);
+	    		array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"],$result2['mpif'],$result2['class']]);
+
+    		}
     	}
     }
 
@@ -697,8 +717,8 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h5>Editing: <?php echo $processid; ?> - Created on (<?php echo $entrytime; ?>)</h5>
-					<span>Edit Raw Blend parameters</span>
+					<h3 style="margin-bottom:0;">Currently updating Batch ID: <?php echo $processid; ?></h5>
+					<p class="created">(Created on: <?php echo $entrytime; ?>)</p>
 				</div>
 			</div>
 		</div>
@@ -730,41 +750,41 @@ input[type=number] {
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i> Creation</a>
 <div class="slide"></div>
 </li>
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i>Generic</a>
+<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i> Generic</a>
 <div class="slide"></div>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i>Operational Parameter</a>
-<div class="slide"></div>
-</li>
-
-
-<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#blendmaster-tabdiv" role="tab"><i class="icofont icofont-link"></i>Blend Master</a>
-<div class="slide"></div>
-</li>
-
-
-
-<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i>Test Properties</a>
+<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i> Operational Parameter</a>
 <div class="slide"></div>
 </li>
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#parent-tabdiv" role="tab"><i class="icofont icofont-link"></i>Forward Tracking</a>
+<a class="nav-link" data-toggle="tab" href="#blendmaster-tabdiv" role="tab"><i class="icofont icofont-link"></i> Blend Master</a>
+<div class="slide"></div>
+</li>
+
+
+
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Test Properties</a>
 <div class="slide"></div>
 </li>
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i>Notes</a>
+<a class="nav-link" data-toggle="tab" href="#parent-tabdiv" role="tab"><i class="icofont icofont-link"></i> Forward Tracking</a>
+<div class="slide"></div>
+</li>
+
+
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i> Notes</a>
 <div class="slide"></div>
 </li>
 
@@ -792,10 +812,10 @@ input[type=number] {
 							<div class="input-group input-group-button">
 
 								
-								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 0,2) ?>"><div></div>
-								<input name="processidName[]" type="hidden" value=" "><div></div>
+								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 0,9) ?>"><div></div>
 								
-								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 2) ?>">
+								
+								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 9) ?>">
 
 
 							</div>
@@ -813,6 +833,7 @@ input[type=number] {
 				?>
 				<div class="col-sm-12">
 				<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/print/rawblend-tag.php?processid=<?php echo $processid; ?>&grade=<?php echo $currGradeName; ?>&quantity=<?php echo getTotalQuantity($processid) ?>')"><i class="icofont icofont-barcode"></i>Generate Label</button>
+				<button type="button" class="btn btn-primary m-b-0 ml-1 pull-left" onclick="window.open('/user/report/basic-rawblend.php?id=<?php echo $processid; ?>')"><i class="icofont icofont-page"></i>Generate Report</button>
 				<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
 				</div>
 
@@ -1212,13 +1233,19 @@ if($operationalPermission)
 					<input type="hidden" name="currtab" value="operational-tabdiv">
 					<?php 
 
-							$result = runQuery("SELECT * FROM processgrades WHERE processname='Raw Bag'");
+							$result = runQuery("SELECT * FROM processgrades WHERE processname='Raw Bag' ORDER BY entrytime DESC");
 							$k=0;
+							$allgradelist = [];
 							while($row = $result->fetch_assoc())
 							{
+								if(in_array(explode('#',$row["gradename"])[0], $allgradelist))
+								{
+									continue;
+								}
 
 							$dumgrade = $row["gradename"];
 							$checked = "";
+							array_push($allgradelist,explode('#',$row["gradename"])[0]);
 							$dumR = runQuery("SELECT * FROM blendmastergrade WHERE processid='$processid' AND gradename='$dumgrade'");
 							if($dumR->num_rows>=1)
 							{
@@ -1230,7 +1257,7 @@ if($operationalPermission)
 					<div class="checkbox-color checkbox-primary">
 						<input id="bmgrades-<?php echo $k;?>" type="checkbox" <?php echo $checked; ?> name="bmgrades[]" value="<?php echo $row["gradename"] ?>">
 						<label for="bmgrades-<?php echo $k;?>">
-						<?php echo $row["gradename"] ?>
+						<?php echo explode('#',$row["gradename"])[0] ?>
 						</label>
 					</div>
 
@@ -1269,13 +1296,57 @@ if($operationalPermission)
 </style>
 
 
+<script type="text/javascript">
+	
+	function printblendmaster()
+	{
+		var form  = document.createElement('form');
+			  		form.setAttribute('method','POST');
+			  		form.setAttribute('action','/user/report/printblendmaster.php');
+			  		form.setAttribute('target','_blank');
+
+			  		var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"print");
+						i.setAttribute('value',"<?php echo $processname ?>");
+
+						form.appendChild(i);
+
+
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"data");
+						i.setAttribute('value',document.getElementById('blendmasterparenttable').innerHTML);
+
+						form.appendChild(i);
+
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"specdata");
+						i.setAttribute('value',document.getElementById('blendmasterspectable').innerHTML);
+
+						form.appendChild(i);
+
+					
+
+						document.body.appendChild(form);
+						form.submit();
+	}
+
+</script>
 
 <div class="tab-pane bm2" id="blendmaster-tabdiv" role="tabpanel">
 <?php if($blendmasterpermission){?>
-	<table class="table table-striped table-bordered bms">
-	
-	
 
+	<div>
+		<button type="button" onclick="printblendmaster()"  class="btn btn-primary m-b-0 pull-right"><i class="fa fa-print"></i>Print Blend Master</button>		
+	</div>
+	<br>
+	<br>
+	<table id="blendmasterparenttable"  class="table table-striped table-bordered bms">
+	<thead id="blendmasterparentthead">
+	
+		<tr>
 	<?php
 		$blenmasterparams = $blendmasterData[1];
 			$blendmasterData = $blendmasterData[0];
@@ -1292,7 +1363,11 @@ if($operationalPermission)
 
 		<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 		<input type="hidden" name="currtab" value="blendmaster-tabdiv">
+</tr></thead>
+	<form method="POST">
 
+		<input type="hidden" name="processid" value="<?php echo $processid; ?>">
+		<input type="hidden" name="currtab" value="blendmaster-tabdiv">
 <tbody id="blendmasterparenttbody">
 	
 	<?php 
@@ -1331,12 +1406,12 @@ if($operationalPermission)
 			$max = $blendmasterData[$i][1]+$blendmasterData[$i][count($blendmasterData[$i])-1];
 			if($blendmasterData[$i][0]=="checked")
 			{
-							echo "<td ><input id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  value=\"".$blendmasterData[$i][1]."\"></td>";
+							echo "<td ><input  onchange ='findAvg()' id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  value=\"".$blendmasterData[$i][1]."\"></td>";
 
 			}
 			else
 			{
-							echo "<td ><input id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  disabled value=\"".$blendmasterData[$i][1]."\"></td>";
+							echo "<td ><input  onchange ='findAvg()' id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  disabled value=\"".$blendmasterData[$i][1]."\"></td>";
 
 			}
 			echo "</tr>";
@@ -1352,6 +1427,93 @@ if($operationalPermission)
 
 </table>
 
+<table id="blendmasterspectable" class="table table-striped table-bordered">
+	<thead>
+	<tr>
+	<th rowspan="1" colspan="1" >Grade - <?php echo $currGradeName ?></th>
+	
+
+	<?php 
+
+			for($i=0;$i<count($testParams);$i++)
+			{
+				?>
+
+					<th rowspan="1" colspan="1"><?php echo $testParams[$i][0] ?></th>
+
+				<?php
+			}
+
+	?>
+	</tr>
+
+
+	</thead>
+
+	<script type="text/javascript">
+	let blendtest = [];
+</script>
+<tbody id="spec-tbody">
+	
+	<tr>
+		<td>Specs</td>
+		<?php 
+
+			for($i=0;$i<count($testParams);$i++)
+			{
+
+
+				if($testParams[$i][4]=="BAL" || $testParams[$i][5]=="BAL")
+				{
+					?>
+						<td style="color: white" id="blendtest-<?php echo $i; ?>"><?php echo $testParams[$i][4]?> - <?php echo $testParams[$i][5] ?></td>
+
+					<?php
+				}
+				elseif($testParams[$i][4]==0 && $testParams[$i][5])
+				{
+					?>
+						<td style="color: white"  id="blendtest-<?php echo $i; ?>"><<?php echo $testParams[$i][5] ?></td>
+
+					<?php
+				}
+				elseif($testParams[$i][4] && $testParams[$i][5]==0)
+				{
+					?>
+						<td style="color: white"  id="blendtest-<?php echo $i; ?>">><?php echo $testParams[$i][4] ?></td>
+
+					<?php
+				}
+				else
+				{
+
+
+				?>
+
+
+
+					<td style="color: white"  id="blendtest-<?php echo $i; ?>"><?php echo $testParams[$i][4]?> - <?php echo $testParams[$i][5] ?></td>
+					
+					<?php
+				}
+					if($testParams[$i][7]!="Chemical")
+					{
+					?>
+					<script type="text/javascript">
+						blendtest.push(["blendtest-<?php echo $i;?>","<?php echo $testParams[$i][0]; ?>","<?php echo $testParams[$i][4]?>","<?php echo $testParams[$i][5]?>"])
+					</script>
+
+					<?php
+						}
+					?>
+				<?php
+			}
+
+	?>
+	</tr>
+
+</tbody>
+</table>
 
 <div class="col-sm-12">
 		<button type="submit"  name="updateprocess5" id="process5-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
@@ -1377,6 +1539,7 @@ if($operationalPermission)
 		{
 
 			document.getElementById(inObj.id+"-qty").disabled = true;
+			document.getElementById(inObj.id+"-balqty").innerHTML = document.getElementById(inObj.id+"-qty").value
 			document.getElementById(inObj.id+"-qty").value = 0;
 			findAvg()
 
@@ -1390,6 +1553,10 @@ if($operationalPermission)
 	function findAvg()
 	{
 		var tbody = document.getElementById('blendmasterparenttbody');
+
+		var thead = document.getElementById('blendmasterparentthead');
+		dumtest = [];
+		dumhead = [];
 
 			var avgdiv = tbody.children[tbody.children.length-1];
 			var divstore = avgdiv; 
@@ -1418,13 +1585,16 @@ if($operationalPermission)
 
 			for(var j = 3;j<tbody.children[0].children.length-2;j++)
 			{
+				dumhead.push(thead.children[0].children[j].innerHTML)
 				if(sum[j-3]/total[j-3])
 				{
 					avgdiv.innerHTML += "<th>"+ Math.round((sum[j-3]/total[j-3])*100)/100 +"</th>";
+					dumtest[thead.children[0].children[j].innerHTML] = Math.round((sum[j-3]/total[j-3])*100)/100;
 				}
 				else
 				{
 					avgdiv.innerHTML += "<th>0</th>";
+					dumtest[thead.children[0].children[j].innerHTML] = 0;
 				}
 				
 			}
@@ -1433,52 +1603,121 @@ if($operationalPermission)
 			avgdiv.innerHTML += "<th></th>";
 			avgdiv.innerHTML += "<th>"+ totalSelected +"</th>";
 
+			changecolor(dumtest,dumhead)
+
+	}
+
+
+	function changecolor(testval,allhead)
+	{
+		
+		var spectbody = document.getElementById('spec-tbody');
+
+		var lastrow = spectbody.children[spectbody.children.length-1];
+
+		
+		spechead = blendtest.map(function(value,index) { return value[1]; });
+		
+
+		carryover = 0;
+		for(var i=0;i<allhead.length;i++)
+		{
+			curr = allhead[i];
+			
+			if(curr.substring(0,5)=="Sieve")
+			{
+				if(!spechead.includes(curr))
+				{
+					carryover+= testval[curr];
+				}
+				else
+				{
+					testval[curr]+=carryover;
+
+					testval[curr] = Math.round(testval[curr]*1000)/1000;
+					carryover=0;
+				}
+			}
+		}
+
+		if(lastrow.children[0].innerHTML=='Value')
+		{
+			lastrow.remove();
+		}
+
+		var tr = document.createElement('tr');
+		tr.innerHTML = "<td>Value</td>"
+		for(var i=0;i<blendtest.length;i++)
+		{
+				
+				
+				flag = true;
+				if(blendtest[i][2]=="BAL" || blendtest[i][3]=="BAL")
+				{
+					document.getElementById(blendtest[i][0]).style.backgroundColor = "green";
+					flag = true;
+					tr.innerHTML += "<td style='background-color: green; color: white;'>"+testval[blendtest[i][1]]+"</td>";
+					continue;
+
+				}
+				if(blendtest[i][2] && testval[blendtest[i][1]])
+				{
+					if(testval[blendtest[i][1]]<blendtest[i][2])
+					{
+						flag = flag && false;
+					}
+					else
+					{
+						flag = flag && true;
+					}
+				}
+				if(blendtest[i][3] && testval[blendtest[i][1]])
+				{
+					if(testval[blendtest[i][1]]>blendtest[i][3])
+					{
+						flag = flag && false;
+					}
+					else
+					{
+						flag = flag && true;
+					}
+					
+				}
+
+				if(flag)
+				{
+					document.getElementById(blendtest[i][0]).style.backgroundColor = "green";
+					if(testval[blendtest[i][1]] || testval[blendtest[i][1]]==0)
+					{
+						tr.innerHTML += "<td style='background-color: green; color: white;'>"+testval[blendtest[i][1]]+"</td>";
+					}
+					else
+					{
+						tr.innerHTML += "<td style='background-color: green; color: white;'>-</td>";
+					}
+				}
+				else
+				{
+					document.getElementById(blendtest[i][0]).style.backgroundColor = "red";
+					if(testval[blendtest[i][1]])
+					{
+						tr.innerHTML += "<td style='background-color: red; color: white;'>"+testval[blendtest[i][1]]+"</td>";
+					}
+					else
+					{
+						tr.innerHTML += "<td style='background-color: red; color: white;'>-</td>";
+					}
+				}
+		}
+
+		spectbody.appendChild(tr);
 	}
 
 
 </script>
 <br><br>
 
-<table class="table">
-	<th rowspan="1" colspan="1" >Grade - <?php echo $currGradeName ?></th>
-	
 
-	<?php 
-
-			for($i=0;$i<count($testParams);$i++)
-			{
-				?>
-
-					<th rowspan="1" colspan="1"><?php echo $testParams[$i][0] ?></th>
-
-				<?php
-			}
-
-	?>
-
-
-<tbody>
-	
-	<tr>
-		<td>Specs</td>
-		<?php 
-
-			for($i=0;$i<count($testParams);$i++)
-			{
-				?>
-
-					<td><?php echo $testParams[$i][4]."-".$testParams[$i][5] ?></td>
-
-				<?php
-			}
-
-	?>
-	</tr>
-
-</tbody>
-
-
-</table>
 
 
 <?php }?>

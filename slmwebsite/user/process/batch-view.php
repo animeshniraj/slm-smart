@@ -56,7 +56,7 @@
 		{
 			$deletePermission = true;
 		}
-
+		addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Batch ('.$processid.') deleted');
 	}
 
 	if($myrole=="ADMIN")

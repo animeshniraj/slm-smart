@@ -89,6 +89,7 @@
     		runQuery("UPDATE processnotes SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("UPDATE processentryparams SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("DELETE FROM processentry WHERE processid='$processid'");
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Batch '.$processid.' ID changed to '.$newprocessid);
 	    	$processid = $newprocessid;
     	}
     	else
@@ -128,7 +129,7 @@
     	}
     	
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Batch ('.$processid.') Generic properties updated');
     	
 
 
@@ -157,7 +158,7 @@
     		runQuery("UPDATE processentry SET currentstep='OPERATIONAL' WHERE processid='$processid'");
     	}
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Batch ('.$processid.') Operational properties updated');
 
     }
 
@@ -172,6 +173,7 @@
     	$paramsvalue = $_POST['paramsvalue'];
     	$qvalue = $_POST['quarantine'];
     	$testedby = $_POST['testedby'];
+    	$approvedby = $_POST['approved'];
 
     		$sqlprefix = $processid."/%";
     		$prefix = $processid."/";
@@ -200,46 +202,15 @@
 	    		{
 	    			runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
 	    		}
-	    		elseif($qvalue[$i])
+	    		else
 	    		{
 
 	    			runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
 
-	    			runQuery("INSERT INTO additional_process_data VALUES(NULL,'$processid','$prefix','$allParams[$i]','$testedby[$i]')");
+	    			runQuery("INSERT INTO additional_process_data VALUES(NULL,'$processid','$prefix','$allParams[$i]','$testedby[$i]','$approvedby[$i]')");
 	    		}
-	    		elseif($sym==">")
-	    		{
-	    			$sym = $qvalue[$i][0];
-	    			$currv = str_replace($sym,"",$qvalue[$i]);
-
-	    			if(floatval($paramsvalue[$i])>floatval($currv))
-	    			{
-	    				runQuery("UPDATE processentry SET islocked ='BLOCKED' WHERE processid='$processid'");
-	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
-	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$processid','$prefix','$allParams[$i]','$testedby[$i]')");
-	    			}
-	    			else
-	    			{
-	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
-	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$processid','$prefix','$allParams[$i]','$testedby[$i]')");
-	    			}
-	    		}
-	    		else
-	    		{
-	    			$sym = $qvalue[$i][0];
-	    			$currv = str_replace($sym,"",$qvalue[$i]);
-	    			if(floatval($paramsvalue[$i])<floatval($currv))
-	    			{
-	    				runQuery("UPDATE processentry SET islocked ='BLOCKED' WHERE processid='$processid'");
-	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
-	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$processid','$prefix','$allParams[$i]','$testedby[$i]')");
-	    			}
-	    			else
-	    			{
-	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
-	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$processid','$prefix','$allParams[$i]','$testedby[$i]')");
-	    			}
-	    		}
+	    		
+	    		
 	    		
 	    	}
 
@@ -247,7 +218,7 @@
     	{
     		runQuery("UPDATE processentry SET currentstep='TEST' WHERE processid='$processid'");
     	}
-
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Batch ('.$processid.') new Test added');
 
 
     }
@@ -279,7 +250,7 @@
 	    	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','GENERIC','$MASS_TITLE','$total1')");
     	}
  
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Bag ('.$processid.') parent IDs updated');
     
     }
 
@@ -296,7 +267,7 @@
 	    runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','GENERIC','$MASS_TITLE','$finalqty')");
     	runQuery("UPDATE processentry SET islocked='BATCHED' WHERE processid='$processid'");
 
-
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Batch ('.$processid.') approved by '.$approved);
 
 
 
@@ -483,24 +454,16 @@
 
 
 
-    		if($row['min']==-10000)
+    		if(substr($dumParam,0,5)=="Sieve")
     		{
 
-    			$print = "Not Printed";
-    			$cum = "Non Cumulative";
-
-    			if($row['max']==1)
-    			{
-    				$print = "Printed";
-    			}
-
-    			if($row['quarantine']==1)
-    			{
-    				$cum = "Cumulative";
-    			}
+    			$print = "Printed";
+    			$cum = "Cumulative";
 
 
-	    		array_push($testParams,[$dumParam,"","","DECIMAL","-","-","-","5",$print.", ".$cum]);
+
+
+	    		array_push($testParams,[$dumParam,"","","DECIMAL",$row["min"],$row["max"],"-","5",$print.", ".$cum]);
 
     		}
     		else
@@ -1033,7 +996,70 @@ if($testPermission)
 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 	<input type="hidden" name="currtab" value="test-tabdiv">
 
+<script type="text/javascript">
+	function checkminmax(valuein,approvedby,min,max)
+	{
 
+		if(!valuein.value)
+		{
+			return;
+		}
+
+		if(min=="BAL" || max=="BAL")
+		{
+			approvedby.value = "";
+			return;
+		}
+
+		currval = valuein.value;
+		
+
+		flag = true;
+		if(min || min==0)
+		{
+			
+			if(parseFloat(currval)<parseFloat(min))
+			{
+				flag = false;
+				
+			}
+		}
+
+		if( max || max==0)
+		{
+			if(parseFloat(currval)>parseFloat(max))
+			{
+				flag = false;
+
+			}
+		}
+
+		if(!flag)
+		{
+			Swal.fire({
+			icon: 'error',
+		  title: 'Out of Bounds',
+		  input: 'text',
+		  inputLabel: 'Enter who approved.',
+		  showCancelButton: false,
+		  allowEscapeKey: false,
+       allowOutsideClick: false,
+
+		  inputValidator: (value) => {
+		    if (!value) {
+		      return 'Please enter who approved'
+		    }
+		  }
+		}).then((result) => {
+				approvedby.value = result.value;
+				console.log(result.value);
+		})
+
+			
+
+	}
+}
+</script>
 
 <div class="form-group row">
 				<table class="table table-striped table-bordered" id="process4table">
@@ -1059,7 +1085,12 @@ if($testPermission)
 		for($i=0;$i<count($testParams);$i++)
 		{
 		
+			$round = 0.01;
 
+			if($testParams[$i][8]=="Chemical")
+			{
+				$round = 0.001;
+			}
 ?>
 
 
@@ -1082,11 +1113,35 @@ if($testPermission)
 	<?php
 					if($testParams[$i][3] == "INTEGER")
 					{
-						integerTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required',$testParams[$i][4],$testParams[$i][5],$testParams[$i][6]);
+						?>
+
+						<div class="form-group row">
+						<div class="col-sm-12">
+
+							<input type="hidden" name="allparams[]" value="<?php echo $testParams[$i][0] ?>">
+							<input type="hidden" name="quarantine[]" value="<?php echo $testParams[$i][6] ?>">
+							<input type="hidden" id= "testapprovedby-<?php echo $i;?>" name="approved[]" value="">
+							<input type="number" onfocusout="checkminmax(this,document.getElementById('testapprovedby-<?php echo $i;?>'),<?php echo $testParams[$i][4]?>,<?php echo $testParams[$i][5]?>)"  step="1"  class="form-control" name="paramsvalue[]" value="">
+						</div>
+						</div>
+
+						<?php
 					}
 					else if($testParams[$i][3] == "DECIMAL")
 					{
-						decimalTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required',$testParams[$i][4],$testParams[$i][5],$testParams[$i][6]);
+						?>
+
+						<div class="form-group row">
+						<div class="col-sm-12">
+
+							<input type="hidden" name="allparams[]" value="<?php echo $testParams[$i][0] ?>">
+							<input type="hidden" name="quarantine[]" value="<?php echo $testParams[$i][6] ?>">
+							<input type="hidden" id= "testapprovedby-<?php echo $i;?>" name="approved[]" value="">
+							<input type="number" onfocusout="checkminmax(this,document.getElementById('testapprovedby-<?php echo $i;?>'),<?php echo $testParams[$i][4]?>,<?php echo $testParams[$i][5]?>)"  <?php if($testParams[$i][8]=="Chemical"){echo "step=0.001";}else{echo "step=0.01";} ?>  class="form-control" name="paramsvalue[]" value="">
+						</div>
+						</div>
+
+						<?php
 					}
 					else if($testParams[$i][3] == "STRING")
 					{
@@ -1208,9 +1263,19 @@ if($testPermission)
 				{
 						$currParam = $row2["param"];
 						$result3 = runQuery("SELECT * FROM additional_process_data WHERE processid='$processid' AND param1 ='$dumtestid' AND param2 = '$currParam'");
-
-						$result3 = $result3->fetch_assoc()['param3'];
-						$dumParam = $dumParam . "'" . $row2["param"] . " (Tested By: ".$result3.")" ."',";
+						$result3 = $result3->fetch_assoc();
+						$dapproved = $result3['param4'];
+						$result3 = $result3['param3'];
+						echo "<script>console.log('".$dapproved."')</script>";
+						if($dapproved)
+						{
+							$dumParam = $dumParam . "'" . $row2["param"] . " (Tested By: ".$result3.")(Approved By: ".$dapproved.")" ."',";
+						}
+						else
+						{
+							$dumParam = $dumParam . "'" . $row2["param"] . " (Tested By: ".$result3.")" ."',";
+						}
+						
 						$dumValue = $dumValue . "'" . $row2["value"]."',";
 
 						if($row2["status"]=="BLOCKED")
@@ -1557,6 +1622,12 @@ else
 
 ?>
 
+<style type="text/css">
+	.swal-wide{
+    width:850px !important;
+}
+</style>
+
 <script type="text/javascript">
 
 
@@ -1657,6 +1728,8 @@ function rejectTest(testid)
 }
 
 
+
+
 function viewTest(testid,params,values)
 {
 	
@@ -1672,6 +1745,7 @@ function viewTest(testid,params,values)
 		  title: testid,
 		  html: '<table class="table"><th>Property</th><th>Value</th>'+rows+'</table>',
 		  confirmButtonText: 'Ok',
+		  customClass: 'swal-wide',
 		  cancelButtonText: 'No',
 		  showCancelButton: false,
 		  

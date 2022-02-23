@@ -33,6 +33,9 @@
     if(isset($_POST['deleteProcess']))
     {
     	$externalid = $_POST['externalid'];
+
+    	runQuery("DELETE FROM premix_prodcode WHERE premixid='$externalid'");
+    	runQuery("DELETE FROM premix_coa_approval WHERE premixid='$externalid'");
     	runQuery("DELETE FROM premix_batch_notes WHERE premixid='$externalid'");
     	runQuery("DELETE FROM premix_batch_testparams WHERE premixid='$externalid'");
     	runQuery("DELETE FROM premix_batch_test WHERE premixid='$externalid'");

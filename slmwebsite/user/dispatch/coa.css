@@ -1,0 +1,59 @@
+ body{ font-size:13px;
+ line-height:13px; }
+
+ .card {
+    margin-bottom: 1.5rem
+}
+
+.card {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid #c8ced3;
+    border-radius: .25rem
+}
+
+.card-header:first-child {
+    border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0
+}
+
+.card-header {
+    padding: .75rem 1.25rem;
+    margin-bottom: 0;
+    background-color: #f0f3f5;
+    border-bottom: 1px solid #c8ced3
+}
+.logo img{width: 200px;}
+
+.lab-sign img{width: 150px;}
+
+.certificate h2{
+    text-align: right;
+    color:#5a5a5a;
+    background: url(dimension.png);
+    padding:1.5%;
+}
+
+.center{text-align: center;}
+
+.table-bordered thead td, .table-bordered thead th {
+    border-bottom-width: 2px;
+}
+.table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #5a5a5a!important;
+}
+.table-bordered td, .table-bordered th {
+    border: 2px solid #5a5a5a!important;
+}
+
+.table th, .table td{padding:0 5px!important;}
+.foot img{width:120px;text-align: left;}
+
+.property th{width: 200px;}

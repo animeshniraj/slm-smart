@@ -19,6 +19,7 @@
 	if(isset($_POST["deletegrade"]))
 	{
 		$curr = $_POST["gradename"];
+		runQuery("DELETE FROM premix_grade_physical WHERE gradename='$curr'");
 		runQuery("DELETE FROM premix_grade_feed_sequence WHERE gradename='$curr'");
 		runQuery("DELETE FROM premix_grade_compositions WHERE gradename='$curr'");
 		runQuery("DELETE FROM premix_grades WHERE gradename='$curr'");

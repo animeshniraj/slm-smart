@@ -254,7 +254,7 @@ p {
 
 <div class="page-body">
 <div class="row">
-<div class="col-lg-12">
+<div class="col-md-6">
 
 <?php
 
@@ -294,7 +294,7 @@ p {
 
 
 						<div class="form-group" style="display:flex; justify-content: center">
-						<select required class="form-control col-sm-3" name="finalblendId" >
+						<select required class="form-control col-sm-12" name="finalblendId" >
 							<option selected disabled value=""> Choose a Batch ID</option>
 
 							<?php 
@@ -325,7 +325,7 @@ p {
 
 					
 <div class="form-group" style="display:flex; justify-content: center;" >
-						<select required class="form-control col-sm-3" name="newGrade" >
+						<select required class="form-control col-sm-12" name="newGrade" >
 							<option selected disabled value=""> Choose a grade</option>
 
 							<?php 
@@ -349,7 +349,7 @@ p {
 					</div>
 
 					<div class="form-group" style="display:flex; justify-content: center;" >
-							<div class="input-group input-group-button col-sm-3">
+							<div class="input-group input-group-button col-sm-12" data-toggle="tooltip" data-placement="top" title="Transfer Quantity (in Kg)">
 
 								
 								<input type="number" min="0.01" step="0.01" required name="qty" class="form-control" style="display: inline; text-align: center;" placeholder="Transfer Quantity (in Kg)">
@@ -361,13 +361,10 @@ p {
 
 
 				<div class="form-group" style="display:flex; justify-content: center;" >
-							<div class="input-group input-group-button col-sm-3">
-
-								
-								<input type="text" required name="newbatchid" class="form-control" style="display: inline; text-align: center;" placeholder="New Batch Id">
-								
-								
-
+							<div class="input-group input-group-button col-sm-12" data-toggle="tooltip" data-placement="top" title="Assign New Batch ID">
+	
+								<input type="text" required name="newbatchid" class="form-control" style="display: inline; text-align: center;" placeholder="Assign New Batch ID">
+													
 							</div>
 						</div>
 
@@ -376,10 +373,10 @@ p {
 
 	
 
-	<div class="form-group row">
+	<div class="form-group row justify-content-center">
 		
-		<div class="col-sm-12">
-		<button type="submit" name="transferqty" id="submitBtn" class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Create New Entry</button>
+		<div class="col-sm-10">
+		<button type="submit" name="transferqty" id="submitBtn" class="btn btn-primary btn-block"><i class="fa fa-exchange" aria-hidden="true"></i> Transfer Quantity</button>
 		</div>
 	</div>
 

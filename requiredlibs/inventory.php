@@ -5,6 +5,49 @@
 	require_once("usermodel.php");
 
 
+	function getfinalbatchqty($did)
+	{
+		$dqty = getTotalQuantity($did);
+
+			$result2 = runQuery("SELECT SUM(value) as val FROM premix_batch_params WHERE param='$did' AND tag = 'Iron' AND step = 'BATCH SELECTION'");
+
+			$result2 = $result2->fetch_assoc()['val'];
+
+			if($result2)
+			{
+				$dqty -= $result2;
+			}
+
+
+			$result2 = runQuery("SELECT SUM(qty) as val FROM dispatch_invoices WHERE batch='$did'");
+
+			$result2 = $result2->fetch_assoc()['val'];
+
+			if($result2)
+			{
+				$dqty -= $result2;
+			}
+
+
+			return $dqty;
+	}
+
+
+	function getProcessGrade($did)
+	{
+		global $GRADE_TITLE;
+
+		$grade = "";
+
+		$result = runQuery("SELECT * FROM processentryparams WHERE param='$GRADE_TITLE' AND processid='$did'");
+
+		if($result->num_rows==1)
+		{
+			$grade = $result->fetch_assoc()['value'];
+		}
+
+		return $grade;
+	}
 	
 	function getTotalQuantity($processid)
 	{
@@ -60,13 +103,31 @@
 	{
 		
 		
-		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND STEP='GENERIC' AND param='Blend ID'");
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND STEP='GENERIC' AND param='Blend Number'");
 		$heatnumber  = 0;
 		if($result->num_rows>0)
 		{
 			$row=$result->fetch_assoc();
 			
 			$heatnumber = $row["value"];
+			
+		}
+
+		return $heatnumber;
+	}
+
+	function getBlendID_annealing($processid)
+	{
+		
+		
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND STEP='PARENT'");
+		$heatnumber  = 0;
+		if($result->num_rows>0)
+		{
+			$row=$result->fetch_assoc();
+			
+			#$heatnumber = getBlendID($row["param"]);
+			$heatnumber = $row["param"];
 			
 		}
 
@@ -186,6 +247,7 @@
 
 		while($row=$result->fetch_assoc())
 		{
+
 			array_push($grades,$row["gradename"]);
 		}
 
@@ -195,10 +257,12 @@
 		$allids = [];
 		for($i=0;$i<count($grades);$i++)
 		{
+
 			$gradename = $grades[$i];
 			$result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processname'  AND gradename='$gradename' ORDER BY ordering");
 			while($row=$result->fetch_assoc())
-			{
+			{	
+
 				array_push($params,$row["properties"]);
 			}
 
@@ -210,10 +274,42 @@
 			}
 
 		}
+
+
+
 		$params = array_unique($params);
+
+		$d1 = [];
+		$d2= [];
+		$dspan = [];
+
+		foreach($params as $value)
+		{
+			if($value =="Sieve PAN")
+			{
+				array_push($dspan,$value);
+			}
+			elseif(substr($value, 0,5) =="Sieve")
+			{
+				array_push($d1,$value);
+			}
+			else
+			{
+				array_push($d2,$value);
+			}
+
+
+		}
+
+		sort($d1,SORT_NATURAL | SORT_FLAG_CASE);
+		$params= array_merge($d2,$d1,$dspan);
+
 		$allids = array_unique($allids,SORT_REGULAR);
 
+
+
 		return getFullBlendData($allids,$params,$processname,$processid);
+			
 		
 
 	}
@@ -232,6 +328,7 @@
 
 		for($j=0;$j<count($params);$j++)
 		{
+			
 			array_push($dumData,$params[$j]);
 
 		}
@@ -240,7 +337,7 @@
 
 		array_push($allData,$dumData);
 
-		
+	
 
 		for($i=0;$i<count($processid);$i++)
 		{
@@ -301,15 +398,29 @@
 
 			for($j=0;$j<count($params);$j++)
 			{
+
 				array_push($dumData,getAverageTest($processid[$i][0],$params[$j]));
 			}
 			$total = getTotalQuantity($processid[$i][0]);
 			$used = getChildProcessQuantity($processid[$i][0]);
+
+
+
+			if(($total-$used-$hold)==0 && $dumData[0]!== "checked"){
+				continue;
+			}
+
 			array_push($dumData,$total-$used-$hold);
 			array_push($allData,$dumData);
+
+			
+			
 		}
 
+
+
 		return [$allData,$params];
+
 		
 	}
 	

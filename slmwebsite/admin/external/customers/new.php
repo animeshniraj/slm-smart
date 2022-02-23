@@ -163,10 +163,25 @@
 
 
 			<div class="form-group row">
+			<label class="col-sm-3 col-form-label">Type</label>
+			<div class="col-sm-9">
+			<select required class="form-control" name="<?php echo $external_type;?>_val[]">
+				<option value="Domestic">Domestic</option>
+				<option value="International">International</option>
+			</select>
+
+			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="1">
+			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Type">
+			<span class="messages"></span>
+			</div>
+			</div>
+
+
+			<div class="form-group row">
 			<label class="col-sm-3 col-form-label">Address</label>
 			<div class="col-sm-9">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
-			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="1">
+			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="2">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Address">
 			<span class="messages"></span>
 			</div>
@@ -177,7 +192,7 @@
 			<label class="col-sm-3 col-form-label">City</label>
 			<div class="col-sm-4">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
-			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="1">
+			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="3">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="City">
 			<span class="messages"></span>
 			</div>
@@ -185,7 +200,7 @@
 			<label class="col-sm-2 col-form-label">Pincode</label>
 			<div class="col-sm-3">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
-			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="1">
+			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="4">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Pincode">
 			<span class="messages"></span>
 			</div>
@@ -196,7 +211,7 @@
 			<label class="col-sm-3 col-form-label">State</label>
 			<div class="col-sm-4">
 			<input list="statelist" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
-			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="1">
+			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="5">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="State">
 			<span class="messages"></span>
 			</div>
@@ -204,7 +219,7 @@
 			<label class="col-sm-2 col-form-label">Country</label>
 			<div class="col-sm-3">
 			<input list="countrylist" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
-			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="1">
+			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="6">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Country">
 			<span class="messages"></span>
 			</div>
@@ -215,7 +230,7 @@
 			<label class="col-sm-3 col-form-label">Contact Person</label>
 			<div class="col-sm-4">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
-			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="2">
+			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="7">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Contact Person">
 			<span class="messages"></span>
 			</div>
@@ -226,7 +241,7 @@
 			<label class="col-sm-3 col-form-label">Contact Number</label>
 			<div class="col-sm-3">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
-			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="3">
+			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="8">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Contact Number">
 			<span class="messages"></span>
 			</div>
@@ -234,7 +249,7 @@
 			<label class="col-sm-3 col-form-label">Alternate Number</label>
 			<div class="col-sm-3">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="" value="-">
-			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="3">
+			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="9">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Alternate Contact Number">
 			<span class="messages"></span>
 			</div>
@@ -245,7 +260,7 @@
 			<label class="col-sm-3 col-form-label">Email</label>
 			<div class="col-sm-4">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
-			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="4">
+			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="10">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Email">
 			<span class="messages"></span>
 			</div>
@@ -256,7 +271,7 @@
 			<label class="col-sm-3 col-form-label">Remarks</label>
 			<div class="col-sm-9">
 			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
-			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="5">
+			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="11">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Remarks">
 			<span class="messages"></span>
 			</div>

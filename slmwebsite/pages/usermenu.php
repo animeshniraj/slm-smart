@@ -132,6 +132,14 @@
 		</li>
 
 
+		<li id="process-rawblend-stock" class="">
+		<a href="/user/process/rawblend-stock.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Stock</span>
+		</a>
+		</li>
+
+
 	</ul>
 </li>
 
@@ -168,6 +176,14 @@
 		</li>
 
 
+		<li id="process-annealing-stock" class="">
+		<a href="/user/process/annealing-stock.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Stock</span>
+		</a>
+		</li>
+
+
 	</ul>
 </li>
 
@@ -192,6 +208,14 @@
 		<a href="/user/process/semifinished-view.php" class="waves-effect waves-dark">
 
 		<span class="pcoded-mtext">View</span>
+		</a>
+		</li>
+
+
+		<li id="process-semifinished-stock" class="">
+		<a href="/user/process/semifinished-stock.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Stock</span>
 		</a>
 		</li>
 
@@ -225,7 +249,12 @@
 		</a>
 		</li>
 
+		<li id="process-finalblend-stock" class="">
+		<a href="/user/process/finalblend-stock.php" class="waves-effect waves-dark">
 
+		<span class="pcoded-mtext">Stock</span>
+		</a>
+		</li>
 
 
 	</ul>
@@ -263,7 +292,12 @@
 		</li>
 
 
+		<li id="process-batch-stock" class="">
+		<a href="/user/process/batch-stock.php" class="waves-effect waves-dark">
 
+		<span class="pcoded-mtext">Stock</span>
+		</a>
+		</li>
 
 	</ul>
 </li>
@@ -362,6 +396,33 @@
 </li>
 
 
+<li id="coa_menu" class="pcoded-hasmenu" dropdown-icon="style1" subitem-icon="style1">
+<a href="javascript:void(0)" class="waves-effect waves-dark">
+<span class="pcoded-micon"><i class="feather icon-thermometer"></i></span>
+<span class="pcoded-mtext">COA Approval</span>
+</a>
+	<ul class="pcoded-submenu">
+		<li id="coa-batch" class="">
+		<a href="/user/process/batch-coaapproval.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Final Blend COA</span>
+		</a>
+		</li>
+	</ul>
+
+
+	<ul class="pcoded-submenu">
+		<li id="coa-premix" class="">
+		<a href="/user/premix/coaapproval.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Premix COA</span>
+		</a>
+		</li>
+	</ul>
+
+</li>
+
+
 
 <li id="store_menu" class="pcoded-hasmenu" dropdown-icon="style1" subitem-icon="style1">
 <a href="javascript:void(0)" class="waves-effect waves-dark">
@@ -389,65 +450,112 @@
 </a>
 	<ul class="pcoded-submenu">
 
-		<li id="purchase-new" class="">
-		<a href="/user/dispatch/new-purchase.php" class="waves-effect waves-dark">
+		<li id="processgrade-melting" class="pcoded-hasmenu ">
+		<a href="javascript:void(0)" class="waves-effect waves-dark">
 
-		<span class="pcoded-mtext">New Purchase Order</span>
+		<span class="pcoded-mtext">Purchase order</span>
 		</a>
-		</li>
 
-		<li id="purchase-view" class="">
-		<a href="/user/dispatch/purchase-view.php" class="waves-effect waves-dark">
+		<ul class="pcoded-submenu">
 
-		<span class="pcoded-mtext">View Purchase Order</span>
+			<li id="purchase-new" class="">
+			<a href="/user/dispatch/new-purchase.php" class="waves-effect waves-dark">
+
+			<span class="pcoded-mtext">New Purchase Order</span>
+			</a>
+			</li>
+
+			<li id="purchase-view" class="">
+			<a href="/user/dispatch/purchase-view.php" class="waves-effect waves-dark">
+
+			<span class="pcoded-mtext">View Purchase Order</span>
+			</a>
+			</li>
+		</ul>
+	</li>
+
+
+		<li id="processgrade-melting" class="pcoded-hasmenu ">
+		<a href="javascript:void(0)" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Loading Advice</span>
 		</a>
-		</li>
+
+		<ul class="pcoded-submenu">
+
+			<li id="loadingadvice-new" class="">
+			<a href="/user/dispatch/new-loadingadvice.php" class="waves-effect waves-dark">
+
+			<span class="pcoded-mtext">New Loading Advice</span>
+			</a>
+			</li>
+
+			<li id="loadingadvice-view" class="">
+			<a href="/user/dispatch/loadingadvice-view.php" class="waves-effect waves-dark">
+
+			<span class="pcoded-mtext">View Loading Advice</span>
+			</a>
+			</li>
+		</ul>
+	</li>
 
 
-		<li id="loadingadvice-new" class="">
-		<a href="/user/dispatch/new-loadingadvice.php" class="waves-effect waves-dark">
+		<li id="processgrade-melting" class="pcoded-hasmenu ">
+		<a href="javascript:void(0)" class="waves-effect waves-dark">
 
-		<span class="pcoded-mtext">New Loading Advice</span>
+		<span class="pcoded-mtext">Dispatch</span>
 		</a>
-		</li>
 
-		<li id="loadingadvice-view" class="">
-		<a href="/user/dispatch/loadingadvice-view.php" class="waves-effect waves-dark">
+		<ul class="pcoded-submenu">
 
-		<span class="pcoded-mtext">View Loading Advice</span>
+			<li id="dispatch-new" class="">
+			<a href="/user/dispatch/new-dispatch.php" class="waves-effect waves-dark">
+
+			<span class="pcoded-mtext">New Dispatch</span>
+			</a>
+			</li>
+
+			<li id="dispatch-view" class="">
+			<a href="/user/dispatch/dispatch-view.php" class="waves-effect waves-dark">
+
+			<span class="pcoded-mtext">View Dispatch</span>
+			</a>
+			</li>
+
+
+			<li id="dispatch-report" class="">
+			<a href="/user/dispatch/dispatch-report.php" class="waves-effect waves-dark">
+
+			<span class="pcoded-mtext">Dispatch Report</span>
+			</a>
+			</li>
+		</ul>
+	</li>
+
+	<li id="processgrade-melting" class="pcoded-hasmenu ">
+		<a href="javascript:void(0)" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Sample Dispatch</span>
 		</a>
-		</li>
 
+		<ul class="pcoded-submenu">
 
+			<li id="sdispatch-new" class="">
+			<a href="/user/dispatch/new-sdispatch.php" class="waves-effect waves-dark">
 
-		<li id="dispatch-new" class="">
-		<a href="/user/dispatch/new-dispatch.php" class="waves-effect waves-dark">
+			<span class="pcoded-mtext">New Sample Dispatch</span>
+			</a>
+			</li>
 
-		<span class="pcoded-mtext">New Dispatch</span>
-		</a>
-		</li>
+			<li id="sdispatch-view" class="">
+			<a href="/user/dispatch/sdispatch-view.php" class="waves-effect waves-dark">
 
-		<li id="dispatch-view" class="">
-		<a href="/user/dispatch/dispatch-view.php" class="waves-effect waves-dark">
+			<span class="pcoded-mtext">View Sample Dispatch</span>
+			</a>
+			</li>
 
-		<span class="pcoded-mtext">View Dispatch</span>
-		</a>
-		</li>
-
-
-		<li id="sdispatch-new" class="">
-		<a href="/user/dispatch/new-sdispatch.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">New Sample Dispatch</span>
-		</a>
-		</li>
-
-		<li id="sdispatch-view" class="">
-		<a href="/user/dispatch/sdispatch-view.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">View Sample Dispatch</span>
-		</a>
-		</li>
+		</ul>
+	</li>
 
 	</ul>
 </li>

@@ -19,7 +19,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Create new Batch",
+        "Page Title" => "SLM | Create a new Batch",
         "Home Link"  => "/user/",
         "Menu"		 => "process-batch-new",
         "MainMenu"	 => "process_batch",
@@ -83,10 +83,11 @@
 
 	    	$result3 = runQuery("UPDATE processentry SET islocked='BATCHED' WHERE processid='$parentid'");
 
+	    	
 	    	if($result && $result2 && $result3)
 	    	{
 	    			
-	    			
+	    			addprocesslog('PROCESS',$prefix,$session->user->getUserid(),'New Final Batch ('.$prefix.') created');
 	    				?>
 	    					<form id="redirectform" method="POST" action="batch-edit.php">
 	    						<input type="hidden" name="processid" value="<?php  echo $prefix;?>">
@@ -231,8 +232,8 @@ p {
 			<div class="page-header-title">
 				<i class="fa fa-shopping-bag bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>Batch</h5>
-					<span>Edit Batch parameters</span>
+					<h3>Create a New Batch</h3>
+					<span>Enter the Batch details</span>
 				</div>
 			</div>
 		</div>
@@ -263,7 +264,7 @@ p {
 
 <ul class="nav nav-tabs md-tabs " role="tablist">
 <li class="nav-item">
-<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i> Batch Creation</a>
 <div class="slide"></div>
 </li>
 
@@ -290,15 +291,11 @@ p {
 					</div>
 
 
+					<p style="display:block;text-align:center;color:#212121;font-size:13px;font-weight:normal;">Sample Batch ID: T21IP05123 (Techonlogy), M21IP05123(Metal) </p>
 
 					<div class="form-group" style="display:flex; justify-content: center;" >
 							<div class="input-group input-group-button col-sm-3">
-
-								
-								<input type="text" required name="processid" id="processid" class="form-control" style="display: inline; text-align: center;" placeholder="Batch Id">
-								
-								
-
+								<input type="text" required name="processid" id="processid" class="form-control" style="display: inline; text-align: center;text-transform:uppercase;" placeholder="Batch Id" pattern="[T,M][0-9]{2}IP[0-9]{5}">						
 							</div>
 						</div>
 
@@ -387,7 +384,7 @@ p {
 	<div class="form-group row">
 		
 		<div class="col-sm-12">
-		<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Create New Entry</button>
+		<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Create New Batch</button>
 		</div>
 	</div>
 

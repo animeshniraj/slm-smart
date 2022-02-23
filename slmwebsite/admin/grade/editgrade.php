@@ -30,7 +30,44 @@
     {
     	$gradename = $_POST['gradename'];
     	
-    	runQuery("INSERT INTO processgrades VALUES(NULL,'$processname','$gradename')");
+    	runQuery("INSERT INTO processgrades VALUES(NULL,'$processname','$gradename','NO',CURRENT_TIMESTAMP)");
+    	addprocesslog('GRADE',$gradename,$session->user->getUserid(),'New '.$processname .' Grade created.');
+    }
+
+    if(isset($_POST["copygradename"]))
+    {
+    	$gradename = $_POST['copygradename'];
+
+	    $prefix = explode('#',$gradename)[0];
+	    
+	    $sqlprefix = $prefix."%";
+    	
+
+    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(gradename, '#', -1) AS SIGNED)) max_val FROM processgrades WHERE gradename LIKE '$sqlprefix' AND processname='$processname'");
+
+    	if($result->num_rows==0)
+    	{	
+    		$count = 1;
+    	}
+    	else
+    	{
+    		$lastID = $result->fetch_assoc()["max_val"];
+	    	
+	    	$count = intval($lastID)+1;
+    	}
+
+
+    	$prefix = $prefix ."#".strval($count);
+
+    	
+
+    	runQuery("INSERT INTO processgrades ( SELECT NULL,'$processname','$prefix',cumulative,CURRENT_TIMESTAMP FROM processgrades WHERE gradename='$gradename' AND processname='$processname')");
+
+    	runQuery("INSERT INTO gradeproperties (SELECT NULL,processname,'$prefix',properties,min,max,quarantine,ordering FROM gradeproperties WHERE processname='$processname' AND gradename='$gradename')");
+
+    	addprocesslog('GRADE',$gradename,$session->user->getUserid(),$processname.' Grade '.$gradename.' copied.');
+
+    	
     }
 
     if(isset($_POST["deletegradename"]))
@@ -38,6 +75,8 @@
     	$gradename = $_POST['deletegradename'];
     	runQuery("DELETE FROM gradeproperties WHERE processname='$processname' AND gradename='$gradename'");
     	runQuery("DELETE FROM processgrades WHERE processname='$processname' AND gradename='$gradename'");
+
+    	addprocesslog('GRADE',$gradename,$session->user->getUserid(),$processname.' Grade ' . $gradename .' deleted.');
     }
 
 
@@ -45,6 +84,10 @@
     include("../../pages/adminhead.php");
     include("../../pages/adminmenu.php");
 
+    if($show_alert)
+    {
+    	echo $alert;
+    }
 
 ?>
 
@@ -188,7 +231,15 @@ if($processname!="Melting")
 
 			echo "<td style=\"padding-top:20px;\">".$k++.".</td>";
 			echo "<td style=\"padding-top:20px;\">".$row["gradename"]."</td>";
-			echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"deleteGrade('".$row["gradename"]."')\"><i class=\"fa fa-trash\"></i></button> </div></td>";
+
+			if($processname=="Melting")
+			{
+				echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button></div></td>";
+			}
+			else
+			{
+				echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Copy Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"copygrade('".$row["gradename"]."')\"><i class=\"fa fa-copy\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"deleteGrade('".$row["gradename"]."')\"><i class=\"fa fa-trash\"></i></button> </div></td>";
+			}
 
 			
 			echo "</tr>";
@@ -220,6 +271,10 @@ if($processname!="Melting")
 
 <form method="POST" id="deletegrade">
 	<input type="hidden" name="deletegradename" id="deletegradename">
+</form>
+
+<form method="POST" id="copygrade">
+	<input type="hidden" name="copygradename" id="copygradename">
 </form>
 
 
@@ -269,7 +324,26 @@ $(document).ready(function() {
 
 });
 
+function copygrade(gradename)
+{
+	Swal.fire({
+		  icon: 'info',
+		  title: 'Copy Grade',
+		  html: 'Are you sure you want to copy '+gradename,
+		  confirmButtonText: 'Yes',
+		  cancelButtonText: 'No',
+		  showCancelButton: true,
+		  
+		}).then((result) => {
+			  if (result.isConfirmed) {
+			    		
 
+			  		document.getElementById("copygradename").value = gradename;
+			  		document.getElementById("copygrade").submit();
+
+				}
+			})
+}
 
 
 function deleteGrade(gradename)

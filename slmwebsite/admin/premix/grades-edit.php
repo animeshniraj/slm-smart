@@ -29,6 +29,37 @@
 
 
 
+    if(isset($_POST["addphysicalprop"]))
+    {
+     	
+     	
+
+     	$params = $_POST['param'];
+     	$mpifs = $_POST['mpif'];
+     	$mins = $_POST['min'];
+     	$maxs = $_POST['max'];
+     	$units = $_POST['unit'];
+
+     	runQuery("DELETE FROM premix_grade_physical WHERE gradename='$gradename'");
+     	runQuery("DELETE FROM premix_coa_grade_settings WHERE gradename='$gradename' AND type='Physical'");
+     	for ($i=0; $i < count($params) ; $i++) { 
+     		
+     		$cparam = $params[$i];
+     		$cmpif = $mpifs[$i];
+     		$cmin = $mins[$i];
+     		$cmax = $maxs[$i];
+     		$cunit = $units[$i];
+
+     		runQuery("INSERT INTO premix_grade_physical VALUES(NULL,'$gradename','$cparam','$cmpif','$cmin','$cmax','$cunit')");
+     		runQuery("INSERT INTO premix_coa_grade_settings VALUES(NULL,'$gradename','$cparam','$cparam',1,'$i','Physical')");
+
+
+     	}
+
+     	
+    }
+
+
     if(isset($_POST["addcomposition"]))
     {
   
@@ -49,6 +80,7 @@
 
     	runQuery("DELETE FROM premix_grade_feed_sequence WHERE gradename='$gradename'");
     	runQuery("DELETE FROM premix_grade_compositions WHERE gradename='$gradename'");
+    	runQuery("DELETE FROM premix_coa_grade_settings WHERE gradename='$gradename' AND type='Chemical'");
 
     	$k=0;
     	for($i=0;$i<count($list);$i++)
@@ -89,6 +121,8 @@
     		{
     			runQuery("INSERT INTO premix_grade_compositions VALUES(NULL,'$gradename','$currL','$currV','$currS','0','$mintol','$maxtol','$step')");
     		}
+
+    		runQuery("INSERT INTO premix_coa_grade_settings VALUES(NULL,'$gradename','$currL','$currL',1,'$i','Chemical')");
     	}
 
 
@@ -244,13 +278,13 @@
 		</div>
 
 		<table class="table">
-			<th rowspan="1" colspan="1" >Additive</th>
-			<th rowspan="1" colspan="1" >Composition %</th>
-			<th rowspan="1" colspan="1" >Feed Sequence Splits</th>
-			<th rowspan="1" colspan="1" >Over 100%</th>
-			<th rowspan="1" colspan="1" >Min Tolerance (%)</th>
-			<th rowspan="1" colspan="1" >Max Tolerance (%)</th>
-			<th rowspan="1" colspan="1" >Round</th>
+			<th rowspan="1" colspan="1" style="width:15%">Additive</th>
+			<th rowspan="1" colspan="1" style="width:15%">Composition %</th>
+			<th rowspan="1" colspan="1" style="width:10%">Feed Splits</th>
+			<th rowspan="1" colspan="1" style="width:10%">Over 100%</th>
+			<th rowspan="1" colspan="1" style="width:15%">Min (%)</th>
+			<th rowspan="1" colspan="1"style="width:15%" >Max (%)</th>
+			<th rowspan="1" colspan="1" style="width:10%">Round</th>
 
 
 			<th rowspan="1" colspan="1" ></th>
@@ -415,7 +449,7 @@ selectedAdditives = []
 
 
 		dumTD = document.createElement("TD");
-		dumTD.innerHTML = "<button type='button' class='btn btn-danger' onclick='removeSelected(this,\""+name+"\")'><i class='fa fa-trash'></i>Remove</button>";
+		dumTD.innerHTML = "<button type='button' class='btn btn-danger' data-toggle='tooltip' data-placement='top' title='Remove Additive' onclick='removeSelected(this,\""+name+"\")'><i class='fa fa-trash'></i></button>";
 		row.appendChild(dumTD);
 
 		parentDiv.appendChild(row);
@@ -587,6 +621,153 @@ function checkValidSequence(btnObj)
 }
 
 </script>
+
+
+
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+
+
+
+
+
+<div class="pcoded-inner-content">
+<div class="main-body">
+<div class="page-wrapper">
+
+<div class="page-body">
+<div class="row">
+<div class="col-lg-12">
+
+
+<div class="card">
+<div class="card-header">
+<h5>Physical Properties</h5>
+<div class="card-header-right">
+
+</div>
+</div>
+<div class="card-block">
+
+
+
+	
+	<div class="dt-responsive table-responsive">
+<div id="user-table_wrapper" class="dataTables_wrapper dt-bootstrap4">
+
+	<div class="row">
+		<div class="col-sm-12">
+
+
+			<div class="form-group row ">
+
+			<select id="final-prop" class="form-control col-sm-6">
+				
+				<?php 
+
+					$result = runQuery("SELECT * FROM processgradesproperties WHERE processname='Final Blend'");
+
+					while($row = $result->fetch_assoc())
+					{
+						echo "<option data-mpif ='".$row['mpif']."' data-mpif ='".$row['mpif']."' value='".$row['gradeparam']."'>".$row['gradeparam']."</option>";
+					}
+
+				?>
+
+			</select>
+			</div>
+
+
+			<div class="col-sm-6">
+				<button type="button" class="btn btn-primary pull-right" onclick="addtophysical(document.getElementById('final-prop').value,'','','','')"><i class="fa fa-plus"></i>Add New</button>
+					
+			</div>
+
+	</div>
+
+<form method="POST" id="physicalprop_form">
+	<input type="hidden" name="gradename" value="<?php echo $gradename; ?>">
+
+
+
+
+<div class="col-md-12">
+<table id="user-table" class="table table-striped table-bordered nowrap dataTable " role="grid" aria-describedby="user-table_info">
+<thead>
+ <tr role="row">
+
+	<th>Parameter</th>
+	<th>MPIF</th>
+	<th>Min</th>
+	<th>Max</th>
+	<th>Unit</th>
+	<th></th>
+
+
+</tr>
+</thead>
+
+<tbody id="physicalprop-div">
+
+
+
+
+
+
+</tbody>
+
+</table>
+</div>
+
+	<div class="col-sm-12">
+			<button type="submit" onclick="" name ="addphysicalprop" class="btn btn-primary pull-right"><i class="fa fa-refresh"></i>Update Physical Properties</button>
+			<span class="messages"></span>
+		</div>
+
+
+</form>
+
+<script type="text/javascript">
+
+	
+
+	function addtophysical(param,mpif,min,max,unit)
+	{
+		tbody = document.getElementById('physicalprop-div');
+
+
+		tr = document.createElement('tr');
+		tr.innerHTML = "<td><input required type='text' class='form-control' name=param[] value='"+param+"'></td><td><input type='text' required class='form-control' name=mpif[] value='"+mpif+"'></td><td><input required type='text' class='form-control' name=min[] value='"+min+"'></td><td><input required type='text' class='form-control' name=max[] value='"+max+"'></td><td><input required type='text' class='form-control' name=unit[] value='"+unit+"'></td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button></td>";
+
+		tbody.appendChild(tr);
+	}
+
+
+	<?php 
+		$result2 = runQuery("SELECT * FROM premix_grade_physical WHERE gradename='$gradename'");
+
+		while($row2=$result2->fetch_assoc())
+		{
+			echo "addtophysical('".$row2['parameter']."','".$row2['mpif']."','".$row2['min']."','".$row2['max']."', '".$row2['units']."');";
+		}
+	?>
+
+	
+
+</script>
+
+</div></div></div>
+</div>
+
 
 
 

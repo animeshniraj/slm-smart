@@ -54,7 +54,7 @@
      if(isset($_POST["updateprocess1"]))
     {
     	
-    	$newprocessid = $_POST["processidName"][0].$_POST["processidName"][1].$_POST["processidName"][2];
+    	$newprocessid = $_POST["processidName"][0].$_POST["processidName"][1];
 
 
     	$result = runQuery("SELECT * FROM processentry WHERE processid='$newprocessid'");
@@ -84,6 +84,7 @@
     		runQuery("UPDATE processnotes SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("UPDATE processentryparams SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("DELETE FROM processentry WHERE processid='$processid'");
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Annealing Process '.$processid.' ID changed to '.$newprocessid);
 	    	$processid = $newprocessid;
     	}
     	else
@@ -122,7 +123,7 @@
     		runQuery("UPDATE processentry SET currentstep='GENERIC' WHERE processid='$processid'");
     	}
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Annealing Process ('.$processid.') Generic properties updated');
     	
     	
 
@@ -134,7 +135,7 @@
     	$allParams = $_POST['allparams'];
     	$paramsvalue = $_POST['paramsvalue'];
 
-
+    	$recipetime = Date('Y-m-d H:i',strtotime($_POST['recipetime']));
 
     		
     	for($i=0;$i<count($allParams);$i++)
@@ -143,6 +144,11 @@
     		if($allParams[$i]=="Cake Grade")
     		{
     			$allParams[$i]=$GRADE_TITLE;
+    		}
+
+    		else
+    		{
+    			runQuery("INSERT INTO processentryparamstimed VALUES(NULL,'$processid','OPERATIONAL','$allParams[$i]','$paramsvalue[$i]','$recipetime')");
     		}
     		runQuery("DELETE FROM processentryparams WHERE processid='$processid' AND step='OPERATIONAL' AND param='$allParams[$i]'");
     		runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','OPERATIONAL','$allParams[$i]','$paramsvalue[$i]')");
@@ -154,7 +160,7 @@
     	{
     		runQuery("UPDATE processentry SET currentstep='OPERATIONAL' WHERE processid='$processid'");
     	}
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Annealing Process ('.$processid.') Operational properties updated');
     	//die();
 
     }
@@ -166,6 +172,9 @@
     	$allParams = $_POST['allparams'];
     	$paramsvalue = $_POST['paramsvalue'];
     	$qvalue = $_POST['quarantine'];
+    	$testtime = Date('Y-m-d H:i',strtotime($_POST['testtime']));
+
+    
 
     		$sqlprefix = $processid."/%";
     		$prefix = $processid."/";
@@ -185,7 +194,7 @@
 	    	$prefix = $prefix . $alpha;
 
 	    
-	    	runQuery("INSERT INTO processtest VALUES('$prefix','$processid','$processname',CURRENT_TIMESTAMP,'DEFAULT')");
+	    	runQuery("INSERT INTO processtest VALUES('$prefix','$processid','$processname','$testtime','DEFAULT')");
 	    	
 	    	for($i=0;$i<count($allParams);$i++)
 	    	{
@@ -232,7 +241,7 @@
     		runQuery("UPDATE processentry SET currentstep='TEST' WHERE processid='$processid'");
     	}
 
-
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Annealing Process ('.$processid.') Test added');
 
     }
 
@@ -259,6 +268,7 @@
 
 	    	runQuery("DELETE FROM processentryparams WHERE processid='$processid' AND param='$MASS_TITLE'");
 	    	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','GENERIC','$MASS_TITLE','$total11')");
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Annealing Process ('.$processid.') parent IDs updated');
     	}
     	
     	
@@ -266,10 +276,54 @@
     }
 
 
+    if(isset($_POST["updatetestselection"]))
+    {
+  
+
+    	$dtvals = $_POST['testsel-val'];
+
+
+    	runQuery("DELETE FROM processtestselection WHERE processid = '$processid'");
+
+    	foreach ($dtvals as $key => $value) {
+    		
+
+    		runQuery("INSERT INTO processtestselection VALUES(NULL,'$processid',$key,'$value')");
+
+    		
+    	}
+
+
+
+ 
+    }
+
+    if(isset($_POST["reconciliation"]))
+    {
+
+    	$dval = $_POST['reconciliation_val'];
+
+
+    	runQuery("DELETE FROM processentryparams WHERE processid='$processid' AND step='PARENT' AND param='$processid'");
+
+    	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','PARENT','$processid','$dval')");
+
+
+    }
+
+
     if(isset($_POST["addNotes"]))
     {
 
-    	$note = $_POST["note"];
+    	if(isset($_POST["note"]))
+    	{
+    		$note = $_POST["note"];
+    	}
+    	elseif(isset($_POST["customnote-type"]))
+    	{
+    		$note = $_POST["customnote-type"].":: Details->".$_POST["customnote-details"].":: Total Time-> ".$_POST["customnote-time"];
+    	}
+    	
 
     	runQuery("INSERT INTO processnotes VALUES(NULL,'$processid','$myuserid','$note',CURRENT_TIMESTAMP)");
 
@@ -287,6 +341,18 @@
     	$currTab = "test-tabdiv";
     	
     }
+
+    $result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='Hopper Discharge Time'");
+
+    $hopperdistime = "";
+
+    if($result->num_rows==1)
+    {
+    	$result = $result->fetch_assoc();
+    	$hopperdistime = Date('d-M-Y H:i',strtotime($result["value"]));
+
+    }
+  
 
 
     $result = runQuery("SELECT currentstep,islocked FROM processentry WHERE processid='$processid'");
@@ -369,6 +435,7 @@
 
 
 	$operationalParams = [];
+
     $operationalPermission = false;
 
     $result = runQuery("SELECT * FROM processparams WHERE processname='$processname' AND step='OPERATIONAL' ORDER BY ordering");
@@ -408,6 +475,33 @@
 		}
 
 	}
+
+
+	$operationalParamstimed = [];
+	$operationalParamstimed_header =['Entry Time'];
+
+	$result = runQuery("SELECT * FROM processentryparamstimed WHERE step='OPERATIONAL' AND processid='$processid'");
+
+	while($row=$result->fetch_assoc())
+	{
+		if(!isset($operationalParamstimed[$row['entrytime']]))
+		{
+			$operationalParamstimed[$row['entrytime']] = [];
+		}
+
+		if(!in_array($row['param'], $operationalParamstimed_header))
+		{
+			array_push($operationalParamstimed_header,$row['param']);
+		}
+
+		$operationalParamstimed[$row['entrytime']][$row['param']] = $row['value'];
+
+	}
+	
+
+
+
+
 
 
 	$testParams = [];
@@ -728,6 +822,12 @@ input[type=number] {
 </li>
 
 
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#testselection-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i>Test Selection</a>
+<div class="slide"></div>
+</li>
+
+
 
 
 
@@ -760,10 +860,9 @@ input[type=number] {
 							<div class="input-group input-group-button">
 
 								
-								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 0,4) ?>"><div></div>
-								<input name="processidName[]" type="hidden" value=" "><div></div>
+								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 0,10) ?>"><div></div>
 								
-								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 4) ?>">
+								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 10) ?>">
 
 
 							</div>
@@ -830,6 +929,8 @@ input[type=number] {
 						</div>
 					</div>
 
+
+
 					<?php
 				}
 				else if(!$genericPermission && $genericParams[$i][4]=="LOCKED")
@@ -861,7 +962,10 @@ input[type=number] {
 					}
 					else if($genericParams[$i][3] == "DATE TIME")
 					{
-						datetimeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly required');
+						
+							datetimeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],'readonly required',$dmin,$dmax);
+						
+						
 					}
 
 				}
@@ -959,7 +1063,17 @@ input[type=number] {
 					}
 					else if($genericParams[$i][3] == "DATE TIME")
 					{
-						datetimeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],false);
+						if($genericParams[$i][0]=="Hopper Discharge Time")
+						{
+							datetimeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],false,Date("d-m-Y H:i",strtotime($entrytime)));
+
+
+						}
+						else
+						{
+							datetimeInput($genericParams[$i][0],"generic-".$genericParams[$i][0],$genericParams[$i][1],false);
+						}
+						
 					}
 
 
@@ -1000,6 +1114,65 @@ input[type=number] {
 
 </form>
 
+
+	
+	<form method="POST">
+		<input type="hidden" name="processid" value="<?php echo $processid; ?>">
+	<input type="hidden" name="currtab" value="generic-tabdiv">
+		<?php 
+
+			if($QUANTITY)
+			{
+
+				$remaining = $QUANTITY - getChildProcessQuantity($processid);
+				$reconcil= 0;
+				$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='$processid' AND step='PARENT'");
+
+				if($row = $result->fetch_assoc())
+				{
+					$reconcil += $row['value'];
+				}
+
+		?>
+
+
+
+		<div class="form-group row">
+						<label class="col-sm-2">Remaining (kg)</label>
+						<div class="col-sm-10">
+							<div class="input-group input-group-button">
+							
+								<input readonly class="form-control form-control-uppercase" placeholder="" value="<?php echo $remaining; ?>">
+								
+							</div>
+						</div>
+		</div>
+		
+		<div class="form-group row">
+						<label class="col-sm-2">Reconciliation (To deduct)</label>
+						<div class="col-sm-10">
+							<div class="input-group input-group-button">
+							
+								<input name="reconciliation_val"  type="number" step="0.01" min="0" max ="<?php echo $remaining+$reconcil; ?>" class="form-control" placeholder="" value="<?php echo $remaining+$reconcil; ?>">
+								
+							</div>
+						</div>
+					</div>
+
+
+					<div class="col-sm-12">
+				<button type="submit" name="reconciliation" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Reconciliation</button>
+				</div>
+
+		<?php 
+			}
+
+		?>
+	</form>
+
+
+
+
 </div>
 
 <div class="tab-pane" id="operational-tabdiv" role="tabpanel">
@@ -1011,8 +1184,11 @@ input[type=number] {
 						<label class="col-sm-2">Recipe</label>
 						<div class="col-sm-10">
 							<div class="input-group input-group-button">
+								<input type="hidden" name="allparams[]" value="Recipe">
+									<input type="hidden" id="recipe-value" name="paramsvalue[]" value="">
 								<select class="form-control" onchange="selectRecipe()" id="recipeselect">
 									<option disabled selected></option>
+									
 	<?php 
 
 		$result = runQuery("SELECT * FROM recipe WHERE processname='$processname'");
@@ -1042,6 +1218,8 @@ input[type=number] {
 
 		</select>
 
+
+
 		<script type="text/javascript">
 			
 			function selectRecipe()
@@ -1051,6 +1229,8 @@ input[type=number] {
 					var recipes = <?php echo json_encode($recipevals);?>;
 
 					var recipe = recipes[idx];
+
+					document.getElementById('recipe-value').value = document.getElementById("recipeselect").value;
 					console.log(recipe);
 					
 					for(var i=0;i<recipe[0].length;i++)
@@ -1072,6 +1252,58 @@ input[type=number] {
 							</div>
 						</div>
 					</div>
+
+					<?php
+
+		if(count($operationalParamstimed)==0)
+		{
+			stringInput("Comments","operational-Comments","",'');
+		}			
+		else
+		{
+			stringInput("Comments","operational-Comments","",'required');
+		}
+
+
+
+		
+
+
+		?>
+		<br>
+
+			<div class="form-group row">
+			<label class="col-sm-2">Time</label>
+			<div class="col-sm-10">
+				
+						<input type="text" required name="recipetime" id="recipetime" class="form-control">
+					
+				
+			</div>
+		</div>
+
+			<script type="text/javascript">
+		$(function() {
+					  $('input[name="recipetime"]').daterangepicker({
+					    singleDatePicker: true,
+					    timePicker: true,
+					    timePicker24Hour: true,
+					    minDate: '<?php echo Date('d-m-Y H:i',strtotime($entrytime)) ?>',
+					    showDropdowns: true,
+					    locale: 
+					    {    
+					    	format: 'DD-MM-YYYY HH:mm',
+					    },
+					  	
+					   
+					  }, function(start, end, label) {
+					    
+					  });
+
+					   ``
+
+					});
+	</script>
 
 
 		<?php
@@ -1109,11 +1341,11 @@ input[type=number] {
 					}
 					else if(!$dumValue&&$operationalPermission)
 					{
-						optionInput("Cake ".$operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],$dum,false);
+						optionInput("Cake ".$operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],$dum,'required');
 					}
 					else if(!$dumValue&&!$operationalPermission)
 					{
-						optionInput("Cake ".$operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],$dum,'readonly');
+						optionInput("Cake ".$operationalParams[$i][0],"operational-".$operationalParams[$i][0],$operationalParams[$i][1],$dum,'readonly required');
 					}
 
 
@@ -1225,6 +1457,66 @@ input[type=number] {
 </form>
 
 
+
+<br><br>
+<hr>
+<br>
+
+<big>Old Entries</big>
+<br><br>
+
+
+
+
+<div class="table-responsive">
+
+	<table class="table table-striped" style="font-size:14px;">
+		<thead>
+			<tr>
+				<?php 
+
+					foreach ($operationalParamstimed_header as $header) {
+						echo "<th>".$header."</th>";
+					}
+
+				?>
+			</tr>
+		</thead>
+
+
+		<tbody>
+			<?php 
+
+				foreach ($operationalParamstimed as $timeindex => $timeddata) {
+						
+						echo "<tr>";
+						
+
+					foreach ($operationalParamstimed_header as $header) {
+
+						if($header=="Entry Time")
+						{
+							echo "<td>".$timeindex."</td>";
+							continue;
+						}
+					
+			?>
+
+			<td style="max-width: 200px; overflow-x: scroll;"><?php  if(isset($timeddata[$header])) { echo $timeddata[$header];}else{echo "";} ?></td>
+
+
+			<?php 
+
+					}
+
+					echo "</tr>";
+				}
+			?>
+		</tbody>
+	</table>
+	
+</div>
+
 </div>
 
 
@@ -1279,6 +1571,43 @@ if($testPermission)
 	
 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 	<input type="hidden" name="currtab" value="test-tabdiv">
+
+
+	<div class="form-group row">
+			<label class="col-sm-2">Test Time</label>
+			<div class="col-sm-10">
+				
+						<input type="text" required name="testtime" class="form-control">
+					
+				
+			</div>
+		</div>
+
+			<script type="text/javascript">
+		$(function() {
+					  $('input[name="testtime"]').daterangepicker({
+					    singleDatePicker: true,
+					    timePicker: true,
+					    timePicker24Hour: true,
+					    minDate: '<?php echo Date('d-m-Y H:i',strtotime($entrytime)) ?>',
+					    //maxDate: '<?php echo Date('d-m-Y H:i',strtotime($hopperdistime)) ?>',
+					    showDropdowns: true,
+					    locale: 
+					    {    
+					    	format: 'DD-MM-YYYY HH:mm',
+					    },
+					  	
+					    minYear: 1901,
+					    maxYear: parseInt(moment().format('YYYY'),10)
+					  }, function(start, end, label) {
+					    
+					  });
+
+
+					});
+	</script>
+
+
 <div class="form-group row">
 				<table class="table table-striped table-bordered" id="process4table">
 		<thead>
@@ -1289,7 +1618,9 @@ if($testPermission)
 		<th>Value</th>
 
 
+
 		</tr>
+
 		</thead>
 		
 		
@@ -1321,15 +1652,15 @@ if($testPermission)
 	<?php
 					if($testParams[$i][3] == "INTEGER")
 					{
-						integerTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required',$testParams[$i][4],$testParams[$i][5],$testParams[$i][6]);
+						integerTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'',$testParams[$i][4],$testParams[$i][5],$testParams[$i][6]);
 					}
 					else if($testParams[$i][3] == "DECIMAL")
 					{
-						decimalTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required',$testParams[$i][4],$testParams[$i][5],$testParams[$i][6]);
+						decimalTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'',$testParams[$i][4],$testParams[$i][5],$testParams[$i][6]);
 					}
 					else if($testParams[$i][3] == "STRING")
 					{
-						stringTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required');
+						stringTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'');
 					}
 					/*
 					else if($testParams[$i][3] == "DATE")
@@ -1352,7 +1683,7 @@ if($testPermission)
 </td>
 
 
-	
+
 
 </tr>
 
@@ -1498,6 +1829,127 @@ if($testPermission)
 
 
 
+<div class="tab-pane" id="testselection-tabdiv" role="tabpanel">
+
+<form method="POST">
+	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
+	<input type="hidden" name="currtab" value="testselection-tabdiv">
+
+
+	<?php 
+
+		$result = runQuery("SELECT * FROM processtestparams WHERE processid='$processid'");
+
+		$alltestvals = [];
+		$alltestids =[];
+		$alltestprop = [];
+		$alltestselected = [];
+
+
+		while($row=$result->fetch_assoc())
+		{
+			if(!isset($alltestvals[$row['testid']]))
+			{
+				$alltestvals[$row['testid']] = [];
+				array_push($alltestids,$row['testid']);
+			}
+
+			if(!in_array($row['param'],$alltestprop))
+			{
+				array_push($alltestprop,$row['param']);
+			}
+
+			$alltestvals[$row['testid']][$row['param']] = $row['value'];
+
+			//$alltestselected[$row['param']] = $row['testid'];
+
+
+		}
+
+
+		$result = runQuery("SELECT * FROM processtestselection WHERE processid='$processid'");
+
+		while($row=$result->fetch_assoc())
+		{
+			
+				$alltestselected[$row['param']] = $row['testid'];
+			
+			
+		}
+
+
+
+	?>
+
+	<div class="table-responsive">
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th></th>
+
+					<?php 
+
+						foreach ($alltestids as $value) {
+							echo "<th>".$value."</th>";
+						}
+
+					?>
+				</tr>
+			</thead>
+
+
+			<tbody>
+				<?php 
+
+					foreach ($alltestprop as $tvals) {
+						?>
+
+						<tr>
+							<th><?php echo $tvals; ?></th>
+
+							<?php 
+							foreach ($alltestids as $tids) {
+
+
+								if(!isset($alltestvals[$tids][$tvals]))
+								{
+									echo "<td></td>";
+									continue;
+								}
+							?>
+
+
+								<td>
+									<input type="radio" <?php if(isset($alltestselected[$tvals])) {if($alltestselected[$tvals]==$tids){echo "checked";}} ?> name="testsel-val['<?php echo $tvals ?>']" value="<?php echo $tids; ?>"> <?php echo $alltestvals[$tids][$tvals]; ?>
+								</td>
+
+							<?php
+					}
+
+				?>
+						</tr>
+
+						<?php
+					}
+
+				?>
+			</tbody>
+
+		</table>
+		
+	</div>
+
+
+	<div class="col-sm-12">
+				<button type="submit" name="updatetestselection" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i>Update Test Selection</button>
+	</div>
+
+</form>
+
+</div>
+
+
+
 <div class="tab-pane" id="parent-tabdiv" role="tabpanel">
 
 
@@ -1507,6 +1959,8 @@ if($testPermission)
 	
 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 	<input type="hidden" name="currtab" value="parent-tabdiv">
+
+	
 <?php 
 
 	
@@ -1517,24 +1971,39 @@ if($testPermission)
 
 <div class="form-group row">
 
-
-		
-
-
-		
-		
-
-
-
 		<div class="col-sm-8">
-		
 		</div>
-
-
 		<div class="col-sm-3">
+		
+			<select id="add-mid" required class="form-control" id="">
+				<option selected disabled value="ERROR">Choose a Raw Blend ID</option>
+
+				<?php 
+
+					$issponge = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='Pre-Processed'")->fetch_assoc()['value'];
+
+					
+
+					$result = runQuery("SELECT * FROM processentry WHERE processid IN (SELECT processid FROM processentryparams WHERE param='Pre-Processed' AND value='$issponge') AND processname='Raw Blend'");
+
+						while($row = $result->fetch_assoc())
+						{
+
+							$dremaining = getTotalQuantity($row['processid']) - getChildProcessQuantity($row['processid']);
+							if($dremaining>0)
+							{
+								echo "<option value='".$row['processid']."'>".$row['processid']."</option>";
+							}
+							
+						}
+				?>					
 				
-				<input type="text" id="add-mid" class="form-control form-control-uppercase pull-right" placeholder="Raw Blend ID">
+			</select>
+
 		</div>
+
+
+	
 
 
 		
@@ -1600,9 +2069,11 @@ if($testPermission)
             {
               
               
-            	var dum = "<tr >\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.id+"</span>\n<input type=\"hidden\" name=\"parentname[]\" value=\""+data.id+"\">\n</td>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.entrytime+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.heatno+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">Available: "+data.available+"<br>Total: "+data.total+"</span>\n</td>\n<td class=\"tabledit-view-mode\"><input onkeyup=\"recal_parent_linked_quantity()\" type=\"number\" step=0.01 min=0 max='"+parseFloat(data.available)+"' class=\"form-control\" name=\"parentvalues[]\" value=\"0\" >\n</td>\n<td class=\"tabledit-view-mode\">\n<button class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button>\n</td>\n</tr>";
+            	var dum = "<tr >\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.id+"</span>\n<input type=\"hidden\" name=\"parentname[]\" value=\""+data.id+"\">\n</td>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.entrytime+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.heatno+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">Available: "+data.available+"<br>Total: "+data.total+"</span>\n</td>\n<td class=\"tabledit-view-mode\"><input onkeyup=\"recal_parent_linked_quantity()\" type=\"number\" step=0.01 min=0 max='"+parseFloat(data.available)+"' class=\"form-control\" name=\"parentvalues[]\" value=\"0\" >\n</td>\n<td class=\"tabledit-view-mode\">\n<button class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();document.getElementById('add-mid').disabled=false;document.getElementById('process5-addnew').disabled=false;\"><i class=\"fa fa-trash\"></i>Remove</button>\n</td>\n</tr>";
             	tbodyobj.innerHTML = tbodyobj.innerHTML + dum;
-            	document.getElementById('add-mid').value = "";
+            	document.getElementById('add-mid').disabled=true;
+            	document.getElementById('process5-addnew').disabled=true;
+
             }
             else
             {
@@ -1652,6 +2123,11 @@ if($testPermission)
 		{
 		
 
+		if($params["id"]==$processid)
+		{
+			continue;
+		}
+
 ?>
 
 <tr id="process5-<?php echo str_replace(" ","_",$params["id"]) ?>">
@@ -1661,7 +2137,7 @@ if($testPermission)
 </td>
 
 <td class="tabledit-view-mode"><span class="tabledit-span"><?php echo getEntryTime($params["id"]) ?></span>
-	<td class="tabledit-view-mode"><span class="tabledit-span"><?php echo getDryBagNo($params["id"]) ?></span>
+	<td class="tabledit-view-mode"><span class="tabledit-span"><?php echo getBlendID($params["id"]) ?></span>
 
 
 <td class="tabledit-view-mode"><span class="tabledit-span"><?php echo "Available: ".$params["quantity left"]."kg<br> Total: ".$params["total quantity"]."kg"  ?></span>
@@ -1674,9 +2150,12 @@ if($testPermission)
 
 
 <td class="tabledit-view-mode">
-	<button class="btn btn-danger" onclick="this.closest('tr').remove();"><i class="fa fa-trash"></i>Remove</button>
+	<button class="btn btn-danger" onclick="var o = document.createElement('option');o.value='<?php echo $params["id"] ;?>';o.innerHTML='<?php echo $params["id"] ;?>';document.getElementById('add-mid').appendChild(o);this.closest('tr').remove();document.getElementById('add-mid').disabled=false;document.getElementById('process5-addnew').disabled=false"><i class="fa fa-trash"></i>Remove</button>
 </td>
-
+<script type="text/javascript">
+	document.getElementById('add-mid').disabled=true;
+  document.getElementById('process5-addnew').disabled=true;
+</script>
 </tr>
 
 <?php
@@ -1901,13 +2380,75 @@ else
                 <button class="btn btn-primary" type="submit" name="addNotes"><i class="fa fa-plus"></i>Add Note</button>
             </div>
             </div>
-            
+
+
+
+            <div class="form-group row">
+
+
+            	<select required form="custom-note" name="customnote-type" class="form-control col-sm-3">
+            		<option selected disabled value="">Choose a type</option>
+            		<option value="POWER CUT">POWER CUT</option>
+            		<option value="BELT STOP">BELT STOP</option>
+            		<option value="OTHER PROBLEMS">OTHER PROBLEMS</option>
+
+            	</select>
+
+            	<input type="text" form="custom-note" name="customnote-details" class="form-control col-sm-4" placeholder="Details">
+            	<input type="text" form="custom-note" name="customnote-time" class="form-control col-sm-3" placeholder="Total Time">
+            	<button form="custom-note" class="btn btn-primary" type="submit" name="addNotes"><i class="fa fa-plus"></i>Add Details</button>
+           
+            </div>
+
+
+            <script>
+
+
+					$(function() {
+					  $('input[name="customnote-time"]').daterangepicker({
+					    singleDatePicker: false,
+					    timePicker: true,
+					    timePicker24Hour: true,
+					    drops: 'up',
+					    minDate: '<?php echo Date('d-m-Y H:i',strtotime($entrytime)) ?>',
+					    showDropdowns: true,
+					    locale: 
+					    {    
+					    	format: 'DD-MM-YYYY HH:mm',
+					    },
+					  	
+					    minYear: 1901,
+					    maxYear: parseInt(moment().format('YYYY'),10)
+					  }, function(start, end, label) {
+					    
+					  });
+
+
+					});
+					
+
+					</script>
+
+  
 
     </div>
 
+
+
 </form>
 
+
+<form id="custom-note" method="POST">
+	 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
+	 	<input type="hidden" name="currtab" value="notes-tabdiv">
+</form>
+
+
+
 </div>
+
+
+
 
 
 
@@ -2083,7 +2624,7 @@ $(document).ready(function() {
     
     var itemContainer = $("#notesDiv");
     itemContainer.slimScroll({
-        height: '500px',
+        height: '450px',
         start: 'bottom',
         alwaysVisible: true
     });

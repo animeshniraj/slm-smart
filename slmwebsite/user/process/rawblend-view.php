@@ -35,6 +35,8 @@
     {
     	$processid = $_POST['processid'];
     	runQuery("call delete_process('$processid')");
+
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process ('.$processid.') deleted');
     }
 
 
@@ -168,7 +170,7 @@
 					{
 						$dumid = $row["processid"];
 						$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$dumid' AND param='Pre-Processed'");
-						if($result2->fetch_assoc()["value"]=="New")
+						if($result2->fetch_assoc()["value"]=="Atomized")
 						{
 							$urlre = "rawblend-edit.php";
 						}

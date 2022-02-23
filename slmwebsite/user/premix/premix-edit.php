@@ -117,6 +117,28 @@
 
 
 
+    if(isset($_POST["approvebatch"]))
+    {
+
+
+    	
+    	$approved = $_POST['approvedby'];
+    	$finalqty = $_POST['finalqty'];
+    	$prodcode = $_POST['prodcode'];
+    	$batchnumber = $_POST['batchnumber'];
+
+ 
+    	runQuery("INSERT INTO premix_prodcode VALUES('$premixid','$batchnumber','$prodcode','$approved','$finalqty')");
+    	runQuery("UPDATE premix_batch SET mass='$finalqty' WHERE premixid='$premixid'");
+    	
+
+
+
+
+    }
+
+
+
     if(isset($_POST["updateprocess1"]))
     {
     	$quantity = $_POST["quantity"];
@@ -142,7 +164,18 @@
     		$batchid = $batchids[$i];
     		$bqt = $batchqty[$i];
     		$tag = $tags[$i];
-    		runQuery("INSERT INTO premix_batch_params VALUES(NULL,'$premixid','BATCH SELECTION','$batchid','$bqt','$tag')");
+
+    		if($tag == "Iron")
+    		{
+
+
+    			runQuery("INSERT INTO premix_batch_params VALUES(NULL,'$premixid','BATCH SELECTION','$batchid','$bqt','$tag')");
+    		}
+    		else
+    		{
+    			runQuery("INSERT INTO premix_batch_params VALUES(NULL,'$premixid','BATCH SELECTION','$batchid','$bqt','$tag')");
+    		}
+    		
     	}
 
 
@@ -168,6 +201,7 @@
     	$allParams = $_POST['allparams'];
     	$paramsvalue = $_POST['paramsvalue'];
     	$qvalue = $_POST['quarantine'];
+    	$testedby = $_POST['testedby'];
 
     		$sqlprefix = $premixid."/%";
     		$prefix = $premixid."/";
@@ -196,6 +230,7 @@
 	    		{
 
 	    			runQuery("INSERT INTO premix_batch_testparams VALUES(NULL,'$prefix','$premixid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
+	    			runQuery("INSERT INTO additional_process_data VALUES(NULL,'$premixid','$prefix','$allParams[$i]','$testedby[$i]','')");
 	    		}
 	    		elseif($sym==">")
 	    		{
@@ -206,10 +241,13 @@
 	    			{
 	    				runQuery("UPDATE premix_batch_testparams SET islocked ='BLOCKED' WHERE premixid='$premixid'");
 	    				runQuery("INSERT INTO premix_batch_testparams VALUES(NULL,'$prefix','$premixid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
+	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$premixid','$prefix','$allParams[$i]','$testedby[$i]','')");
+
 	    			}
 	    			else
 	    			{
 	    				runQuery("INSERT INTO premix_batch_testparams VALUES(NULL,'$prefix','$premixid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
+	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$premixid','$prefix','$allParams[$i]','$testedby[$i]','')");
 	    			}
 	    		}
 	    		else
@@ -220,10 +258,12 @@
 	    			{
 	    				
 	    				runQuery("INSERT INTO premix_batch_testparams VALUES(NULL,'$prefix','$premixid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
+	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$premixid','$prefix','$allParams[$i]','$testedby[$i]','')");
 	    			}
 	    			else
 	    			{
 	    				runQuery("INSERT INTO premix_batch_testparams VALUES(NULL,'$prefix','$premixid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
+	    				runQuery("INSERT INTO additional_process_data VALUES(NULL,'$premixid','$prefix','$allParams[$i]','$testedby[$i]','')");
 	    			}
 	    		}
 	    		
@@ -262,15 +302,54 @@
    $result = $result->fetch_assoc();
 
    $mass = $result["mass"];
-  
+
+
+   $result = runQuery("SELECT * FROM premix_prodcode WHERE premixid='$premixid'");
+
+   $approvedby = "";
+   $approved_qty = $mass;
+   $approve_prodcode = ""; 
+
+   $approve_batchnumber = ""; 
+
+  	if($result->num_rows==1)
+  	{
+  		$isapproved= true;
+  		$result = $result->fetch_assoc();
+  		$approvedby = $result['approvedby'];
+  		$approved_qty = $result['finalqty'];
+  		$approve_prodcode = $result['prodcode']; 
+  		$approve_batchnumber = $result['batchnumber'];
+
+  	}
+  	else
+  	{
+  		$isapproved= false;
+  	}
 
 
    $testParams = [];
 
    {
-   		array_push($testParams,["Test Param1","","","DECIMAL",0,2,">20"]);
-   		array_push($testParams,["Test Param2","","","DECIMAL",0,10,">20"]);
-   		array_push($testParams,["Test Param3","","","DECIMAL",0,30,">20"]);
+   		//array_push($testParams,["Test Param1","","","DECIMAL",0,2,">20"]);
+   		//array_push($testParams,["Test Param2","","","DECIMAL",0,10,">20"]);
+   		//array_push($testParams,["Test Param3","","","DECIMAL",0,30,">20"]);
+
+   		$result = runQuery("SELECT * FROM premix_grade_physical WHERE gradename='$gradename'");
+
+   		while($row = $result->fetch_assoc())
+   		{
+   			array_push($testParams,[$row["parameter"],"","","DECIMAL",$row["min"],$row["max"]," ",$row['units'],"Physical"]);
+   		}
+
+   		$result = runQuery("SELECT * FROM premix_grade_compositions WHERE gradename='$gradename'");
+
+   		while($row = $result->fetch_assoc())
+   		{
+   			array_push($testParams,[$row["additive"],"","","DECIMAL",$row["mintol"],$row["maxtol"],">20","%","Chemical"]);
+   		}
+
+   		
    }
 
    $maxSequence = 0;
@@ -492,6 +571,12 @@ input[type=number] {
 </li>
 
 
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#approve-tabdiv" role="tab"><i class="icofont icofont-check"></i>Approve</a>
+<div class="slide"></div>
+</li>
+
+
 
 
 <li class="nav-item">
@@ -518,7 +603,7 @@ input[type=number] {
 						<div class="col-sm-10">
 							<div class="input-group input-group-button">
 							
-								<input required name="quantity"  type="number" step="0.01" min="0" class="form-control form-control-uppercase" placeholder="" value="<?php echo $mass; ?>">
+								<input required <?php if($isapproved){echo "readonly";} ?>  name="quantity"  type="number" step="0.01" min="0" class="form-control form-control-uppercase" placeholder="" value="<?php echo $mass; ?>">
 								
 							</div>
 						</div>
@@ -646,7 +731,7 @@ if(false)
 											<td><?php $feedqty =  getFeedQty(round((($row["composition"]/($total))*$mass)/100,2),$row["mintol"],$row["maxtol"],$row["step"],$mass); echo $feedqty; ?></td>
 
 											<?php 
-														if($row["additive"] != "Iron")
+														if($row["additive"] != "Iron" && !$batchselectiondone)
 														{
 
 
@@ -654,7 +739,24 @@ if(false)
 
 													<td id="batch_no"><?php echo getFIFOBatch($row["additive"],$feedqty,$row["step"]); ?></td>
 											<?php 
-														}else
+														}
+														elseif($row["additive"] != "Iron"){
+
+															$d1 = $row["additive"];
+
+															$result2 =runQuery("SELECT * FROM premix_batch_params WHERE premixid='$premixid' AND STEP='BATCH SELECTION' AND tag='$d1'");
+																echo "<td id='batch_no'>";
+																while($row2 = $result2->fetch_assoc())
+																{
+																	
+																	echo $row2['param']." (".strval($row2['value'])." kg)<br>";
+																	
+																} 
+																echo "</td>";
+
+														}
+														else
+														
 														{
 															$dumid = "";
 															$result2 =runQuery("SELECT * FROM premix_batch_params WHERE premixid='$premixid' AND STEP='BATCH SELECTION' AND tag='Iron'");
@@ -667,13 +769,21 @@ if(false)
 
 											?>
 
-													<td id="batch_no">
+													<td id="batch_no_Iron">
 														
-															<input type="text" name="batchid[]" id="iron_batchid" value="<?php echo $dumid; ?>" placeholder="Batch Id" >
+															
+														<?php 
+															if($batchselectiondone)
+															{
+																$result2 =runQuery("SELECT * FROM premix_batch_params WHERE premixid='$premixid' AND STEP='BATCH SELECTION' AND tag='Iron'");
 
-															<input type="hidden" name="batchqty[]" value="<?php echo $feedqty; ?>">
-
-															<input type="hidden" name="tags[]" value="Iron">
+																while($row2 = $result2->fetch_assoc())
+																{
+																	echo $row2['param']." (".strval($row2['value'])." kg)<br>";
+																} 
+															}
+														?>
+													
 
 
 													</td>
@@ -696,7 +806,10 @@ if(false)
 														}
 														elseif($row["additive"] == "Iron" && !$batchselectiondone)
 														{
-															echo "<button type='button' onclick=\"getbatch('".$feedqty."')\" class='btn btn-primary'><i class=\"fa fa-plus\"></i></button>";
+
+
+
+															echo "<button type='button' onclick=\"getbatch('".$gradename."','".$feedqty."')\" class='btn btn-primary'><i class=\"fa fa-plus\"></i></button>";
 														}
 
 														$allWeights[$row["additive"]] = $feedqty;
@@ -746,6 +859,197 @@ if(false)
 
 	</form>
 
+
+
+<div class="modal fade" id="searchbatchesmodal" tabindex="-1" role="dialog">
+<div class="modal-dialog modal-lg" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h4 class="modal-title">All Available Batches</h4>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+<div class="modal-body">
+
+
+
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+
+<th>-</th>
+<th>Batch ID</th>
+<th>Quantity Available/Total Quantity</th>
+<th>Selected Quantity</th>
+</tr>
+</thead>
+
+
+<tbody id="searchbatchesmodal-modal-tbody">
+
+	
+</tbody>
+</table>
+
+
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default waves-effect " data-dismiss="modal">Close</button>
+<button type="button" disabled onclick="searchbatchesmodal_add()" id="searchbatchesmodal-modal-save" class="btn btn-primary waves-effect waves-light ">Add IDs</button>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+<div class="modal fade" id="readscalemodal" tabindex="-1" role="dialog">
+<div class="modal-dialog modal-lg" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h4 class="modal-title">Read Scale</h4>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+<div class="modal-body">
+
+
+	<script type="text/javascript">
+		
+		function addtoscalelist()
+		{
+			var tbody = document.getElementById('readscalemodal-modal-tbody');
+
+		}
+
+	</script>
+		
+	
+
+
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+	<td>
+		<select class="form-control">
+			<?php 
+
+				$dresult = runQuery("SELECT * FROM devices WHERE type='SCALE'");
+
+				while($drow = $dresult->fetch_assoc())
+				{
+					?>
+
+						<option value="<?php echo $drow['devicename'] ?>" data-hostname="<?php echo $drow['hostname'] ?>" data-ip="<?php echo $drow['ip'] ?>" data-units="<?php echo $drow['units'] ?>" data-multiplier="<?php echo $drow['multiplier'] ?>" ><?php echo $drow['devicename'] ?> ( <?php echo $drow['units'] ?> )</option>
+
+					<?php
+				}
+
+			?>
+		</select>
+	</td>
+	<td>
+		<input type="number" id="readscale-qty" value="0">
+	</td>
+
+	<td>
+		<button class="btn btn-primary" onclick="addtoreadscalelist()" type="button"><i class="feather icon-airplay"></i>Read</button>
+	</td>
+</tr>
+</thead>
+</table>
+
+
+
+<table class="table table-striped table-bordered">
+<thead>
+
+
+<tr>
+<th>-</th>
+<th>Entry</th>
+<th></th>
+</tr>
+</thead>
+
+<input type="hidden" id="readscalemodal-item">
+<tbody id="readscalemodal-modal-tbody">
+
+	
+</tbody>
+
+<tfoot>
+	<th></th>
+	<th>Total Quantity</th>
+	<th id="readscale-totalqty">0</th>
+</tfoot>
+</table>
+
+
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default waves-effect " data-dismiss="modal">Close</button>
+<button type="button" onclick="readscalemodal_add()" id="readscalemodal-modal-save" class="btn btn-primary waves-effect waves-light ">Add</button>
+</div>
+</div>
+</div>
+</div>
+<script type="text/javascript">
+	
+
+	function readscalemodal_add()
+	{
+		var input = document.getElementById('readscalemodal-item').value;
+
+		document.getElementById(input).value = document.getElementById('readscale-totalqty').innerHTML;
+		$('#readscalemodal').modal('hide');
+	}
+
+	function getscale(scaleinput)
+	{
+
+		document.getElementById('readscalemodal-item').value = scaleinput;
+		//document.getElementById('readscalemodal-modal-tbody').innerHTML = "";
+		$('#readscalemodal').modal('show');
+
+
+	}
+
+	function compute_total_scale()
+	{
+		var tbody = document.getElementById('readscalemodal-modal-tbody');
+
+		var total = 0;
+
+		for(var i=0;i<tbody.children.length;i++)
+		{
+			 total += parseFloat(tbody.children[i].children[1].innerHTML);
+		}
+
+		document.getElementById('readscale-totalqty').innerHTML = total;
+
+	}
+
+	function addtoreadscalelist()
+	{
+		 tbody = document.getElementById('readscalemodal-modal-tbody');
+
+		 var val = document.getElementById('readscale-qty').value;
+
+		 var dumtr = document.createElement('tr')
+		 dumtr.innerHTML += "<td></td><td>"+val+"</td>";
+		 dumtr.innerHTML += "<td><button class='btn btn-danger' onclick='this.closest(\"tr\").remove();compute_total_scale();'><i class='fa fa-trash'></i>Remove</button</td>"
+
+
+		 tbody.appendChild(dumtr)
+
+		 compute_total_scale()
+	}
+</script>
 	
 					
 			
@@ -824,14 +1128,19 @@ if(false)
 											
 											<td><?php echo round($allWeights[$row["additive"]]*$row["percent"]/100,2); ?>
 												</td>
-											<td><input required type="number" min=0 step="0.01" name="sequencesvalue" id ="seq-sval-<?php echo $k;?>" value="<?php echo round($allWeights[$row["additive"]]*$row["percent"]/100,2); ?>" placeholder="Scale Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
+											<td><input required readonly type="number" min=0 step="0.01" name="sequencesvalue" id ="seq-sval-<?php echo $k;?>" value="0" placeholder="Scale Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
+												<button type="button" class="btn btn-primary" onclick="getscale('seq-sval-<?php echo $k;?>')"><i class="feather icon-airplay"></i></button>
 												<br>
 												Container Weight:<br><input required type="number" min=0 step="0.01" id ="seq-container-<?php echo $k;?>" value="0.0" placeholder="Container Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
 												</td>
 
 											<td><input required type="number" min=0 step="0.01" name="sequencevalue" id ="seq-val-<?php echo $k;?>" value="<?php echo round($allWeights[$row["additive"]]*$row["percent"]/100,2); ?>" placeholder="Feed Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
 												</td>
-
+												<script type="text/javascript">
+													$( document ).ready(function() {
+													    deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')
+													});
+												</script>
 												
 											
 											
@@ -860,6 +1169,10 @@ if(false)
 
 
 </div>
+
+
+
+
 
 
 <script type="text/javascript">
@@ -905,39 +1218,145 @@ if(false)
 		
 	}
 
-	function getbatch(qty)
+	function searchbatchesmodal_add()
+	{
+
+			var batchesdiv = document.getElementById('batch_no_Iron');
+			batchesdiv.innerHTML = [];
+
+			var tbody = document.getElementById('searchbatchesmodal-modal-tbody');
+
+			for(var i=0;i<tbody.children.length-1;i++)
+			{
+				curr = tbody.children[i];
+
+				if(curr.children[0].children[0].checked)
+				{
+					if(curr.children[3].children[0].value != "" && parseFloat(curr.children[3].children[0].value))
+					{
+
+						var dval =  parseFloat(curr.children[3].children[0].value);
+						var did = 	curr.children[1].innerHTML;
+
+
+						dumdiv = document.createElement('div');
+						dumdiv.innerHTML += "<input type='hidden' name='batchid[]' value='"+did+"'>";
+						dumdiv.innerHTML += "<input type='hidden' name='batchqty[]' value='"+dval+"'>";
+						dumdiv.innerHTML += "<input type='hidden' name='tags[]' value='Iron'>";
+						dumdiv.innerHTML += did + " ("+dval+" kg)<br>";
+						batchesdiv.appendChild(dumdiv)
+							
+					}
+				}
+
+				
+				
+			}
+
+				$("#searchbatchesmodal").modal('hide');
+
+				document.getElementById('confirmbatchbtn').disabled=false;
+	}
+
+
+	function updatemodalbatch()
+	{
+		var tbody = document.getElementById('searchbatchesmodal-modal-tbody');
+
+		var total = 0;
+		for(var i=0;i<tbody.children.length-1;i++)
+		{
+			curr = tbody.children[i];
+
+			if(curr.children[0].children[0].checked)
+			{
+				if(curr.children[3].children[0].value != "" && parseFloat(curr.children[3].children[0].value))
+				{
+
+					if(parseFloat(curr.children[3].children[0].value)>parseFloat(curr.children[3].children[0].max))
+					{
+						curr.children[3].children[0].value = curr.children[3].children[0].max;
+						total +=parseFloat(curr.children[3].children[0].value)
+					}
+					else
+					{
+						total +=parseFloat(curr.children[3].children[0].value)
+					
+					}
+				}
+			}
+
+			
+			
+		}
+
+		tbody.children[tbody.children.length-1].children[3].innerHTML = total
+		var required = parseFloat(tbody.children[tbody.children.length-1].children[1].innerHTML)
+		if(total==required)
+			{
+				document.getElementById('searchbatchesmodal-modal-save').disabled = false;
+			}
+			else
+			{
+				document.getElementById('searchbatchesmodal-modal-save').disabled = true;
+			}
+	}
+
+	function getbatch(grade,qty)
 {
 
-	var ironid = document.getElementById("iron_batchid").value;
-	 document.getElementById("confirmbatchbtn").disabled = false;
-   document.getElementById("iron_batchid").readonly = true;
 
-   return;
 
-	// remove return later
-
-	if(ironid!="")
-	{
 		
 			var postData = new FormData();
        
-        postData.append("action","checkFinalBlend");
-        postData.append("id",ironid);
-        postData.append("quantity",qty);
+        postData.append("action","getfinalbatch");
+         postData.append("grade",grade);
+
+
 
 
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             
-           console.log(this.responseText)
+           
             var data = JSON.parse(this.responseText);
 
             
             if(data.response)
             {
-                document.getElementById("confirmbatchbtn").disabled = false;
-                document.getElementById("iron_batchid").readonly = true;
+
+            		var tbody = document.getElementById('searchbatchesmodal-modal-tbody');
+
+            		 tbody.innerHTML = "";
+            		for(var i=0;i<data.data.length;i++)
+            		{
+            			var dumtr = document.createElement('tr');
+
+            			dumtr.innerHTML += "<td><input class='form-control' onchange='updatemodalbatch()' type='checkbox' ></td>";
+            			dumtr.innerHTML += "<td>"+data.data[i][0]+"</td>";
+            			dumtr.innerHTML += "<td>"+data.data[i][1]+"</td>";
+            			dumtr.innerHTML += "<td><input class='form-control' onchange='updatemodalbatch()' max='"+data.data[i][1]+"' type='number' min=0 step='0.01' ></td>";
+
+            			tbody.appendChild(dumtr);
+            		}
+
+
+            		var dumtr = document.createElement('tr');
+
+            			dumtr.innerHTML += "<th>Required (kg)</th>";
+            			dumtr.innerHTML += "<td>"+qty+"</td>";
+            			dumtr.innerHTML += "<th>Selected (kg)</th>";
+            			dumtr.innerHTML += "<td>0</td>";
+
+            			tbody.appendChild(dumtr);
+            		
+
+
+
+            		$("#searchbatchesmodal").modal('show');
+               
             }
             else
             {
@@ -960,7 +1379,7 @@ if(false)
         xmlhttp.open("POST", "/query/premix.php", true);
         xmlhttp.send(postData);
 
-	}
+	
 				
 }
 	
@@ -1042,6 +1461,8 @@ if($testPermission)
 		<th>Property</th>
 		<th>Min/Max</th>
 		<th>Value</th>
+		<th>Units</th>
+		<th>Tested By</th>
 
 
 		</tr>
@@ -1052,10 +1473,25 @@ if($testPermission)
 
 
 			<?php
+			$isphysical = true;
 		
 		for($i=0;$i<count($testParams);$i++)
 		{
 		
+
+		if($i==0)
+		{
+			echo "<tr><td colspan='5' style='text-align:center;font-weight: bold;'>Physical Properties</td></tr>";
+		}
+		elseif($isphysical)
+		{
+
+			if($testParams[$i][8]=="Chemical")
+			{
+				$isphysical = false;
+				echo "<tr><td colspan='5' style='text-align:center;font-weight: bold;'>Chemical Properties</td></tr>";
+			}
+		}
 
 ?>
 
@@ -1064,10 +1500,10 @@ if($testPermission)
 
 <tr>
 
-<td class="tabledit-view-mode"><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
+<td  class="tabledit-view-mode" ><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
 <td class="tabledit-view-mode"><div class="tabledit-span">Min: <?php echo $testParams[$i][4] ?></div>
 <div class="tabledit-span">Max: <?php echo $testParams[$i][5] ?></div>
-<div class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
+
 </td>
 
 
@@ -1106,8 +1542,21 @@ if($testPermission)
 
 </td>
 
+<td><?php echo $testParams[$i][7] ?></td>
 
-	
+
+<td>
+
+
+<input required type="text" list="labtechlist"  name="testedby[]" placeholder="Tested By" class="form-control">
+
+
+			<datalist id="labtechlist">
+				<option value="Lab1">Lab1</option>
+				<option value="Lab2">Lab2</option>
+				<option value="Lab3">Lab3</option>
+			</datalist>
+</td>
 
 </tr>
 
@@ -1186,7 +1635,9 @@ if($testPermission)
 			{
 				while($row2 = $result2->fetch_assoc())
 				{
-						$dumParam = $dumParam . "'" . $row2["param"]."',";
+						$currParam = $row2["param"];
+						$result3 = runQuery("SELECT * FROM additional_process_data WHERE processid='$premixid' AND param1 ='$dumtestid' AND param2 = '$currParam'")->fetch_assoc()['param3'];
+						$dumParam = $dumParam . "'" . $row2["param"]. " (Tested By: ".$result3.")" ."',";
 						$dumValue = $dumValue . "'" . $row2["value"]."',";
 
 						if($row2["status"]=="BLOCKED")
@@ -1252,11 +1703,86 @@ if($testPermission)
 </div>
 
 
+<div class="tab-pane" id="approve-tabdiv" role="tabpanel">
+
+<form method="POST" id="approvalform">
+	<input type="hidden" name="premixid" value="<?php echo $premixid; ?>">
+	 	<input type="hidden" name="currtab" value="approve-tabdiv">
+
+
+	 	<table>
+	 		<tr>
+	 			<th>Approved By</th>
+	 			<td><input required <?php if($isapproved){echo "readonly";} ?> type="text" name="approvedby" class="form-control" value="<?php echo $approvedby; ?>" id="approved-by"></td>
+
+	 		</tr>
+
+
+	 		<tr>
+	 			<th>Batch Number</th>
+	 			<td><input required <?php if($isapproved){echo "readonly";} ?> type="text" name="batchnumber" class="form-control" id="approved-prodcode"  value="<?php echo $approve_batchnumber; ?>"></td>
+	 		</tr>
+
+	 		<tr>
+	 			<th>Final Qty</th>
+	 			<td><input required <?php if($isapproved){echo "readonly";} ?> type="number" min="0.01" max="<?php echo $mass ?>" step="0.01" name="finalqty" value="<?php echo $approved_qty; ?>" class="form-control" id="approved-finalqty"></td>
+	 		</tr>
+
+	 		<tr>
+	 			<th>Prod Code</th>
+	 			<td><input required <?php if($isapproved){echo "readonly";} ?> type="text" name="prodcode" class="form-control" id="approved-prodcode"  value="<?php echo $approve_prodcode; ?>"></td>
+	 		</tr>
+	 	</table>
+
+	 	<?php 
+
+	 	if(!$isapproved){
+	 	?>
+	 	<div class="col-sm-12">
+				<button type="submit" name="approvebatch" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-check"></i>Approve</button>
+				</div>
+
+				<?php 
+			}
+	 	?>
+</form>
+
+</div>
 
 
 
+<script type="text/javascript">
+	function confirmapproval()
+	{
+
+		if(document.getElementById("approved-by").value=="")
+		{
+			return false;
+		}
 
 
+		Swal.fire({
+		  icon: 'info',
+		  title: 'Approve Batch',
+		  html: 'Are you sure you want to approve this batch.',
+		  confirmButtonText: 'Yes',
+		  cancelButtonText: 'No',
+		  showCancelButton: true,
+		  
+		}).then((result) => {
+			  if (result.isConfirmed) {
+			  	document.getElementById('approvalform').submit();
+			  	return true;
+			  }
+			  else
+			  {
+			  	return false;
+			  }
+			});
+
+	}
+
+</script>
 
 
 <div class="tab-pane" id="notes-tabdiv" role="tabpanel" style="position: relative; min-height: 600px;">
@@ -1376,76 +1902,7 @@ function rejectTest(testid)
 }
 
 
-function approve(approval)
-{
-	var iid = document.getElementById("approve_iid").value;
 
-	if(!iid && approval!='reject')
-	{
-		return;
-	}
-
-	Swal.fire({
-		  icon: 'info',
-		  title: 'Finalize',
-		  html: 'Are you sure you want to submit?',
-		  confirmButtonText: 'Yes',
-		  cancelButtonText: 'No',
-		  showCancelButton: true,
-
-
-
-		  
-		}).then((result) => {
-			  if (result.isConfirmed) {
-			    		
-
-			  		var form  = document.createElement('form');
-			  		form.setAttribute('method','POST');
-
-			  		var i = document.createElement("input"); //input element, text
-						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"premixid");
-						i.setAttribute('value',"<?php echo $premixid ?>");
-
-						form.appendChild(i);
-
-						var i = document.createElement("input"); //input element, text
-						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"internalid");
-						i.setAttribute('value',iid);
-
-						form.appendChild(i);
-
-
-
-						var i = document.createElement("input"); //input element, text
-						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"approval");
-						i.setAttribute('value',approval);
-
-						form.appendChild(i);
-
-							var i = document.createElement("input"); //input element, text
-						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"currtab");
-						i.setAttribute('value',"approve-tabdiv");
-
-						form.appendChild(i);
-
-						var i = document.createElement("input"); //input element, text
-						i.setAttribute('type',"hidden");
-						i.setAttribute('name',"approve_stock");
-						i.setAttribute('value',"");
-
-						form.appendChild(i);
-
-						document.body.appendChild(form);
-						form.submit();
-
-				}
-			})
-}
 
 	
 
@@ -1524,9 +1981,15 @@ $(document).ready(function() {
 
 		if(i!=0)
 		{
-			document.getElementById("seq-val-"+i).value = allSequence[i][3];
+			
 			document.getElementById("seq-val-"+i).disabled = true;
+			document.getElementById("seq-val-"+i).removeAttribute("onchange");
+			document.getElementById("seq-sval-"+i).removeAttribute("onchange");
+			document.getElementById("seq-container-"+i).removeAttribute("onchange");
+			document.getElementById("seq-val-"+i).value = allSequence[i][3];
+			document.getElementById("seq-sval-"+i).value = allSequence[i][3];
 			document.getElementById("seq-sval-"+i).disabled = true;
+			document.getElementById("seq-container-"+i).disabled = true;
 		}
 		
 

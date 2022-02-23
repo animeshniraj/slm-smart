@@ -17,6 +17,24 @@
 
 
 	$myuserid = $session->user->getUserid();
+	$myrole = $session->user->getRoleid();
+
+
+
+	if(isset($_POST['uploadsign']))
+	{	
+
+
+		$file_tmp= $_FILES['sign']['tmp_name'];
+		$data = file_get_contents($file_tmp);
+		$type = pathinfo($file_tmp, PATHINFO_EXTENSION);
+		$base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+
+		runQuery("DELETE FROM user_sign WHERE userid='$myuserid'");
+		runQuery("INSERT INTO user_sign VALUES('$myuserid','$base64')");
+
+
+	}
 
 	if(isset($_POST["updateUser"]))
 	{
@@ -83,6 +101,15 @@
     
 
     $userdetails = $result->fetch_assoc();
+
+
+    $result2 = runQuery("SELECT * FROM user_sign WHERE userid = '$myuserid'");
+
+    $sign = "";
+    if($result2->num_rows==1)
+    {
+    	$sign = $result2->fetch_assoc()['sign'];
+    }
 
     $PAGE = [
         "Page Title" => "SLM | User Dashboard",
@@ -222,6 +249,65 @@
 	</form>
 
 </div>
+
+</div>
+<?php
+	if($myrole=="ADMIN" || $myrole="Lab_Supervisor")
+	{
+?>
+
+<div class="card">
+<div class="card-header">
+<h3>Change Sign</h3>
+<div class="card-header-right">
+
+</div>
+</div>
+<div class="card-block">
+
+
+<form method="POST"  enctype="multipart/form-data">
+
+<div class="form-group row col-sm-6">
+		
+	
+<label class="file">
+  <input type="file" id="file" name="sign" aria-label="File browser example">
+  <span class="file-custom"></span>
+</label>
+<div class="text-center m-t-20">
+<button type="submit" name="uploadsign" class="btn btn-primary">Upload Now</button>
+</div>
+</div>
+</form>
+
+
+
+<br>
+<br>
+<hr>
+<br>
+<br>
+<h3>Current Sign</h3>
+<br>
+<br>
+<br>
+<div class="form-group row col-sm-6">
+
+<img src="<?php echo $sign; ?>">
+
+</div>
+
+
+</div>
+
+<?php
+	
+
+	}
+?>
+
+
 </div>
 
 </div>

@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "SLM | All Melting Batches",
         "Home Link"  => "/user/",
         "Menu"		 => "process-melting-view",
         "MainMenu"	 => "process_melting",
@@ -35,6 +35,8 @@
     {
     	$processid = $_POST['processid'];
     	runQuery("call delete_process('$processid')");
+
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Melting Process ('.$processid.') deleted');
     }
 
 
@@ -84,8 +86,8 @@
 			<div class="page-header-title">
 				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>Melting Process</h5>
-					<span>Edit Melting process parameters</span>
+					<h3>All Melting batches</h3>
+					<span>Click on Edit button to view or edit individual melting batch.</span>
 				</div>
 			</div>
 		</div>
@@ -98,41 +100,46 @@
 
 <div class="page-body">
 <div class="row">
+
+<div class="col-lg-6">
+<div class="card">
+	<div class="card-header">
+		<h5>Open by Melting ID</h5>
+		<i class="fa fa-search"></i>
+	</div>
+	<div class="card-block">
+
+		<form id="searchbyid" method="POST" action="melting-edit.php">
+				<div class="form-group row">
+					<label class="col-sm-4 col-form-label">Type in the Heat ID:</label>
+					<div class="col-sm-8">
+						<div class="input-group input-group-button">
+							<input required id="processid" name="processid" type="text" class="form-control form-control-uppercase" placeholder="">
+							<div class="input-group-append">
+							<button class="btn btn-success" type="button" id="searchbtn" onclick="getHeatid(this)"><i class="feather icon-arrow-up-right"></i>Open ID</button>
+							</div>
+						</div>
+					</div>
+				</div>
+		</form>
+	</div>
+</div>
+</div>
+
+<script>
+var input = document.getElementById("processid");
+input.addEventListener("keyup", function(event) {
+  if (event.keyCode === 13) {
+   event.preventDefault();
+   document.getElementById("searchbtn").click();
+  }
+});
+</script>
+
+
+
 <div class="col-lg-12">
 
-
-
-<div class="card">
-<div class="card-header">
-
-<div class="card-header-right">
-</div>
-</div>
-<div class="card-block">
-
-<form id="searchbyid" method="POST" action="melting-edit.php">
-<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Heat ID</label>
-			<div class="col-sm-10">
-			<div class="input-group input-group-button">
-				<input required id="processid" name="processid" type="text" class="form-control form-control-uppercase" placeholder="">
-				<div class="input-group-append">
-				<button class="btn btn-primary" type="button" onclick="getHeatid(this)"><i class="feather icon-arrow-up-right"></i>Open</button>
-				</div>
-			</div>
-			
-			</div>
-
-		</div>
-
-</form>
-
-
-
-</div>
-</div>
-
-
 <div class="card">
 <div class="card-header">
 
@@ -142,18 +149,18 @@
 <div class="card-block">
 
 
-	<table class="table">
+	<table class="table table-striped table-bordered table-xs">
 	<thead>
 		<tr>
 		<th>#</th>
 		<th>Heat ID</th>
 		<th>Furnace Name</th>
-		<th>Entry Time</th>
-		<th></th>
+		<th>Entry Time & Date</th>
+		<th style="text-align:center;">Edit Batch</th>
 		<?php 
 			if($deletePermission)
 			{
-				echo "<th></th>";
+				echo "<th>Remove Batch</th>";
 			}
 		?>
 		</tr>
@@ -172,7 +179,7 @@
 		<th scope="row"><?php echo ++$k; ?></th>
 		<td><?php echo $row["processid"]; ?></td>
 		<td><?php echo $row["value"]; ?></td>
-		<td><?php echo Date('Y-M-d H:i',strtotime($row["entrytime"])); ?></td>
+		<td><?php echo Date('H:i - d/M/Y',strtotime($row["entrytime"])); ?></td>
 		<td><form method="POST" action="melting-edit.php"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 

@@ -221,7 +221,7 @@
 
 <div class="card">
 <div class="card-header">
-
+<button onclick="window.open('rawbag-detailed.php?id=<?php echo $processid; ?>','_blank').focus();" class="btn waves-effect waves-light btn-primary pull-right"><i class="fa fa-print"></i> Print Report</button>
 <div class="card-header-right">
 </div>
 </div>
@@ -551,7 +551,7 @@ foreach($currDataList as $datalist)
 
 	<tr>
 		<th>Sl. No </th>
-		<th>Raw Material</th>
+		<th>Melting ID</th>
 		<th>Used Quantity(kg)</th>
 		
 		
@@ -600,6 +600,8 @@ foreach($currDataList as $datalist)
 <br>
 <br>
 
+<button onclick="window.open('backwardtrace.php?id=<?php echo $processid; ?>','_blank').focus();" class="btn waves-effect waves-light btn-primary"><i class="icofont icofont-ui-previous"></i>Backward Tracking</button>
+<button onclick="window.open('forwardtrace.php?id=<?php echo $processid; ?>','_blank').focus();" class="btn waves-effect waves-light btn-primary"><i class="icofont icofont-ui-next"></i>Forward Tracking</button>
 
 
 <?php

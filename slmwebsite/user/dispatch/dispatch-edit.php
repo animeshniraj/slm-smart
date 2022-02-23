@@ -57,7 +57,7 @@
    		$qtys = $_POST['invoice-qty'];
    		$invoices = $_POST['invoice'];
 
-   		runQuery("DELETE  FROM dispatch_invoices WHERE cid='$cid'");
+   		runQuery("DELETE FROM dispatch_invoices WHERE cid='$cid'");
    		foreach ($invoices as $batchname => $invoice) {
    			
    			for($i=0;$i<count($invoice);$i++)
@@ -68,6 +68,19 @@
    				runQuery("INSERT INTO dispatch_invoices VALUES(NULL,'$cid','$batchname','$cinv','$cqty')");
 
    			}
+   		}
+
+   		$result = runQuery("SELECT * FROM loading_advice WHERE laid IN (SELECT laid from dispatch WHERE cid='$cid')")->fetch_assoc();
+
+   		$poid = $result['poid'];
+
+   
+
+   		$result = runQuery("SELECT * FROM purchaseorder_tentative WHERE orderid='$poid' AND status='UNFULFILLED'");
+
+   		if($result->num_rows==0)
+   		{
+   			runQuery("UPDATE purchase_order SET status='FULFILLED' WHERE orderid='$poid'");
    		}
 
 
@@ -84,7 +97,16 @@
     }
 
 
+    if(isset($_POST['addcoanotes']))
+    {
+    	$batch = $_POST['batch'];
+    	$dumnote = $_POST['coa_notes'];
 
+    	runQuery("DELETE FROM coa_notes WHERE cid='$cid' AND batch='$batch'");
+
+    	runQuery("INSERT INTO coa_notes VALUES(NULL,'$cid','$batch','$dumnote')");
+
+    }
    
 
    if(isset($_POST["addNotes"]))
@@ -332,8 +354,9 @@ input[type=number] {
 
 
 <form method="POST" id="invoice-form">
-<input type="hidden" name="cid" value="<?php echo $cid; ?>">
+	<input type="hidden" name="cid" value="<?php echo $cid; ?>">
 	<input type="hidden" name="currtab" value="invoices-tabdiv">
+	<input type="hidden" name="confirminvoice" value="">
 
 	<?php
 
@@ -409,7 +432,7 @@ input[type=number] {
 
 </div>
 <br>
-	<br>
+<br>
 	
 	
 
@@ -446,14 +469,44 @@ input[type=number] {
 		if($coaflag)
 		{
 
+			$dumcoanote = "";
 
+			$dbatch = $row["batch"];
+
+			
+			$coa_result = runQuery("SELECT * FROM coa_notes WHERE cid='$cid' AND batch='$dbatch'");
+			
+			if($coa_result->num_rows>0)
+			{
+				$dumcoanote = $coa_result->fetch_assoc()['note'];
+
+			}
+
+			
+
+			
 
 	?>
+
+	<form method="POST">
+	<div class="form-group row">
+			<input type="hidden" name="cid" value="<?php echo $cid; ?>">
+			<input type="hidden" name="currtab" value="invoices-tabdiv">
+
+			<div class="col-sm-10">
+				<input type="text" class="form-control" name="coa_notes" placeholder="COA Note" value="<?php echo $dumcoanote; ?>">
+			</div>
+			<input type="hidden" name="batch" value="<?php echo $row["batch"]; ?>">
+			<div class="col-sm-2">
+				<button type="submit" class="btn btn-primary pull-right" name="addcoanotes"><i class="fa fa-plus"></i>Add notes</button>
+			</div>
+	</div>
+	</form>
 
 	<div class="form-group row">
 
 			<div class="col-sm-12">
-			<button type="button"  class="btn btn-primary pull-right" onclick="window.open('generatecoa.php?id=<?php echo $row["batch"];?>&cid=<?php echo $cid;?>', '_blank').focus();"><i class="fa fa-page"></i>Generate COA</button>
+			<button type="button"  class="btn btn-primary pull-right" onclick="window.open('generatecoa.php?id=<?php echo $row["batch"];?>&cid=<?php echo $cid;?>', '_blank').focus();"><i class="fa fa-cline"></i>Generate COA</button>
 			<span class="messages"></span>
 			</div>
 	</div>
@@ -560,9 +613,9 @@ input[type=number] {
 </script>
 
 <div class="form-group row">
-			<input type="hidden" name="confirminvoice" value="">
+			
 			<div class="col-sm-12">
-			<button type="button"  id="confirminvoice"  name="confirminvoice" class="btn btn-primary pull-right"><i class="fa fa-check"></i>Confirm</button>
+			<button type="button"  id="confirminvoice"  class="btn btn-primary pull-right"><i class="fa fa-check"></i>Confirm</button>
 			<span class="messages"></span>
 			</div>
 	</div>

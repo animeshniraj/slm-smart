@@ -30,9 +30,51 @@
 		case "getBatches"			: getBatches($_POST['additive']); break;
 		case "checkFinalBlend"		: checkFinalBlend($_POST['id'],$_POST['quantity']); break;
 		case "getfifobatch"			: getfifobatch($_POST['additive'],$_POST['quantity']); break;
+		case "getfinalbatch"		: getfinalbatch($_POST['grade']); break;
 		
 		default: echo json_encode($error_response);
 	}
+
+
+
+	function getfinalbatch($grade)
+	{
+
+		$result = runQuery("SELECT * FROM premix_grades WHERE gradename='$grade'");
+
+		$allowed_grades = unserialize($result->fetch_assoc()['finishedgrade']);
+
+		$monthsago = Date('Y-m-d',strtotime('-6 months'));
+		$result = runQuery("SELECT * FROM processentry WHERE processname='BATCH' AND islocked ='BATCHED' AND entrytime>='$monthsago'");
+
+		
+
+		$alldata = [];
+		while($row = $result->fetch_assoc())
+		{
+			$did = $row['processid'];
+			$remQty = getfinalbatchqty($did);
+
+			if(in_array(getProcessGrade($did),$allowed_grades) && $remQty>0)
+			{
+				array_push($alldata,[$did,$remQty]);
+			}
+			
+			
+			
+		}
+
+		$response = [
+			"response" => true,
+			"data" => $alldata,
+			"msg" => ""
+		];
+
+		 echo json_encode($response);
+		 die();
+	}
+
+
 
 	function getfifobatch($additive,$quantity)
 	{
@@ -165,7 +207,7 @@
 			{
 				$response = [
 					"response" => false,
-					"msg" => "This id do not have enought quantity"
+					"msg" => "This id do not have enough quantity"
 				];
 			}
 		}

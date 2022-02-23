@@ -70,7 +70,7 @@
 <div class="navbar-wrapper">
 <div class="navbar-logo">
 <a href="<?php echo $PAGE["Home Link"]; ?>">
-<img class="img-fluid" src="/pages/png/slmlogo.png" alt="Theme-Logo" />
+<img class="img-fluid" src="/pages/png/slmwhite.png" alt="Theme-Logo" />
 </a>
 <a class="mobile-menu" id="mobile-collapse" href="#!">
 <i class="feather icon-menu icon-toggle-right"></i>

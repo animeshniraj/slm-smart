@@ -495,6 +495,11 @@
 						$readonly = "readonly";
 					}
 
+					if($row["param"]=='Hopper Discharge Time')
+					{
+						$readonly = "readonly";
+					}
+
 
 				
 		?>
@@ -671,6 +676,11 @@
 					$readonly = "";
 
 					if($row["islocked"]=="LOCKED")
+					{
+						$readonly = "readonly";
+					}
+
+					if(substr($row["param"],0,4)=="Zone")
 					{
 						$readonly = "readonly";
 					}

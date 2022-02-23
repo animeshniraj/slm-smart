@@ -82,6 +82,7 @@
     		runQuery("UPDATE processnotes SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("UPDATE processentryparams SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("DELETE FROM processentry WHERE processid='$processid'");
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Semi Finished Process '.$processid.' ID changed to '.$newprocessid);
 	    	$processid = $newprocessid;
     	}
     	else
@@ -121,7 +122,7 @@
     	}
     	
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Semi Finished Process ('.$processid.') Generic properties updated');
     	
 
 
@@ -147,7 +148,7 @@
     		runQuery("UPDATE processentry SET currentstep='OPERATIONAL' WHERE processid='$processid'");
     	}
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Semi Finished Process ('.$processid.') Operational properties updated');
 
     }
 
@@ -223,7 +224,7 @@
     	{
     		runQuery("UPDATE processentry SET currentstep='TEST' WHERE processid='$processid'");
     	}
-
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Semi Finished Process ('.$processid.') Test added');
 
 
     }
@@ -248,7 +249,7 @@
 	    	}
     	}
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Semi Finished Process ('.$processid.') parent IDs updated');
     
     }
 
@@ -416,9 +417,31 @@
     	{
     		$dumParam = $row["properties"];
 
-				$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumParam'");
-    		$result2 = $result2->fetch_assoc();
-    		array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"]]);
+				if(substr($dumParam,0,5)=="Sieve")
+    		{
+
+    			$print = "Printed";
+    			$cum = "Cumulative";
+
+
+
+
+	    		array_push($testParams,[$dumParam,"","","DECIMAL",$row["min"],$row["max"],"-","5",$print.", ".$cum]);
+
+    		}
+    		else
+    		{
+
+    			$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumParam'");
+
+
+	    		$result2 = $result2->fetch_assoc();
+
+
+
+	    		array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"],$result2['mpif'],$result2['class']]);
+
+    		}
     	}
     }
 
@@ -743,9 +766,9 @@ input[type=number] {
 							<div class="input-group input-group-button">
 
 								
-								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo explode("/", $processid)[0]; ?>/"><div></div>
+								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid,0,8) ?>"><div></div>
 								
-								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo explode("/", $processid)[1]; ?>">
+								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid,8); ?>">
 							</div>
 						</div>
 					</div>
@@ -1498,7 +1521,7 @@ if($testPermission)
         xmlhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             
-           
+           console.log(this.responseText);
             var data = JSON.parse(this.responseText);
              
             
@@ -1513,7 +1536,7 @@ if($testPermission)
               			var tbodyobj = document.getElementById("parentprocess-link1");
               			var dum = "";
               			var flag = false;
-              					console.clear();
+              					//console.clear();
               					
               					
 								       	for(var j=0;j<tbodyobj.children.length;j++)
@@ -1637,7 +1660,7 @@ if($testPermission)
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
-            
+           
            console.log(this.responseText)
             var data = JSON.parse(this.responseText);
 
@@ -1683,7 +1706,7 @@ if($testPermission)
 
 <th>Annealing ID</th>
 <th>Date</th>
-<th>Heat Number</th>
+<th>Raw Blend Id</th>
 <th>Quantity Available/Total Quantity</th>
 <th>Quantity (in Kg)</th>
 <th>Options</th>
@@ -1707,7 +1730,7 @@ if($testPermission)
 </td>
 
 <td class="tabledit-view-mode"><span class="tabledit-span"><?php echo getEntryTime($params["id"]) ?></span>
-	<td class="tabledit-view-mode"><span class="tabledit-span"><?php echo getHeatNumber($params["id"]) ?></span>
+	<td class="tabledit-view-mode"><span class="tabledit-span"><?php echo getBlendID_annealing($params["id"]) ?></span>
 
 
 <td class="tabledit-view-mode"><span class="tabledit-span"><?php echo "Available: ".$params["quantity left"]."kg<br> Total: ".$params["total quantity"]."kg"  ?></span>
@@ -1742,7 +1765,7 @@ if($testPermission)
 
 <th>Annealing ID</th>
 <th>Date</th>
-<th>Heat Number</th>
+<th>Raw Blend Id</th>
 <th>Quantity Available/Total Quantity</th>
 <th>Quantity (in Kg)</th>
 <th>Options</th>
@@ -1917,7 +1940,7 @@ else
 <th>-</th>
 <th>Annealing ID</th>
 <th>Date</th>
-<th>Heat Number</th>
+<th>Raw Blend Id</th>
 <th>Quantity Available/Total Quantity</th>
 </tr>
 </thead>

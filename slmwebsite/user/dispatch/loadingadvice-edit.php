@@ -64,7 +64,7 @@
     		$cqty = $qtys[$i];
     		$cpkg = $pkgs[$i];
     		$cbatch = $batches[$i];
-
+    		
     		runQuery("UPDATE loadingadvice_batches SET package='$cpkg', batch='$cbatch', quantity='$cqty' WHERE laid='$laid' AND grade='$cgrade'");
     		
     	}
@@ -79,8 +79,11 @@
 
    		$dumcompany = $_POST['company'];
    		$dumtransport = $_POST['transport'];
+   		$dumdate = $_POST['deliverydate'];
 
-   		runQuery("UPDATE loading_advice SET company='$dumcompany', transport='$dumtransport' WHERE laid='$laid'");
+
+
+   		runQuery("UPDATE loading_advice SET company='$dumcompany', entrydate='$dumdate', transport='$dumtransport' WHERE laid='$laid'");
    }
 
 
@@ -359,7 +362,25 @@ input[type=number] {
 <div class="tab-content card-block">
 
 <div class="tab-pane" id="creation-tabdiv" role="tabpanel">
+<?php
+	
+	$result = runQuery("SELECT * FROM loading_advice WHERE laid='$laid'");
 
+	$result = $result->fetch_assoc();
+
+	$delivery_date = $result['entrydate'];
+	$dumC = $result["customer"];
+	$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='Name'");
+	$result2 = $result2->fetch_assoc(); 
+	$customerid = $dumC;
+
+	$tranport_type = $result['transport'];
+	$currCompany = $result['company'];
+
+	$result3 = runQuery("SELECT * FROM loadingadvice_params WHERE laid='$laid' AND param='Tentative Date'");
+	$result3 = $result3->fetch_assoc(); 
+
+?>
 
 	<?php
 
@@ -380,6 +401,9 @@ input[type=number] {
 
 								
 								<input name="laidName"  required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo $laid; ?>"><div> </div>
+
+
+								<input  name="deliverydate"  required type="text" class="form-control form-control-uppercase" placeholder="" style="display: none; margin: 10px;" value="<?php echo $delivery_date; ?>"><div> </div>
 								
 								
 							</div>
@@ -400,24 +424,7 @@ input[type=number] {
 						}
 					?>
 
-<?php
-	
-	$result = runQuery("SELECT * FROM loading_advice WHERE laid='$laid'");
 
-	$result = $result->fetch_assoc();
-
-	$dumC = $result["customer"];
-	$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='Name'");
-	$result2 = $result2->fetch_assoc(); 
-	$customerid = $dumC;
-
-	$tranport_type = $result['transport'];
-	$currCompany = $result['company'];
-
-	$result3 = runQuery("SELECT * FROM loadingadvice_params WHERE laid='$laid' AND param='Tentative Date'");
-	$result3 = $result3->fetch_assoc(); 
-
-?>
 	
 	Customer Name: <?php echo $result2["value"] ?> <br>
 	Customer Id: <?php echo $dumC ?> 		<br>
@@ -452,6 +459,10 @@ input[type=number] {
 
 			</select>
 		</div>
+		<div class="form-group row" >
+			<label for="deliverydate" class="col-md-3"> Delivery Date</label>
+			<input name="deliverydate" id="deliverydate"  required type="text" class="form-control form-control-uppercase col-md-3" placeholder=" Delivery Date" style="margin: 10px;" value="<?php echo $delivery_date; ?>">
+		</div>
 
 
 		<?php
@@ -477,6 +488,29 @@ input[type=number] {
 		?>
 
 	</form>
+	<script>
+					$(function() {
+					  $('input[name="deliverydate"]').daterangepicker({
+					    singleDatePicker: true,
+					    timePicker: true,
+					    timePicker24Hour: true,
+					    showDropdowns: true,
+					    locale: 
+					    {    
+					    	format: 'YYYY-MM-DD HH:mm',
+					    },
+					  	
+					    minYear: 1901,
+					    maxYear: parseInt(moment().format('YYYY'),10)
+					  }, function(start, end, label) {
+					    
+					  });
+
+
+					});
+					
+
+					</script>
 
 	<script type="text/javascript">
 		

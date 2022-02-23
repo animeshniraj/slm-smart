@@ -35,7 +35,7 @@
     	$externalid = $_POST['externalid'];
     	
 
-    	runQuery("UPDATE loading_advice SET status='UNFULFILLED' WHERE laid in ( SELECT laid from dispatch WHERE cid = '$externalid'");
+    	runQuery("UPDATE loading_advice SET status='UNFULFILLED' WHERE laid in ( SELECT laid from dispatch WHERE cid = '$externalid')");
 
 
 
@@ -331,8 +331,8 @@ function removeProcess(externalid)
 {
 	Swal.fire({
 		  icon: 'error',
-		  title: 'Delete Purshace Order',
-		  html: 'Are you sure you want to delete Purshace Order '+externalid,
+		  title: 'You are deleting a Dispatch',
+		  html: 'Are you sure you want to delete it. This action is irreversible. <br> Dispatch ID.:' +externalid,
 		  confirmButtonText: 'Yes',
 		  cancelButtonText: 'No',
 		  showCancelButton: true,

@@ -32,8 +32,24 @@
 		$deviceip  = $_POST["deviceip"];
 		$hostname  = $_POST["hostname"];
 
-		runQuery("UPDATE devices SET deviceip='$deviceip', hostname='$hostname' WHERE devicename='$devicename'");
+		$units  = $_POST["units"];
+		$multiplier = 1;
+
+
+
+		if($units=="g")
+		{
+			$multiplier = 0.001;
+		}
+		elseif($units=="tonne")
+		{
+			$multiplier = 1000;
+		}
+
 		
+
+		runQuery("UPDATE devices SET deviceip='$deviceip', hostname='$hostname', units='$units', multiplier='$multiplier' WHERE devicename='$devicename'");
+
 	}
 
     $PAGE = [
@@ -209,11 +225,19 @@
   		<td style="padding-left: 10px;"><?php echo $row["deviceip"]; ?></td>
   	</tr>
 
+  	<?php if($row['type']=="SCALE") { ?>
+  	<tr>
+  		<th>Units: </th>
+  		<td style="padding-left: 10px;"><?php echo $row["units"]; ?></td>
+  	</tr>
+
+  <?php }?>
+
   </table>
 
 <br>
 <div style="display: flex; justify-content: space-around;">
-	<button class="btn btn-primary btn-round" onclick="editDevice('<?php echo $row["devicename"]; ?>','<?php echo $row["hostname"]; ?>','<?php echo $row["deviceip"]; ?>')"><i class="fa fa-edit"></i>Edit</button>
+	<button class="btn btn-primary btn-round" onclick="editDevice('<?php echo $row["devicename"]; ?>','<?php echo $row["hostname"]; ?>','<?php echo $row["deviceip"]; ?>','<?php echo $row["units"]; ?>')"><i class="fa fa-edit"></i>Edit</button>
 
 	<button class="btn btn-warning btn-round" onclick="testDevice('<?php echo $row["devicename"]; ?>','<?php echo $row["hostname"]; ?>','<?php echo $row["deviceip"]; ?>')"><i class="fa fa-tachometer"></i>Test</button>
 
@@ -300,12 +324,12 @@
 
 <script type="text/javascript">
 
-function editDevice(devicename,hostname,deviceip)
+function editDevice(devicename,hostname,deviceip,units)
 {
 	Swal.fire({
 		  
 		  title: 'Edit '+devicename,
-		  html: '<div class="form-group row"><label class="col-sm-4">Hostname</label><input value="'+hostname+'" id="edit-hostname" class="form-control col-sm-8" type="text"></div><div class="form-group row"><label class="col-sm-4">Device IP</label><input id="edit-deviceip" value="'+deviceip+'" class="form-control col-sm-8" type="text"></div>',
+		  html: '<div class="form-group row"><label class="col-sm-4">Hostname</label><input value="'+hostname+'" id="edit-hostname" class="form-control col-sm-8" type="text"></div><div class="form-group row"><label class="col-sm-4">Device IP</label><input id="edit-deviceip" value="'+deviceip+'" class="form-control col-sm-8" type="text"></div><div class="form-group row"><label class="col-sm-4">Units</label><select value="'+units+'" id="edit-units" class="form-control col-sm-8" required><option value="g">Grams</option><option value="kg">Kilograms</option><option value="tonne">Tonne</option></select></div>',
 		  confirmButtonText: 'Confirm',
 		  cancelButtonText: 'Cancel',
 		  showCancelButton: true,
@@ -339,6 +363,13 @@ function editDevice(devicename,hostname,deviceip)
 			  		input.setAttribute("type","hidden");
 			  		input.setAttribute("name","editdevice");
 			  		input.setAttribute("value","");
+			  		form.appendChild(input);
+
+
+			  		var input = document.createElement("input");
+			  		input.setAttribute("type","hidden");
+			  		input.setAttribute("name","units");
+			  		input.setAttribute("value",document.getElementById('edit-units').value);
 			  		form.appendChild(input);
 
 			  		document.body.appendChild(form);

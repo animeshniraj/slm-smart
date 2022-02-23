@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "SLM SMART | Edit Sponge Raw Blend ",
         "Home Link"  => "/user/",
         "Menu"		 => "process-rawblend-view",
         "MainMenu"	 => "process_rawblend",
@@ -54,7 +54,7 @@
      if(isset($_POST["updateprocess1"]))
     {
     	
-    	$newprocessid = $_POST["processidName"][0].$_POST["processidName"][1].$_POST["processidName"][2];
+    	$newprocessid = $_POST["processidName"];
 
 
     	$result = runQuery("SELECT * FROM processentry WHERE processid='$newprocessid'");
@@ -84,6 +84,7 @@
     		runQuery("UPDATE processnotes SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("UPDATE processentryparams SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("DELETE FROM processentry WHERE processid='$processid'");
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process '.$processid.' ID changed to '.$newprocessid);
 	    	$processid = $newprocessid;
     	}
     	else
@@ -123,7 +124,7 @@
     	}
     	
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process ('.$processid.') Generic properties updated');
     	
 
 
@@ -151,7 +152,7 @@
     		runQuery("UPDATE processentry SET currentstep='OPERATIONAL' WHERE processid='$processid'");
     	}
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process ('.$processid.') Operational properties updated');
 
     }
 
@@ -232,7 +233,7 @@
     		runQuery("UPDATE processentry SET currentstep='TEST' WHERE processid='$processid'");
     	}
 
-
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process ('.$processid.') Test added');
 
     }
 
@@ -263,7 +264,7 @@
 	    	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','GENERIC','$MASS_TITLE','$total1')");
     	}
  
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Blend Process ('.$processid.') Operational properties updated');
     
     }
 
@@ -445,14 +446,31 @@
 
 
 
-				$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumParam'");
+				if(substr($dumParam,0,5)=="Sieve")
+    		{
+
+    			$print = "Printed";
+    			$cum = "Cumulative";
 
 
-    		$result2 = $result2->fetch_assoc();
+
+
+	    		array_push($testParams,[$dumParam,"","","DECIMAL",$row["min"],$row["max"],"-","5",$print.", ".$cum]);
+
+    		}
+    		else
+    		{
+
+    			$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumParam'");
+
+
+	    		$result2 = $result2->fetch_assoc();
 
 
 
-    		array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"]]);
+	    		array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"],$result2['mpif'],$result2['class']]);
+
+    		}
     	}
     }
 
@@ -688,8 +706,8 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h5><?php echo $processid; ?> (<?php echo $entrytime; ?>)</h5>
-					<span>Edit Raw Blend parameters</span>
+					<h3 style="margin-bottom:0;">Currently updating Batch ID: <?php echo $processid; ?></h5>
+					<p class="created">(Created on: <?php echo $entrytime; ?>)</p>
 				</div>
 			</div>
 		</div>
@@ -721,37 +739,37 @@ input[type=number] {
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i> Creation</a>
 <div class="slide"></div>
 </li>
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i>Generic</a>
+<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i> Generic</a>
 <div class="slide"></div>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i>Operational Parameter</a>
-<div class="slide"></div>
-</li>
-
-
-
-
-
-<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i>Test Properties</a>
+<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i> Operational Parameter</a>
 <div class="slide"></div>
 </li>
 
 
+
+
+
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#parent-tabdiv" role="tab"><i class="icofont icofont-link"></i>Forward Tracking</a>
+<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Test Properties</a>
 <div class="slide"></div>
 </li>
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i>Notes</a>
+<a class="nav-link" data-toggle="tab" href="#parent-tabdiv" role="tab"><i class="icofont icofont-link"></i> Forward Tracking</a>
+<div class="slide"></div>
+</li>
+
+
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i> Notes</a>
 <div class="slide"></div>
 </li>
 
@@ -779,10 +797,8 @@ input[type=number] {
 							<div class="input-group input-group-button">
 
 								
-								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 0,2) ?>"><div></div>
-								<input name="processidName[]" type="hidden" value=" "><div></div>
+								<input name="processidName"  required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo $processid ?>"><div></div>
 								
-								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo substr($processid, 2) ?>">
 
 
 							</div>
@@ -1014,7 +1030,7 @@ if($testPermission)
 
 					?>
 	<div class="form-group row">
-			<label class="col-sm-2">Paste Result</label>
+			<!--<label class="col-sm-2">Paste Result</label>
 			<div class="col-sm-10">
 				<div class="input-group input-group-button">
 					<input  type="text"  class="form-control" id="test-pastevalue" placeholder="">
@@ -1022,7 +1038,7 @@ if($testPermission)
 					<button class="btn btn-primary" onclick="pastevalues('test')" type="button"><i class="feather icon-check"></i>Apply</button>
 					</div>
 				</div>
-			</div>
+			</div>-->
 		</div>
 
 		<script type="text/javascript">
@@ -1053,8 +1069,10 @@ if($testPermission)
 	
 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 	<input type="hidden" name="currtab" value="test-tabdiv">
-<div class="form-group row">
-				<table class="table table-striped table-bordered" id="process4table">
+	<div class="row">
+<div class="form-group col-md-6">
+	<h5 style="text-align:center;"> Enter the test values</h5>
+	<table class="table table-striped table-bordered table-xs" id="process4table">
 		<thead>
 		<tr>
 
@@ -1083,14 +1101,14 @@ if($testPermission)
 
 <tr>
 
-<td class="tabledit-view-mode"><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
-<td class="tabledit-view-mode"><div class="tabledit-span">Min: <?php echo $testParams[$i][4] ?></div>
+<td class="tabledit-view-mode" style="width:30%"><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
+<td class="tabledit-view-mode" style="width:30%"><div class="tabledit-span">Min: <?php echo $testParams[$i][4] ?></div>
 <div class="tabledit-span">Max: <?php echo $testParams[$i][5] ?></div>
 <div style="display: none;" class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
 </td>
 
 
-<td>
+<td style="width:30%">
 
 	<?php
 					if($testParams[$i][3] == "INTEGER")
@@ -1149,8 +1167,8 @@ if($testPermission)
 			if($testPermission)
 			{
 				?>
-				<div class="col-sm-12">
-				<button type="submit" name="updateprocess4" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i>Add test Result</button>
+				<div class="col-md-5 pull-right">
+				<button type="submit" name="updateprocess4" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i> Add test Results</button>
 				</div>
 
 				<?php
@@ -1167,10 +1185,7 @@ if($testPermission)
 
 </form>
 
-
-<br><br><br>
-
-
+<div class="col-md-6">
 <?php
 	
 	$result = runQuery("SELECT * FROM processtest WHERE processid='$processid'");
@@ -1179,18 +1194,12 @@ if($testPermission)
 	{
 
 		?>
-<h5>All Tests</h5>
-<table class="table">
-	<th rowspan="1" colspan="1"  style="width: 84.578125px;">Sl No.</th>
+<h5 style="text-align:center;">All Test results</h5>
+<table class="table table-striped table-bordered table-xs table-responsive">
+	<th rowspan="1" colspan="1"  style="width:5%;">Sl No.</th>
 	<th rowspan="1" colspan="1" >Test Id</th>
 	<th rowspan="1" colspan="1" >Entry Time</th>
-
-
-
 	<th rowspan="1" colspan="1" >Options</th>
-	<th rowspan="1" colspan="1" ></th>
-
-
 	<?php 
 
 		while($row=$result->fetch_assoc())
@@ -1247,7 +1256,7 @@ if($testPermission)
 			echo "<td>".$row["testid"]."</td>";
 			echo "<td>".$row["entrytime"]."</td>";
 			
-				echo "<td><div><button type=\"button\"  class=\"btn btn-primary m-b-0\" onclick=\"viewTest('".$row["testid"]."',".$dumParam.",".$dumValue.")\"><i class=\"fa fa-eye\"></i>View</button><button type=\"button\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"rejectTest('".$row["testid"]."')\"><i class=\"fa fa-trash\"></i>Delete</button></div></td><td>";
+				echo "<td><div><button type=\"button\"  class=\"btn btn-primary m-b-0\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"View Test\" onclick=\"viewTest('".$row["testid"]."',".$dumParam.",".$dumValue.")\"><i class=\"fa fa-eye\"></i></button><button type=\"button\" class=\"btn btn-danger m-b-0\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Test\" style=\"margin-left:30px;\" onclick=\"rejectTest('".$row["testid"]."')\"><i class=\"fa fa-trash\"></i></button></div></td>";
 			
 			
 			
@@ -1262,6 +1271,14 @@ if($testPermission)
 
 	?>
 </table>
+</div>
+
+</div>
+
+<br><br><br>
+
+	</div>
+
 
 <?php 
 	}
@@ -1607,10 +1624,7 @@ $(document).ready(function() {
 
 });
 
-
-
-
-    
+ 
     var itemContainer = $("#notesDiv");
     itemContainer.slimScroll({
         height: '500px',

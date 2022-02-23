@@ -62,7 +62,7 @@
 
     	$pre = $_POST["preprocessed"];
 
-    	if($pre == "Pre-Processed")
+    	if($_POST["company"] == "Tech")
     	{
     		$dumpre = "TF";
     	}
@@ -74,14 +74,14 @@
     	$creationDate = $_POST["creation-date"];
     	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
     	$month = explode("-",explode(" ",$creationDate)[0])[1];
-    	$prefix = $dumpre.$year." ".$month."/";
-    	$sqlprefix = $dumpre.$year." ".$month."/%";
+    	$prefix = $year."/".$month."-".$dumpre."-";
+    	$sqlprefix = $year."/".$month."-".$dumpre."-%";
 
     	$blendno = $_POST["blend-number"];
     	
     	
 
-    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(processid, '/', -1) AS SIGNED)) max_val FROM processentry WHERE processid LIKE '$sqlprefix'");
+    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(processid, '-', -1) AS SIGNED)) max_val FROM processentry WHERE processid LIKE '$sqlprefix'");
 
     	if($result->num_rows==0)
     	{	
@@ -116,7 +116,7 @@
     			
     			if($result)
     			{
-    				
+    				addprocesslog('PROCESS',$prefix,$session->user->getUserid(),'New Final Blend Process ('.$prefix.') created');
     				?>
     					<form id="redirectform" method="POST" action="finalblend-edit.php">
     						<input type="hidden" name="processid" value="<?php  echo $prefix;?>">
@@ -344,12 +344,22 @@ p {
 						
 					</div>
 
+
+					<div class="form-group" style="display:flex; justify-content: center;">
+						
+						<select required name="company" id="company" class="form-control col-sm-3" style="display: inline; text-align: center;">
+							<option value="Metal">SLM Metal</option>
+							<option value="Tech">SLM Technology</option>
+						</select>
+						
+					</div>
+
 	
 <br><br>
 
 <section>
 <div>
-  <input required type="radio" id="control_1" name="preprocessed" value="Pre-Processed">
+  <input required type="radio" id="control_1" name="preprocessed" value="Sponge">
   <label for="control_1">
     <h2>Sponge</h2>
     <p></p>
@@ -357,7 +367,7 @@ p {
 </div>
 
 <div>
-  <input required type="radio" id="control_2" name="preprocessed" value="New">
+  <input required type="radio" id="control_2" name="preprocessed" value="Atomized">
   <label for="control_2">
     <h2>Atomized</h2>
     <p></p>

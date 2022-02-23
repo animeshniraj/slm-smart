@@ -459,9 +459,10 @@ function loadChilds(actualElement, successFunction) {
              successFunction(data);
           });
 }
-
+ console.log("./trace_func.php?action=trace_backward&processid=<?php echo $processid; ?>");
 $.getJSON("./trace_func.php?action=trace_backward&processid=<?php echo $processid; ?>", 
           function(data) {
+           
              u_data = data;
              orgChart.initTree({id: "#body", data: data, modus: "diagonal", loadFunc: loadChilds});
           });

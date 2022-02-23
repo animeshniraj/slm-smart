@@ -35,6 +35,7 @@
     {
     	$processid = $_POST['processid'];
     	runQuery("call delete_process('$processid')");
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Annealing Process ('.$processid.') deleted');
     }
 
 
@@ -50,7 +51,7 @@
 		{
 			$deletePermission = true;
 		}
-
+		
 	}
  
 

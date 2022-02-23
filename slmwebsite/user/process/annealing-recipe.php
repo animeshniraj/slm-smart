@@ -240,8 +240,8 @@
 		<tr>
 		<th>#</th>
 		<th>Recipe</th>
-		<th>Values</th>
 		<th>Options</th>
+		<th></th>
 		
 		</tr>
 	</thead>
@@ -260,28 +260,13 @@
 					<td><?php echo ++$k; ?></td>
 					<td><?php echo $row["recipename"]; ?></td>
 
-					<td>
+					
+
+					<td><form method="POST" action="annealing-recipe-edit.php">
 						
-						<?php
-
-							$param = unserialize($row["param"]);
-							$value = unserialize($row["value"]);
-
-
-							for($i=0;$i<count($param);$i++)
-							{
-								?>
-
-									<div><?php echo $param[$i]; ?> : <?php echo $value[$i]; ?></div>
-
-								<?php
-							}
-
-						?>
-
-
-
-					</td>
+						<input type="hidden" name="recipename" value="<?php echo $row["recipename"]; ?>">
+						<button type="submit" name="editrecipe" id="submitBtn" class="btn btn-primary m-b-0 pull-left"><i class="feather icon-edit"></i>Edit Recipe</button>
+					</form></td>
 
 					<td><form method="POST">
 						

@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "SLM | Melting Stock Report",
         "Home Link"  => "/user/",
         "Menu"		 => "process-melting-stock",
         "MainMenu"	 => "process_melting",
@@ -32,16 +32,34 @@
     $processname = "Melting";
 
     $showMonth =6;
-    $asofdate =Date("Y-m-d H:i",strtotime("now"));
+    $stoptime =Date("Y-m-d 23:59:59",strtotime("now"));
+    $starttime =Date("Y-m-d",strtotime("-6 months"));
+    $currgrade = "all";
+    $show = "no";
 
-    if(isset($_GET['lastmonths']))
+
+
+
+    if(isset($_GET['starttime']))
     {
-    	$showMonth = $_GET['lastmonths'];
+    	$starttime = $_GET['starttime'];
     }
 
-    if(isset($_GET['asofdate']))
+    if(isset($_GET['stoptime']))
     {
-    	$asofdate = $_GET['asofdate'];
+    	$stoptime = $_GET['stoptime']." 23:59:59";
+    }
+
+    if(isset($_GET['show']))
+    {
+    	$show = "yes";
+
+    }
+
+    $props = [];
+    if(isset($_GET['prop']))
+    {
+    	$props = $_GET['prop'];
     }
 
 
@@ -51,10 +69,11 @@
     $asof = 0;
 
     $heading = [];
-    $result = runQuery("SELECT * FROM processentry WHERE processname='$processname' AND entrytime> NOW()- INTERVAL $showMonth Month AND entrytime < '$asofdate' ORDER BY entrytime");
+    $result = runQuery("SELECT * FROM processentry WHERE processname='$processname' AND entrytime>= '$starttime' AND entrytime <= '$stoptime' ORDER BY entrytime");
 
     while($row=$result->fetch_assoc())
     {
+
     	$dum = [];
     	$dum["id"] = $row["processid"];
     	$dum["mass"] = 0;
@@ -86,7 +105,7 @@
     	$start= $row["entrytime"];
 
 
-    	$result2 = runQuery("SELECT * FROM processentryparams WHERE param='$currid' AND step='PARENT' AND processid in (SELECT processid from processentry WHERE (entrytime BETWEEN '$start' AND '$asofdate') )");
+    	$result2 = runQuery("SELECT * FROM processentryparams WHERE param='$currid' AND step='PARENT' AND processid in (SELECT processid from processentry WHERE (entrytime BETWEEN '$start' AND '$stoptime') )");
 
 
 
@@ -106,16 +125,18 @@
 
     	while($row2=$result2->fetch_assoc())
     	{
-    		array_push($heading,$row2["param"]);
-    		$avg[$row2["param"]] = [0,0];
+    		array_push($heading,getpropShortname($processname,$row2["param"]));
+    		$avg[getpropShortname($processname,$row2["param"])] = [0,0];
+
+
     	}
 
     	$result2 = runQuery("SELECT * FROM processtestparams WHERE processid='$currid'");
     	while($row2=$result2->fetch_assoc())
     	{
     		
-    		$avg[$row2["param"]][0] +=  $row2["value"];
-    		$avg[$row2["param"]][1]++;
+    		$avg[getpropShortname($processname,$row2["param"])][0] +=  $row2["value"];
+    		$avg[getpropShortname($processname,$row2["param"])][1]++;
     	}
 
 
@@ -174,8 +195,8 @@
 			<div class="page-header-title">
 				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>Melting Stock</h5>
-					<span>View Melting process stock</span>
+					<h3>Melting Stock</h3>
+					<span>View Melting stock details</span>
 				</div>
 			</div>
 		</div>
@@ -200,70 +221,128 @@
 </div>
 <div class="card-block">
 
-<form  method="GET" >
-<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Show Last (Months): </label>
-			<div class="col-sm-2">
+	<form  method="GET" >
+	<div class="form-group">
+		<h5>Select Date Range to see Melting report</h5>
+		<div class="row">
+				<label class="col-md-1 col-form-label">Start Date: </label>
+				<div class="col-md-2">
+					<input required name="starttime" id='starttime' type="text" class="form-control form-control-uppercase" placeholder="" value="<?php echo $asofdate; ?>">
+				</div>
+
+				<label class="col-md-1 col-form-label">End Date: </label>
+				<div class="col-md-2">
+						<input required name="stoptime" id='stoptime' type="text" class="form-control form-control-uppercase" placeholder="" value="<?php echo $asofdate; ?>">
+						<input type="hidden" name="show" value="yes">
+				</div>
+		</div>
+				
+				<h5>Properties to show:</h5>
+
+				<div class="col-sm-12">
+
+					<?php
+					
+						foreach ($heading as $head) {
+
+								$dchecked = "";
+								if(in_array($head,$props))
+								{
+									$dchecked = "checked";
+								}
+
+							?>
+
+							<div class="checkbox-color checkbox-primary">
+							<input id="prop-<?php echo $head?>" type="checkbox" <?php echo $dchecked; ?> name="prop[]" value="<?php echo $head; ?>">
+							<label for="prop-<?php echo $head;?>">
+							<?php echo $head; ?>
+							</label>
+							</div>
+
+							<?php
+						}
+
+					?>
+				</div>
+				<div class="col-sm-12">
+					<button class="btn btn-primary pull-right" type="submit"><i class="fa fa-refresh"></i>Generate Report</button>
+				</div>
+				</div>
+
+	</div>
+	</form>
+
+
+	<script>
+		$(function() {
+			$('input[name="starttime"]').daterangepicker({
+			singleDatePicker: true,
+			timePicker: false,
+			showDropdowns: true,
+			locale: 
+			{    
+				format: 'YYYY-MM-DD',
+			},
 			
-				<input required name="lastmonths" type="text" class="form-control form-control-uppercase" placeholder="" value="<?php echo $showMonth; ?>">
-
+			minYear: 1901,
+			maxYear: parseInt(moment().format('YYYY'),10)
+			}, function(start, end, label) {
 			
-			</div>
-			<div class="col-sm-2"></div>
-			<label class="col-sm-1 col-form-label">As Of: </label>
-			<div class="col-sm-2">
+			});
+
+
+		});
+		$('#starttime').val('<?php echo $starttime ?>');
+
+
+		$(function() {
+			$('input[name="stoptime"]').daterangepicker({
+			singleDatePicker: true,
+			timePicker: false,
+			showDropdowns: true,
+			locale: 
+			{    
+				format: 'YYYY-MM-DD',
+			},
 			
-				<input required name="asofdate" type="text" class="form-control form-control-uppercase" placeholder="" value="<?php echo $asofdate; ?>">
-
+			minYear: 1901,
+			maxYear: parseInt(moment().format('YYYY'),10)
+			}, function(start, end, label) {
 			
-			</div>
-
-			<button class="btn btn-primary" type="submit"><i class="fa fa-refresh"></i>Reload</button>
-			</div>
-
-</div>
-</form>
+			});
 
 
-<script>
-					$(function() {
-					  $('input[name="asofdate"]').daterangepicker({
-					    singleDatePicker: true,
-					    timePicker: true,
-					    timePicker24Hour: true,
-					    showDropdowns: true,
-					    locale: 
-					    {    
-					    	format: 'YYYY-MM-DD HH:mm',
-					    },
-					  	
-					    minYear: 1901,
-					    maxYear: parseInt(moment().format('YYYY'),10)
-					  }, function(start, end, label) {
-					    
-					  });
+		});
+		$('#stoptime').val('<?php echo $stoptime ?>');
+
+	</script>
+
+<hr>
 
 
-					});
-					$('#creation-date').val('<?php echo DATE('Y-m-d H:i',strtotime("now")) ?>');
+<?php
+if($show == "yes")
+{
+?>
 
-					</script>
 
-
-
-<br>
-<br>
-
-<div class="table-responsive">
-<table class="table table-striped table-bordered" >
+<div class="row" style="margin:1rem;">
+<div class="table-responsive dt-responsive">
+<table class="table table-striped table-bordered table-xs" style="width:100%;">
 	
 <thead>
 	
 
-	<tr>
-		<th>Sl. No </th>
+	<tr style="font-size:11px;font-weight:bold;background-color:#990000;color:#fff;text-align:center;padding:0.25em!important;">
+		<th scope="col">Sl.<br>No.</th>
 		<th>Heat ID</th>
-		<th>Entry Time</th>
+		<th>Date</th>
+		<th>Day<br>Heat No.</th>
+		<th>Furnace<br> Heat No.</th>
+		<th>Heat On<br>Time</th>
+		<th>Heat Off<br>Time</th>
+
 		<?php
 
 		foreach ($heading as $head) {
@@ -278,8 +357,8 @@
 		}
 
 	?>
-		<th>Starting Quantity(kg)</th>
-		<th>Remaining Quantity(kg)</th>
+		<th>Produced<br>Quantity(kg)</th>
+		<th>Balance<br>Quantity(kg)</th>
 		
 		
 
@@ -295,10 +374,54 @@
 ?>
 
 
-<tr>
-	<td><?php echo $k++; ?></td>
-	<td><a target="_blank" href="/user/report/basic-melting.php?id=<?php echo $data["id"]; ?>"><?php echo $data["id"]; ?></a></td></td>
-	<td><?php echo $data["entrydate"]; ?></td>
+<tr  style="font-size:14px;text-align:center;">
+	<td width="2%"><?php echo $k++; ?>.</td>
+	<td width="5%"><a target="_blank" href="/user/report/basic-melting.php?id=<?php echo $data["id"]; ?>"><?php echo $data["id"]; ?></a></td></td>
+	<td width="5%"><?php echo Date('d-M-Y',strtotime($data["entrydate"])); ?></td>
+
+
+	<?php 
+
+		$dheatno ="";
+		$dfheatno ="";
+		$dfheatontime ="";
+		$dfheatofftime ="";
+
+
+		$did = $data["id"];
+
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND param='Heat No.'");
+		if($result->num_rows==1)
+		{
+			$dheatno = $result->fetch_assoc()['value'];
+		}
+
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND param='Furnace Heat No.'");
+		if($result->num_rows==1)
+		{
+			$dfheatno = $result->fetch_assoc()['value'];
+		}
+
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND param='Heat On Time'");
+		if($result->num_rows==1)
+		{
+			$dfheatontime = Date('H:i',strtotime($result->fetch_assoc()['value']));
+		}
+
+
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND param='Heat Off Time'");
+		if($result->num_rows==1)
+		{
+			$dfheatofftime = Date('H:i',strtotime($result->fetch_assoc()['value']));
+		}
+
+
+	?>
+
+	<td width="3%"><?php echo $dheatno; ?></td>
+	<td width="3%"><?php echo $dfheatno; ?></td>
+	<td><?php echo $dfheatontime; ?></td>
+	<td><?php echo $dfheatofftime; ?></td>
 <?php
 
 		foreach ($heading as $head) {
@@ -314,8 +437,8 @@
 
 	?>
 
-	<td><?php echo $data["mass"]; ?></td>
-	<td><?php echo $data["remaining"]; ?></td>
+	<td width="5%" style="text-align:right;"><?php echo $data["mass"]; ?></td>
+	<td width="5%" style="text-align:right;"><?php echo $data["remaining"]; ?></td>
 
 </tr>
 
@@ -326,7 +449,7 @@
 ?>
 
 
-
+<tfoot>
 <tr>
 
 <?php
@@ -347,20 +470,84 @@
 <td></td>
 <td></td>
 <td></td>
-<td style="font-weight:bold;" ><div style="display:inline;"><?php echo $asof; ?></div> kg</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td style="font-weight:bold;font-size:16px;color:#990000;text-align:right;" ><div style="display:inline;"><?php echo $asof; ?></div> kg</td>
 
 	
 
 </tr>
+</tfoot>
 
 
 
 </tbody>
 </table>
+
+<script type="text/javascript">
+	$(document).ready( function () {
+    $('.table').DataTable(
+
+    {
+    	 "columnDefs": [
+            {
+                "targets": [ 0 ],
+                "visible": true,
+                "searchable": false
+            },
+
+
+            <?php 
+            $startnumber = 7;
+            $i=0;
+            	foreach ($heading as $head) {
+
+            		$flag = "false";
+
+            		if(in_array($head, $props))
+            		{
+            			$flag = "true";
+            		}
+
+            		
+            ?>
+
+            {
+                "targets": [ <?php  echo $startnumber+$i;?> ],
+                "visible": <?php echo $flag; ?>,
+                "searchable": <?php echo $flag; ?>
+            },
+            <?php
+            	$i++;
+        			}
+            ?>
+            
+        ]
+    }
+
+
+    	);
+} );
+</script>
 </div>
+
+<?php
+}
+?>
+
+
+<div class="col-sm-12">
+	<button class="btn btn-primary pull-right"><i class="fa fa-download"></i> Download</button>
+</div>
+
+
 
 </div>
 </div>
+</div>
+
 
 
 

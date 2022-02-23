@@ -35,6 +35,8 @@
     {
     	$processid = $_POST['processid'];
     	runQuery("call delete_process('$processid')");
+
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Bag Process ('.$processid.') deleted');
     }
 
 

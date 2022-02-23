@@ -156,13 +156,27 @@
 
 		foreach ($allparams as $value) {
 		
+		if($value[0]=="Type")
+		{
 
 	?>
 			
 			<div class="form-group row">
 			<label class="col-sm-2 col-form-label"><?php echo $value[0] ?></label>
 			<div class="col-sm-10">
-			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_<?php echo $value[0] ?>" placeholder="" value="<?php echo $value[1]; ?>">
+			
+
+			<select required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_<?php echo $value[0] ?>" >
+				<option value="Domestic">Domestic</option>
+				<option value="International">International</option>
+
+			</select>
+
+			<script type="text/javascript">
+				document.getElementById("<?php echo $external_type;?>_<?php echo $value[0] ?>").value="<?php echo $value[1]; ?>"
+			</script>
+
+
 
 			<input type="hidden"name="<?php echo $external_type;?>_paramorder[]" value="<?php echo $value[2]; ?>">
 			<input type="hidden"name="<?php echo $external_type;?>_param[]" value="<?php echo $value[0]; ?>">
@@ -174,6 +188,23 @@
 	<?php
 
 		}
+		else
+		{
+	?>
+	<div class="form-group row">
+			<label class="col-sm-2 col-form-label"><?php echo $value[0] ?></label>
+			<div class="col-sm-10">
+			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_<?php echo $value[0] ?>" placeholder="" value="<?php echo $value[1]; ?>">
+
+			<input type="hidden"name="<?php echo $external_type;?>_paramorder[]" value="<?php echo $value[2]; ?>">
+			<input type="hidden"name="<?php echo $external_type;?>_param[]" value="<?php echo $value[0]; ?>">
+			<span class="messages"></span>
+			</div>
+			</div>
+	<?php
+	
+		}
+	}
 	?>
 
 		<div class="form-group row">

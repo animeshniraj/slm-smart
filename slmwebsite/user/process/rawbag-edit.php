@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "SLM | Edit Raw Bag",
         "Home Link"  => "/user/",
         "Menu"		 => "process-rawbag-view",
         "MainMenu"	 => "process_rawbag",
@@ -82,6 +82,7 @@
     		runQuery("UPDATE processnotes SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("UPDATE processentryparams SET processid='$newprocessid' WHERE processid='$processid'");
 	    	runQuery("DELETE FROM processentry WHERE processid='$processid'");
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Bag Process '.$processid.' ID changed to '.$newprocessid);
 	    	$processid = $newprocessid;
     	}
     	else
@@ -121,7 +122,7 @@
     	}
     	
     	
-    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Bag Process ('.$processid.') Generic properties updated');
     	
 
 
@@ -146,6 +147,9 @@
     	{
     		runQuery("UPDATE processentry SET currentstep='OPERATIONAL' WHERE processid='$processid'");
     	}
+
+
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Bag Process ('.$processid.') Operational properties updated');
     	
     	
 
@@ -196,6 +200,8 @@
 	    			{
 	    				runQuery("UPDATE processentry SET islocked ='BLOCKED' WHERE processid='$processid'");
 	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
+
+	    				addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Bag Process ('.$processid.') blocked');
 	    			}
 	    			else
 	    			{
@@ -210,6 +216,8 @@
 	    			{
 	    				runQuery("UPDATE processentry SET islocked ='BLOCKED' WHERE processid='$processid'");
 	    				runQuery("INSERT INTO processtestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
+
+	    				addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Melting Process ('.$processid.') blocked');
 	    			}
 	    			else
 	    			{
@@ -218,6 +226,9 @@
 	    		}
 	    		
 	    	}
+
+
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Bag Process ('.$processid.') new Test added');	
 
     	if($currStep=="OPERATIONAL")
     	{
@@ -247,6 +258,10 @@
 
 	    	}
     	}
+
+
+
+	    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Raw Bag Process ('.$processid.') parent IDs updated');
     	
     	
     
@@ -416,9 +431,31 @@
     	{
     		$dumParam = $row["properties"];
 
-				$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumParam'");
-    		$result2 = $result2->fetch_assoc();
-    		array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"]]);
+				if(substr($dumParam,0,5)=="Sieve")
+    		{
+
+    			$print = "Printed";
+    			$cum = "Cumulative";
+
+
+
+
+	    		array_push($testParams,[$dumParam,"","","DECIMAL",$row["min"],$row["max"],"-","5",$print.", ".$cum]);
+
+    		}
+    		else
+    		{
+
+    			$result2 = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname' AND gradeparam='$dumParam'");
+
+
+	    		$result2 = $result2->fetch_assoc();
+
+
+
+	    		array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"],$result2['mpif'],$result2['class']]);
+
+    		}
     	}
     }
 
@@ -654,8 +691,8 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;"  class="fa fa-shopping-bag bg-c-blue"></i>
 				
 				<div class="d-inline">
-					<h5><?php echo $processid; ?> (<?php echo $entrytime; ?>)</h5>
-					<span>Edit Raw Bag parameters</span>
+					<h3>Currently updating Raw Bag: <?php echo $processid; ?></h3>
+					<p class="created">(Created on: <?php echo $entrytime; ?>)</p>
 				</div>
 			</div>
 		</div>
@@ -687,33 +724,33 @@ input[type=number] {
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i> Creation</a>
 <div class="slide"></div>
 </li>
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i>Generic</a>
-<div class="slide"></div>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i>Operational Parameter</a>
+<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i> Generic</a>
 <div class="slide"></div>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i>Test Properties</a>
+<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i> Operational Parameter</a>
 <div class="slide"></div>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#parent-tabdiv" role="tab"><i class="icofont icofont-link"></i>Link Process</a>
+<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Test Properties</a>
+<div class="slide"></div>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#parent-tabdiv" role="tab"><i class="icofont icofont-link"></i> Link Process</a>
 <div class="slide"></div>
 </li>
 
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i>Notes</a>
+<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i> Notes</a>
 <div class="slide"></div>
 </li>
 
@@ -721,6 +758,7 @@ input[type=number] {
 
 
 </ul>
+
 
 <div class="tab-content card-block">
 
@@ -741,9 +779,9 @@ input[type=number] {
 							<div class="input-group input-group-button">
 
 								
-								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo explode("/", $processid)[0]; ?>/"><div></div>
+								<input name="processidName[]" readonly required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo explode("-", $processid)[0]; echo "-";echo explode("-", $processid)[1]; echo "-";?>"><div></div>
 								
-								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo explode("/", $processid)[1]; ?>">
+								<input name="processidName[]" required type="text" class="form-control form-control-uppercase" placeholder="" style="margin: 10px;" value="<?php echo explode("-", $processid)[2]; ?>">
 							</div>
 						</div>
 					</div>
@@ -777,8 +815,7 @@ input[type=number] {
 
 
 <div class="col-sm-12">
-				<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/report/basic-rawbag.php?id=<?php echo $processid; ?>')"><i class="icofont icofont-page"></i>Generate Report</button>
-			
+	<button type="button" class="btn btn-primary m-b-0 ml-1 pull-left" onclick="window.open('/user/report/basic-rawbag.php?id=<?php echo $processid; ?>')"><i class="icofont icofont-page"></i>Generate Report</button>
 </div>
 
 
@@ -1002,27 +1039,37 @@ input[type=number] {
 				if($operationalParams[$i][0]==$GRADE_TITLE)
 				{
 
-					$result = runQuery("SELECT * FROM processgrades WHERE processname='$processname'");
+					$result = runQuery("SELECT * FROM processgrades WHERE processname='$processname' ORDER BY entrytime DESC");
 					$dum  = "";
 					
 					$dumValue = "";
-					if($result->num_rows>0)
-					{
+					$allgradelist = [];
+					
 						
-						while($row=$result->fetch_assoc())
-						{
-								$dum = $dum . $row["gradename"] . ",";
-								
-						}
+					while($row=$result->fetch_assoc())
+					{
 
-						$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='OPERATIONAL' AND param='$GRADE_TITLE'");
-						if($result2->num_rows>0)
-						{
-							$result2 = $result2->fetch_assoc();
-							$dumValue = $result2["value"];
-						}
+							if(in_array(explode('#',$row["gradename"])[0], $allgradelist))
+							{
+								continue;
+							}
 
+							$dum = $dum . $row["gradename"] . ",";
+							array_push($allgradelist,explode('#',$row["gradename"])[0]);
+
+
+
+							
 					}
+
+					$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='OPERATIONAL' AND param='$GRADE_TITLE'");
+					if($result2->num_rows>0)
+					{
+						$result2 = $result2->fetch_assoc();
+						$dumValue = $result2["value"];
+					}
+
+					
 
 					if($dumValue)
 					{
@@ -1201,20 +1248,20 @@ if($testPermission)
 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 	<input type="hidden" name="currtab" value="test-tabdiv">
 <div class="form-group row">
-				<table class="table table-striped table-bordered" id="process4table">
+		<table class="table table-striped table-bordered table-xs" id="process4table">
 		<thead>
-		<tr>
+		<tr style="background-color:#990000;color:#fff;">
 
-		<th>Property</th>
-		<th>Min/Max</th>
-		<th>Value</th>
+		<th style="text-align:center;width:45%;">Property</th>
+		<th style="text-align:center;width:35%;">Min/Max</th>
+		<th style="text-align:center">Value</th>
 
 
 		</tr>
 		</thead>
 		
 		
-		<tbody id="test-tablediv">
+		<tbody id="test-tablediv" style="">
 
 
 			<?php
@@ -1231,8 +1278,7 @@ if($testPermission)
 <tr>
 
 <td class="tabledit-view-mode"><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
-<td class="tabledit-view-mode"><div class="tabledit-span">Min: <?php echo $testParams[$i][4] ?></div>
-<div class="tabledit-span">Max: <?php echo $testParams[$i][5] ?></div>
+<td class="tabledit-view-mode"><div class="tabledit-span" style="text-align:right;"><?php echo $testParams[$i][4] ?> - <?php echo $testParams[$i][5] ?></div>
 <div style="display: none;" class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
 </td>
 
@@ -1296,7 +1342,7 @@ if($testPermission)
 			if($testPermission)
 			{
 				?>
-				<div class="col-sm-12">
+				<div class="col-sm-12 col-md-8">
 				<button type="submit" name="updateprocess4" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i>Add test Result</button>
 				</div>
 
@@ -1503,7 +1549,7 @@ if($testPermission)
         xmlhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             
-           
+           console.log(this.responseText)
             var data = JSON.parse(this.responseText);
              
             

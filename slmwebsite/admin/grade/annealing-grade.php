@@ -21,7 +21,7 @@
 	$gradename = $_POST['editgradename'];
 
     $PAGE = [
-        "Page Title" => "SLM | Admin Dashboard",
+        "Page Title" => "SLM | Editing Annealing Grade",
         "Home Link"  => "/admin/",
         "Menu"		 => "processgrade-".str_replace(" ", "",strtolower($processname)),
         "MainMenu"	 => "processgrade_menu",
@@ -43,7 +43,7 @@
 
     	runQuery("INSERT INTO gradeproperties VALUES(NULL,'$processname','$gradename','$propname','$min','$max','$quarantine','$count')");
 
-    	
+    	addprocesslog('GRADE',$gradename,$session->user->getUserid(),'New property '.$propname.' added.');
 
     }
 
@@ -54,7 +54,7 @@
     	$propname = $_POST["deletepropname"];
     	$result = runQuery("DELETE FROM gradeproperties WHERE processname='$processname' AND gradename='$gradename' AND properties='$propname'");
     	
-
+    	addprocesslog('GRADE',$gradename,$session->user->getUserid(),'Property '.$propname.' deleted.');
     }
 
 
@@ -71,6 +71,8 @@
     		$count = $i+1;
     		runQuery("INSERT INTO gradeproperties VALUES(NULL,'$processname','$gradename','$propnames[$i]','$min[$i]','$max[$i]','$quarantine[$i]','$count')");
     	}
+
+    	addprocesslog('GRADE',$gradename,$session->user->getUserid(),'Grade Properties updated.');
 
     }
 
@@ -140,8 +142,8 @@ $result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processnam
 			<div class="page-header-title">
 				<i class="feather icon-sidebar bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>Grades - <?php echo $gradename; ?></h5>
-					<span>Edit grade <?php echo $gradename; ?> grades</span>
+					<h5>Editing Annealing Grade - <?php echo $gradename; ?></h5>
+					<span>Edit Annealing grade properties</span>
 				</div>
 			</div>
 		</div>

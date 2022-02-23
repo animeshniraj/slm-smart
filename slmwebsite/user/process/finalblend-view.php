@@ -35,6 +35,7 @@
     {
     	$processid = $_POST['processid'];
     	runQuery("call delete_process('$processid')");
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Final Blend Process ('.$processid.') deleted');
     }
 
 
@@ -160,7 +161,7 @@
 	<tbody>
 
 		<?php
-				$result = runQuery("SELECT * FROM processentry WHERE processentry.processname = '$processname' ORDER BY entrytime DESC LIMIT 10");
+				$result = runQuery("SELECT * FROM processentry WHERE processentry.processname = '$processname' ORDER BY entrytime DESC LIMIT 20");
 				if($result->num_rows>0)
 				{
 					$k=0;

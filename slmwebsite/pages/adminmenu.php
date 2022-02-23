@@ -145,6 +145,13 @@
 		</a>
 		</li>
 
+		<li id="premix-coa" class="">
+		<a href="/admin/premix/coa-settings.php" class="waves-effect waves-dark">
+		<span class="pcoded-mtext">COA Settings</span>
+		</a>
+		</li>
+
+
 	</ul>
 </li>
 
@@ -279,6 +286,12 @@
 			<li id="processgrade-finalblend-edit" class="">
 			<a href="/admin/grade/editgrade.php?process=Final Blend" class="waves-effect waves-dark">
 			<span class="pcoded-mtext">Edit Grades</span>
+			</a>
+			</li>
+
+			<li id="finalblend-coa" class="">
+			<a href="/admin/grade/final-coa-settings.php" class="waves-effect waves-dark">
+			<span class="pcoded-mtext">COA Settings</span>
 			</a>
 			</li>
 		</ul>

@@ -19,7 +19,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Create a new Melting ID",
+        "Page Title" => "SLM | Create a new Heat ID",
         "Home Link"  => "/user/",
         "Menu"		 => "process-melting-new",
         "MainMenu"	 => "process_melting",
@@ -60,10 +60,13 @@
     	$furnacename = $_POST["furnacename"];
 
     	$creationDate = $_POST["creation-date"];
+    	$heatofftime = $_POST["heatofftime"];
+    	$heatno = $_POST["heatno"];
+    	$fheatno = $_POST["fheatno"];
     	
     	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
-    	$prefix = $furnaceid."-".$year."-";
-    	$sqlprefix = $furnaceid."-".$year."-%";
+    	$prefix = $year.'-I'.$furnaceid.'-';
+    	$sqlprefix = $year.'-I'.$furnaceid.'-%';
 
     	
 
@@ -90,10 +93,18 @@
     	{
     			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Furnace','$furnacename')");
     			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Date','$creationDate')");
+    			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','GENERIC','Heat On Time','$creationDate')");
+
+    			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','GENERIC','Heat Off Time','$heatofftime')");
+
+    			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','GENERIC','Heat No.','$heatno')");
+    			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','GENERIC','Furnace Heat No.','$fheatno')");
 
     			$result = runQuery("INSERT INTO processentryparams (SELECT NULL,'$prefix','STOCK',materialname,0 FROM rawmaterials)");
     			if($result)
     			{
+
+    				addprocesslog('PROCESS',$prefix,$session->user->getUserid(),'New Melting Process ('.$prefix.') created');
     				
     				?>
     					<form id="redirectform" method="POST" action="melting-edit.php">
@@ -181,14 +192,22 @@ label{
   background: white;
   border: 2px solid #4099FF;
   border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 0.75rem;
   text-align: center;
-  box-shadow: 0px 3px 10px -2px rgba(161, 170, 166, 0.5)!important;
+  box-shadow: 0px 3px 10px -2px rgba(161, 170, 166, 0.5);
   position: relative;
+  transition:ease-in-out .5s;
 }
 
-label:hover{box-shadow: 0px 3px 10px -2px rgba(161, 170, 166, 0.85);}
+label:hover{
+	background-color:#990000;
+	color:#FFE6D9;
+	transition:ease-in-out .5s;
+	-webkit-box-shadow: 10px 10px 23px -7px rgba(153,0,0,1);
+	-moz-box-shadow: 10px 10px 23px -7px rgba(153,0,0,1);
+	box-shadow: 10px 10px 23px -7px rgba(153,0,0,1);
+	border: 2px solid #00BDF1;
+}
 
 
 input[name="creation-date"] {
@@ -203,6 +222,21 @@ input[name="creation-date"] {
   text-align: center;
   box-shadow: 0px 3px 10px -2px rgba(161, 170, 166, 0.5);
   position: relative;
+}
+
+
+input[name="heatofftime"] {
+    height: 40px;
+    width: 250px;
+    display: block;
+    background: white;
+    border: 2px solid #4099FF;
+    border-radius: 5px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    box-shadow: 0px 3px 10px -2px rgb(161 170 166 / 50%);
+    position: relative;
 }
 
 input[type=radio]:checked + label {
@@ -254,7 +288,7 @@ p {
 				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
 					<h3>Melting Batch creation</h3>
-					<span>Enter the Melting details to create a new batch</span>
+					<span>Enter the Melting details to create a new heat</span>
 				</div>
 			</div>
 		</div>
@@ -285,7 +319,7 @@ p {
 
 <ul class="nav nav-tabs md-tabs " role="tablist">
 <li class="nav-item">
-<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab" style="font-size:18px;"><i class="icofont-i icofont-fire-burn"></i> Create a new Melting batch</a>
+<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab" style="font-size:18px;"><i class="icofont-i icofont-fire-burn"></i> Create a new Heat</a>
 <div class="slide"></div>
 </li>
 
@@ -301,15 +335,28 @@ p {
 <div class="tab-pane active" id="creation-tabdiv" role="tabpanel">
 
 <form method="POST">
+				<div class="row justify-content-center">
+
+				<div class="col-md-3">
 					<p style="display:block;text-align:center;color:#212121;" data-toggle="tooltip" data-placement="bottom" title="Choose the date and time">Enter the Heat On Time</p>
 					
-					<div class="form-group" style="display:flex; justify-content: center;">
+					<div class="form-group" style="display:flex;justify-content:center;">
 						
 						<input type="text" required name="creation-date" id="creation-date" class="form-control" style="display: inline; text-align: center;" placeholder="Date">
 						
 					</div>
+				</div>
 
-					<script>
+				<div class="col-md-3">
+					<p style="display:block;color:#212121;text-align:center;" data-toggle="tooltip" data-placement="bottom" title="Choose the date and time">Enter the Heat Off Time</p>
+					<div class="form-group" style="display:flex;justify-content:center;">
+						
+						<input type="text" required name="heatofftime" id="heatofftime" class="form-control" style="display: inline; text-align: center;" placeholder="Date">
+						
+					</div>
+				</div>
+				
+				<script>
 					$(function() {
 					  $('input[name="creation-date"]').daterangepicker({
 					    singleDatePicker: true,
@@ -329,9 +376,50 @@ p {
 
 
 					});
+
+					$(function() {
+					  $('input[name="heatofftime"]').daterangepicker({
+					    singleDatePicker: true,
+					    timePicker: true,
+					    timePicker24Hour: true,
+					    showDropdowns: true,
+					    locale: 
+					    {    
+					    	format: 'YYYY-MM-DD HH:mm',
+					    },
+					  	
+					    minYear: 1901,
+					    maxYear: parseInt(moment().format('YYYY'),10)
+					  }, function(start, end, label) {
+					    
+					  });
+
+
+					});
 					$('#creation-date').val('<?php echo DATE('Y-m-d H:i',strtotime("now")) ?>');
+					$('#heatofftime').val('<?php echo DATE('Y-m-d H:i',strtotime("now")) ?>');
 
 					</script>
+
+				</div>
+
+				<div class="row justify-content-center">
+					<div class="col-md-3">
+						<div class="form-group" style="display:flex; justify-content: center;" data-toggle="tooltip" data-placement="bottom" title="Enter Day Heat Number">
+							
+							<input type="text" required name="heatno" id="heatno" class="form-control" style="display: inline; text-align: center;" placeholder="Day Heat Number">
+							
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div class="form-group" style="display:flex; justify-content: center;" data-toggle="tooltip" data-placement="bottom" title="Enter Furnace Heat Number">
+							
+							<input type="text" required name="fheatno" id="fheatno" class="form-control" style="display: inline; text-align: center;" placeholder="Furnace Heat Number">
+							
+						</div>
+					</div>
+				</div>
+
 
 <img src="/pages/png/furnace.png" class="furnace-img img-center">
 <p style="display:block;text-align:center;font-size:18px;cursor:auto;" data-toggle="tooltip" data-placement="bottom" title="Furnace based on quantity">Select the used furnace</p>
@@ -371,7 +459,7 @@ p {
 	<div class="form-group row">
 		<input type="hidden" id="furnacename" name="furnacename" value="">
 		<div class="col-sm-12">
-		<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i>Create New Entry</button>
+		<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i>Create New Heat</button>
 		</div>
 	</div>
 

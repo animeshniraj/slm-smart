@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "SLM | Welcome to SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "dashboard_menu",
         "MainMenu"	 => "",
@@ -41,7 +41,7 @@
 	<div class="row align-items-end">
 		<div class="col-lg-8">
 			<div class="page-header-title">
-				<i class="feather icon-activity bg-c-blue"></i>
+				<img src="/pages/png/user.gif" alt="Logged User" class="logged-icon">
 				<div class="d-inline">
 					<h3>Welcome <span><?php echo $session->user->getFullname(); ?></span></h3>
 					<span>Your last login was on 10:59 29th Nov 2021</span>
@@ -104,6 +104,26 @@
 	</div>
 
 </div>
+
+<div class="col-lg-3">
+
+	<div class="card">
+		<div class="card-header">
+			<h5>Dispatch</h5>
+			<i class="fa fa-truck"></i>
+		</div>
+
+
+		<div class="card-block">
+		<a class="btn waves-effect waves-light hor-grd btn-grd-primary btn-block" href="/user/dispatch/new-purchase.php">Create New Purchase Order</a>
+		<a class="btn waves-effect waves-light hor-grd btn-grd-primary btn-block" href="/user/dispatch/dispatch-report.php">Check Dispatch Report</a>
+		</div>
+
+	</div>
+
+</div>
+
+
 
 
 </div>

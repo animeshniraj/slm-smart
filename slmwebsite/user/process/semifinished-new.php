@@ -62,7 +62,7 @@
 
     	$pre = $_POST["preprocessed"];
 
-    	if($pre == "Pre-Processed")
+    	if($pre == "Sponge")
     	{
     		$dumpre = "S";
     	}
@@ -74,8 +74,8 @@
     	$creationDate = $_POST["creation-date"];
     	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
     	$month = explode("-",explode(" ",$creationDate)[0])[1];
-    	$prefix = $dumpre.$year." ".$month."/";
-    	$sqlprefix = $dumpre.$year." ".$month."/%";
+    	$prefix = $year."/".$month."-".$dumpre."-";
+    	$sqlprefix = $year."/".$month."-".$dumpre."-%";;
 
     	
     	$binno = $_POST["bin-number"];
@@ -83,7 +83,7 @@
 
 
 
-    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(processid, '/', -1) AS SIGNED)) max_val FROM processentry WHERE processid LIKE '$sqlprefix'");
+    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(processid, '-', -1) AS SIGNED)) max_val FROM processentry WHERE processid LIKE '$sqlprefix'");
 
     	if($result->num_rows==0)
     	{	
@@ -122,7 +122,7 @@
     			
     			if($result)
     			{
-    				
+    				addprocesslog('PROCESS',$prefix,$session->user->getUserid(),'New Semi-Finished Process ('.$prefix.') created');
     				?>
     					<form id="redirectform" method="POST" action="semifinished-edit.php">
     						<input type="hidden" name="processid" value="<?php  echo $prefix;?>">
@@ -361,15 +361,15 @@ p {
 
 <section>
 <div>
-  <input required type="radio" id="control_1" name="preprocessed" value="Pre-Processed">
+  <input required type="radio" id="control_1" name="preprocessed" value="Sponge">
   <label for="control_1">
-    <h2>Sponged</h2>
+    <h2>Sponge</h2>
     <p></p>
   </label>
 </div>
 
 <div>
-  <input required type="radio" id="control_2" name="preprocessed" value="New">
+  <input required type="radio" id="control_2" name="preprocessed" value="Atomized">
   <label for="control_2">
     <h2>Atomized</h2>
     <p></p>

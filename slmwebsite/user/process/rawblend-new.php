@@ -66,10 +66,12 @@
 	    	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
 
 	    	$month = explode("-",explode(" ",$creationDate)[0])[1];
-	    	$prefix = "AR".$year." ".$month."/";
-	    	$sqlprefix = "AR".$year." ".$month."/%";
+	    	$prefix = $year.'/'.$month.'-BA-';
+	    	$sqlprefix = $year.'/'.$month.'-BA-%';;
 
-	    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(processid, '/', -1) AS SIGNED)) max_val FROM processentry WHERE processid LIKE '$sqlprefix'");
+	    	$blendid = $_POST['blendid'];
+
+	    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(processid, '-', -1) AS SIGNED)) max_val FROM processentry WHERE processid LIKE '$sqlprefix'");
 
 	    	if($result->num_rows==0)
 	    	{	
@@ -86,10 +88,12 @@
 
 	    	$result = runQuery("INSERT INTO processentry VALUES('$prefix','$processname','CREATION',CURRENT_TIMESTAMP,'UNLOCKED')");
 
-	    	$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Pre-Processed','New')");
+	    	$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Pre-Processed','Atomized')");
     		$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Date','$creationDate')");
 
+    		$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','GENERIC','Blend Number','$blendid')");
 
+    		addprocesslog('PROCESS',$prefix,$session->user->getUserid(),'New Atomized Raw Blend Process ('.$prefix.') created');
 
 		    	if($result)
 		    	{
@@ -116,9 +120,9 @@
     		$creationDate = $_POST["creation-date"];
 
     		$processid = $_POST["processid"];
-    		$sqlprefix = $processid[0].$processid[1]." ".$processid[2]."/".$processid[3];
+    		$sqlprefix = $processid[0].'/'.$processid[1]."-".$processid[2]."-".$processid[3];
 
-
+    		$blendid = $_POST['blendid'];
 
     		$result = runQuery("SELECT * FROM processentry WHERE processid ='$sqlprefix'");
 
@@ -127,12 +131,12 @@
 
     			$result = runQuery("INSERT INTO processentry VALUES('$sqlprefix','$processname','CREATION',CURRENT_TIMESTAMP,'UNLOCKED')");
 
-	    	$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$sqlprefix','CREATION','Pre-Processed','Pre-Processed')");
+	    	$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$sqlprefix','CREATION','Pre-Processed','Sponge')");
     		$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$sqlprefix','CREATION','Date','$creationDate')");
-
+    		$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$sqlprefix','GENERIC','Blend Number','$blendid')");
     			if($result)
 		    	{
-		    			
+		    			addprocesslog('PROCESS',$sqlprefix,$session->user->getUserid(),'New Sponge Raw Bag Process ('.$sqlprefix.') created');
 		    			
 		    				?>
 		    					<form id="redirectform" method="POST" action="rawblend-edit-pre.php">
@@ -369,13 +373,20 @@ p {
 
 					</script>
 
+
+					<div class="form-group" style="display:flex; justify-content: center;">
+						
+						<input type="text" required name="blendid" id="blendid" class="form-control col-sm-3" style="display: inline; text-align: center;" placeholder="Blend Number">
+						
+					</div>
+
 <section>
 <br>
 
 <div>
   <input onclick="toggleDisp('pre')"  required type="radio" id="preprocessed" name="type" value="preprocessed">
   <label for="preprocessed">
-    <h2>Pre-Processed</h2>
+    <h2>Sponge</h2>
     <p></p>
   </label>
 </div>
@@ -383,7 +394,7 @@ p {
 <div>
   <input onclick="toggleDisp('new')"  required type="radio" id="newblend" name="type" value="newblend">
   <label for="newblend">
-    <h2>New Blend</h2>
+    <h2>Atomized</h2>
     <p></p>
   </label>
 </div>
@@ -430,10 +441,11 @@ p {
 							<div id="pre-div" class="input-group input-group-button">
 
 								
-								<input name="processid[]" readonly required type="text" class="form-control col-sm-2 form-control-uppercase" placeholder="" style="margin: 10px;" value="SR"><div></div>
+								
 								
 								<input name="processid[]" minlength="2" maxlength="2" required type="text" class="form-control form-control-uppercase" placeholder="YY" style="margin: 10px;" value="">
 								<input name="processid[]" minlength="2" maxlength="2" required type="text" class="form-control form-control-uppercase" placeholder="MM" style="margin: 10px;" value="">
+								<input name="processid[]" readonly required type="text" class="form-control col-sm-2 form-control-uppercase" placeholder="" style="margin: 10px;" value="BS"><div></div>
 								<input name="processid[]" minlength="3" maxlength="3" required type="text" class="form-control form-control-uppercase" placeholder="XXX" style="margin: 10px;" value="">
 
 							</div>

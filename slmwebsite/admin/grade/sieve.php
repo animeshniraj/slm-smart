@@ -43,6 +43,9 @@
 	    		
 	    		runQuery("INSERT INTO sieve VALUES('$propname[$i]','$mesh[$i]','$micron[$i]')");
 	    	}
+
+
+	    	addprocesslog('GRADE','Sieve',$session->user->getUserid(),'New Sieve property updated');
 	    
 
     }
