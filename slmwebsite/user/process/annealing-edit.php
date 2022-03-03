@@ -1153,7 +1153,7 @@ input[type=number] {
 						<div class="col-sm-10">
 							<div class="input-group input-group-button">
 							
-								<input name="reconciliation_val"  type="number" step="0.01" min="0" max ="<?php echo $remaining+$reconcil; ?>" class="form-control" placeholder="" value="<?php echo $remaining+$reconcil; ?>">
+								<input name="reconciliation_val"  type="number" step="0.01" min="0" max ="<?php echo $remaining+$reconcil; ?>" class="form-control" placeholder="" value="<?php echo $reconcil; ?>">
 								
 							</div>
 						</div>

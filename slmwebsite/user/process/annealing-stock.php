@@ -18,10 +18,10 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | Raw Bag Stock Report",
+        "Page Title" => "SLM | Annealing Stock Report",
         "Home Link"  => "/user/",
-        "Menu"		 => "process-rawbag-stock",
-        "MainMenu"	 => "process_rawbag",
+        "Menu"		 => "process-annealing-stock",
+        "MainMenu"	 => "process_annealing",
 
     ];
 
@@ -29,12 +29,13 @@
 	$myrole = $session->user->getRoleid();
 
 
-    $processname = "Raw Bag";
+    $processname = "Annealing";
 
     $showMonth =6;
     $stoptime =Date("Y-m-d 23:59:59",strtotime("now"));
     $starttime =Date("Y-m-d",strtotime("-6 months"));
     $currgrade = "all";
+    $currfgrade = "all";
     $show = "no";
 
 
@@ -52,6 +53,13 @@
     {
     	$currgrade = $_GET['currgrade'];
     }
+
+    if(isset($_GET['currfgrade']))
+    {
+    	$currfgrade = $_GET['currfgrade'];
+    }
+
+    
 
     if(isset($_GET['show']))
     {
@@ -140,6 +148,19 @@
     		}
     		if($row2["param"]==$GRADE_TITLE)
     			$dum["grade"] = $row2["value"];
+    	}
+
+
+    	if($currfgrade!="all")
+    	{
+    		$result2 = runQuery("SELECT * FROM processentryparams WHERE param='Final Blend Grade' AND processid='$currid'");
+    		if($result2->num_rows==1)
+    		{
+    			if($result2->fetch_assoc()['value'] != $currfgrade)
+    			{
+    				continue;
+    			}
+    		}
     	}
 
 
@@ -299,8 +320,8 @@
 			<div class="page-header-title">
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;" class="fa fa-signal bg-c-blue"></i>
 				<div class="d-inline">
-					<h3>Raw Bag Stock</h3>
-					<span>View Raw Bag stock details</span>
+					<h3>Annealing Stock</h3>
+					<span>View Annealing stock details</span>
 				</div>
 			</div>
 		</div>
@@ -331,7 +352,7 @@ if($show != "yes")
 {
 ?>
 <div class="form-group">
-<h5>Select Date Range to see Raw Bag report</h5>
+<h5>Select Date Range to see Annealing report</h5>
 <hr>
 <div class="row">
 			<label class="col-sm-2 col-form-label">Start Date: </label>
@@ -348,7 +369,7 @@ if($show != "yes")
 <hr>
 <div class="row">
 			<label class="col-sm-2 col-form-label ">Select Grade:</label>
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 				<select class="form-control" required name="currgrade" id="currgrade">
 					<option value="all">All Grades</option>
 					<?php  
@@ -378,8 +399,40 @@ if($show != "yes")
 				</script>
 			</div>
 
-			<label class="col-sm-2 col-form-label ">Type</label>
-			<div class="col-sm-3">
+
+			<label class="col-sm-2 col-form-label ">Select Final Blend Grade:</label>
+			<div class="col-sm-2">
+				<select class="form-control" required name="currfgrade" id="currfgrade">
+					<option value="all">All Grades</option>
+					<?php  
+
+						$result = runQuery("SELECT * FROM processgrades WHERE processname='Final Blend' ORDER BY entrytime DESC");
+						$allfgradelist = [];
+						while($row=$result->fetch_assoc())
+						{
+
+								if(in_array(explode('#',$row["gradename"])[0], $allfgradelist))
+								{
+									continue;
+								}
+
+								echo "<option value='".explode('#',$row["gradename"])[0]."'>".explode('#',$row["gradename"])[0]."</option>";
+								array_push($allfgradelist,explode('#',$row["gradename"])[0]);
+								
+						}
+
+					?>
+				</select>
+
+
+
+				<script type="text/javascript">
+					document.getElementById('currfgrade').value='<?php echo $currfgrade; ?>';
+				</script>
+			</div>
+
+			<label class="col-sm-1 col-form-label ">Type</label>
+			<div class="col-sm-2">
 				<select class="form-control" required name="rtype" id="rtype">
 					<option value="prod">Production Quantity</option>
 					<option value="bal">Balance Quantity</option>
@@ -518,7 +571,7 @@ if($show == "yes")
 
 	<tr style="font-size:11px;font-weight:bold;background-color:#990000;color:#fff;text-align:center;padding:0.25em!important;">
 		<th scope="col">Sl.<br>No.</th>
-		<th>Raw Bag ID</th>
+		<th>Annealing ID</th>
 		<th>Entry Time</th>
 		<th>Grade</th>
 		<?php
@@ -554,7 +607,7 @@ if($show == "yes")
 
 <tr  style="font-size:14px;">
 	<td width="2%" style="text-align:center;"><?php echo $k++; ?>.</td>
-	<td width="5%"><a target="_blank" href="/user/report/basic-rawbag.php?id=<?php echo $data["id"]; ?>"><?php echo $data["id"]; ?></a></td></td>
+	<td width="5%"><a target="_blank" href="/user/report/basic-annealing.php?id=<?php echo $data["id"]; ?>"><?php echo $data["id"]; ?></a></td></td>
 	<td width="5%"><?php echo $data["entrydate"]; ?></td>
 	<td width="5%"><?php echo $data["grade"]; ?></td>
 <?php

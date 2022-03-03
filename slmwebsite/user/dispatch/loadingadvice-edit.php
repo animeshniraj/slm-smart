@@ -58,6 +58,11 @@
     	$grades = $_POST['grades'];
 
 
+    	
+
+    	runQuery("DELETE FROM loadingadvice_batches WHERE laid='$laid'");
+
+
     	for ($i=0; $i < count($batches); $i++) { 
     		
     		$cgrade = $grades[$i];
@@ -65,7 +70,7 @@
     		$cpkg = $pkgs[$i];
     		$cbatch = $batches[$i];
     		
-    		runQuery("UPDATE loadingadvice_batches SET package='$cpkg', batch='$cbatch', quantity='$cqty' WHERE laid='$laid' AND grade='$cgrade'");
+    		runQuery("INSERT INTO loadingadvice_batches VALUES(NULL,'$laid','$cgrade','$cbatch','$cqty','$cpkg')");
     		
     	}
     }
@@ -144,6 +149,8 @@
     		$batchids= $_POST["order_batchid"];
 
 	    	$qty = $_POST['order_batchqty'];
+
+
 
 	    	runQuery("DELETE FROM loadingadvice_params WHERE laid='$laid' AND step='BATCH'");
 
@@ -544,6 +551,7 @@ input[type=number] {
 				<th>Batch</th>
 				<th>Quantity</th>
 				<th>Packaging</th>
+				<th></th>
 			</tr>
 		</thead>
 
@@ -559,7 +567,7 @@ input[type=number] {
 					
 			?>
 
-				<tr>
+				<tr id="batchrow-<?php echo $k;?>">
 					<td><?php echo $k;?></td>
 					<td><input  required type="text" name="grades[]" class="form-control" value="<?php echo $row["grade"];?>"></td></td>
 					<td>
@@ -614,12 +622,30 @@ input[type=number] {
 						</select>
 					</td>
 
+					<td>
+						<button onclick="duplicaterow(document.getElementById('batchrow-<?php echo $k;?>'),this.closest('tbody'))" class="btn btn-primary" type="button"><i class="fa fa-copy"></i>Duplicate</button>
+					</td>
+
 						<script type="text/javascript">
 
 							$( document ).ready(function() {
 							    document.getElementById('pkg-select-<?php echo $k;?>').value='<?php echo $row["package"];?>';
 								document.getElementById('batch-select-<?php echo $k;?>').value='<?php echo $row["batch"];?>';
 							});
+
+
+							function duplicaterow(trrow,tbody)
+							{
+								
+
+								var tr = document.createElement('tr');
+
+								tr.innerHTML = trrow.innerHTML;
+								tr.children[2].children[0].id = tr.children[2].children[0].id + '-d';
+								tr.children[2].children[0].value = null;
+								
+								tbody.appendChild(tr);
+							}
 							
 						</script>
 

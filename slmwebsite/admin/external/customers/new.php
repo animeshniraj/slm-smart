@@ -17,7 +17,7 @@
 
 	$external_type = "Customer";
 
-		if(isset($_POST["addnew"]))
+	if(isset($_POST["addnew"]))
 	{
 		
 
@@ -229,7 +229,7 @@
 			<div class="form-group row">
 			<label class="col-sm-3 col-form-label">Contact Person</label>
 			<div class="col-sm-4">
-			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
+			<input type="text"  class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="7">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Contact Person">
 			<span class="messages"></span>
@@ -240,7 +240,7 @@
 			<div class="form-group row">
 			<label class="col-sm-3 col-form-label">Contact Number</label>
 			<div class="col-sm-3">
-			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
+			<input type="text" class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="8">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Contact Number">
 			<span class="messages"></span>
@@ -248,7 +248,7 @@
 			
 			<label class="col-sm-3 col-form-label">Alternate Number</label>
 			<div class="col-sm-3">
-			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="" value="-">
+			<input type="text" class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="" value="-">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="9">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Alternate Contact Number">
 			<span class="messages"></span>
@@ -259,7 +259,7 @@
 			<div class="form-group row">
 			<label class="col-sm-3 col-form-label">Email</label>
 			<div class="col-sm-4">
-			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
+			<input type="text" class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="10">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Email">
 			<span class="messages"></span>
@@ -270,7 +270,7 @@
 			<div class="form-group row">
 			<label class="col-sm-3 col-form-label">Remarks</label>
 			<div class="col-sm-9">
-			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
+			<input type="text" class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_address" placeholder="">
 			<input type="hidden" name="<?php echo $external_type;?>_paramorder[]" value="11">
 			<input type="hidden" name="<?php echo $external_type;?>_param[]" value="Remarks">
 			<span class="messages"></span>
@@ -346,7 +346,7 @@
 
 
 <datalist id="countrylist">
-    <option value="Afganistan">Afghanistan</option>
+   <option value="Afganistan">Afghanistan</option>
    <option value="Albania">Albania</option>
    <option value="Algeria">Algeria</option>
    <option value="American Samoa">American Samoa</option>
