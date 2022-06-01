@@ -281,7 +281,8 @@ p {
 
 <form method="POST">
 
-		
+
+<p style="display:block;text-align:center;color:#212121;">Last Created Id: <?php echo get_last_id($processname) ?></p>		
 <p style="display:block;text-align:center;color:#212121;">Enter the Batch Creation Date</p>
 
 <div class="form-group" style="display:flex; justify-content: center;">
@@ -291,11 +292,11 @@ p {
 					</div>
 
 
-					<p style="display:block;text-align:center;color:#212121;font-size:13px;font-weight:normal;">Sample Batch ID: T21IP05123 (Techonlogy), M21IP05123(Metal) </p>
+					<p style="display:block;text-align:center;color:#212121;font-size:13px;font-weight:normal;">Sample Batch No.: T21IP05123(Technology), M21IP05123(Metal) </p>
 
 					<div class="form-group" style="display:flex; justify-content: center;" >
 							<div class="input-group input-group-button col-sm-3">
-								<input type="text" required name="processid" id="processid" class="form-control" style="display: inline; text-align: center;text-transform:uppercase;" placeholder="Batch Id" pattern="[T,M][0-9]{2}IP[0-9]{5}">						
+								<input type="text" required name="processid" id="processid" class="form-control" style="display: inline; text-align: center;text-transform:uppercase;" placeholder="Batch Number" pattern="[T,M][0-9]{2}IP[0-9]{5}">						
 							</div>
 						</div>
 

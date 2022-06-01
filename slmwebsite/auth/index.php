@@ -17,6 +17,22 @@
 
         if($session->authsession($userid,$password))
         {
+
+            $lasttime = Date('Y-m-d H:i:s',strtotime('now'));
+            $currtime = $lasttime;
+            
+            $result = runQuery("SELECT * FROM loginlog WHERE userid='$userid' ORDER BY currtime DESC");
+
+            if($result->num_rows>0)
+            {
+                $lasttime = $result->fetch_assoc()['currtime'];
+
+            }
+
+            runQuery("INSERT INTO loginlog VALUES(NULL,'$userid','$currtime','$lasttime')");
+
+
+
             $result = runQuery("SELECT status FROM userauth WHERE userid='$userid'");
             $passwordStatus = $result->fetch_assoc()["status"];
             if($session->getPermission("admin_module"))
@@ -68,10 +84,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="description" content="SLM SMART" />
+<meta name="description" content="SMART is SLM Technology's proprietary software developed by Amazing Workz Studios to record and track each event followed in their factory." />
 <meta name="author" content="Amazing Workz Studios" />
 
-<link rel="icon" href="https://colorlib.com/polygon/admindek/files/assets/images/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/pages/jpg/favicon.ico" type="image/x-icon">
 
 <link href="/pages/font/opensan.css" rel="stylesheet">
 <link href="/pages/font/opensand.css" rel="stylesheet">

@@ -28,6 +28,12 @@
     $myuserid = $session->user->getUserid();
 	$myrole = $session->user->getRoleid();
 
+	$LIMIT = 20;
+
+	if(isset($_GET['limit']))
+	{
+		$LIMIT =$_GET['limit'];
+	}
 
     $processname = "Melting";
 
@@ -155,7 +161,9 @@ input.addEventListener("keyup", function(event) {
 		<th>#</th>
 		<th>Heat ID</th>
 		<th>Furnace Name</th>
-		<th>Entry Time & Date</th>
+		<th>Day Heat No.</th>
+		<th>Heat On Time</th>
+		<th>Heat Off Time</th>
 		<th style="text-align:center;">Edit Batch</th>
 		<?php 
 			if($deletePermission)
@@ -168,7 +176,7 @@ input.addEventListener("keyup", function(event) {
 	<tbody>
 
 		<?php
-				$result = runQuery("SELECT * FROM processentry LEFT JOIN processentryparams ON processentryparams.processid=processentry.processid WHERE processentry.processname = '$processname' AND processentryparams.param='Furnace' ORDER BY entrytime DESC LIMIT 10");
+				$result = runQuery("SELECT * FROM processentry LEFT JOIN processentryparams ON processentryparams.processid=processentry.processid WHERE processentry.processname = '$processname' AND processentryparams.param='Furnace' ORDER BY entrytime DESC LIMIT $LIMIT");
 				if($result->num_rows>0)
 				{
 					$k=0;
@@ -179,7 +187,24 @@ input.addEventListener("keyup", function(event) {
 		<th scope="row"><?php echo ++$k; ?></th>
 		<td><?php echo $row["processid"]; ?></td>
 		<td><?php echo $row["value"]; ?></td>
-		<td><?php echo Date('H:i - d/M/Y',strtotime($row["entrytime"])); ?></td>
+		<?php
+		$ccid = $row["processid"];
+		
+			$dval = runQuery("SELECT * FROM processentryparams WHERE processid='$ccid' AND param='Heat No.'")->fetch_assoc()['value'];
+		?>
+		<td><?php echo $dval; ?></td>
+		<?php
+		
+		
+			$dval = runQuery("SELECT * FROM processentryparams WHERE processid='$ccid' AND param='Heat On Time'")->fetch_assoc()['value'];
+		?>
+		<td><?php echo $dval; ?></td>
+		<?php
+		
+			$dval = runQuery("SELECT * FROM processentryparams WHERE processid='$ccid' AND param='Heat Off Time'")->fetch_assoc()['value'];
+		?>
+		<td><?php echo $dval; ?></td>
+
 		<td><form method="POST" action="melting-edit.php"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
@@ -202,6 +227,18 @@ input.addEventListener("keyup", function(event) {
 	</tbody>
 	</table>
 
+
+<form method="GET">
+	<div class="row">
+		<div class="col-sm-3">
+		<input type="number" class="form-control" step="1" min="1" name="limit" placeholder="Show last results" value="<?php echo $LIMIT ?>" >
+		</div>
+		<div class="col-sm-3">
+			<button class="btn btn-primary">Show Last</button>
+		</div>
+
+	</div>
+</form>
 
 
 </div>
@@ -259,6 +296,27 @@ $(document).ready(function() {
   	
 
 });
+
+
+	$(document).ready( function () {
+    $('.table').DataTable(
+
+    {
+    	 "columnDefs": [
+            {
+                "targets": [ 0 ],
+                "visible": true,
+                "searchable": false
+            },
+
+            
+        ]
+    }
+
+
+    	);
+} );
+
 
 
 function getHeatid(inObj)

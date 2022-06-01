@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Edit Raw Bag",
+        "Page Title" => "Edit Raw Bag | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-rawbag-view",
         "MainMenu"	 => "process_rawbag",
@@ -1593,7 +1593,7 @@ if($testPermission)
 								       	}
 								       	else
 								       	{
-								       		dum = "<tr>\n<td><input type=\"checkbox\"></td>\n<td>"+ids[i][0]+"</td>\n<td>"+ids[i][1]+"</td>\n<td>"+ids[i][2]+"</td>\n<td>Available: "+ids[i][4]+"kg<br>Total Quantity: "+ids[i][3]+"kg</td>\n<input type=\"hidden\" name= \"searchfurance-modal-avail\" value=\""+ids[i][4]+"\">\n<input type=\"hidden\" name= \"searchfurance-modal-total\" value=\""+ids[i][3]+"\">\n</tr>";
+								       		dum = "<tr>\n<td><input type=\"checkbox\"></td>\n<td>"+ids[i][0]+"</td>\n<td>"+ids[i][1]+"</td>\n<td>"+ids[i][2]+"</td>\n<td>Available: "+Math.round(ids[i][4]*100)/100+"kg<br>Total Quantity: "+ids[i][3]+"kg</td>\n<input type=\"hidden\" name= \"searchfurance-modal-avail\" value=\""+ids[i][4]+"\">\n<input type=\"hidden\" name= \"searchfurance-modal-total\" value=\""+ids[i][3]+"\">\n</tr>";
 								       	}
 
 								       	
@@ -1637,7 +1637,7 @@ if($testPermission)
 					continue;
 				}
 
-				var dum = "<tr >\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+tb.children[i].children[1].innerHTML+"</span>\n<input type=\"hidden\" name=\"parentname[]\" value=\""+tb.children[i].children[1].innerHTML+"\">\n</td>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+tb.children[i].children[2].innerHTML+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+tb.children[i].children[3].innerHTML+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">Available: "+tb.children[i].children[5].value+"<br>Total: "+tb.children[i].children[6].value+"</span>\n</td>\n<td class=\"tabledit-view-mode\"><input onkeyup=\"recal_parent_linked_quantity()\" type=\"number\" step=0.01 min=0 max='"+parseFloat(tb.children[i].children[5].value)+"' class=\"form-control\" name=\"parentvalues[]\" value=\"0\" >\n</td>\n<td class=\"tabledit-view-mode\">\n<button class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button>\n</td>\n</tr>";
+				var dum = "<tr >\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+tb.children[i].children[1].innerHTML+"</span>\n<input type=\"hidden\" name=\"parentname[]\" value=\""+tb.children[i].children[1].innerHTML+"\">\n</td>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+tb.children[i].children[2].innerHTML+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+tb.children[i].children[3].innerHTML+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">Available: "+Math.round(tb.children[i].children[5].value*100)/100+"<br>Total: "+tb.children[i].children[6].value+"</span>\n</td>\n<td class=\"tabledit-view-mode\"><input onkeyup=\"recal_parent_linked_quantity()\" type=\"number\" step=0.01 min=0 max='"+parseFloat(tb.children[i].children[5].value)+"' class=\"form-control\" name=\"parentvalues[]\" value=\"0\" >\n</td>\n<td class=\"tabledit-view-mode\">\n<button class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button>\n</td>\n</tr>";
             	tbodyobj.innerHTML = tbodyobj.innerHTML + dum;
 			}
 
@@ -1697,7 +1697,7 @@ if($testPermission)
             {
               
               
-            	var dum = "<tr >\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.id+"</span>\n<input type=\"hidden\" name=\"parentname[]\" value=\""+data.id+"\">\n</td>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.entrytime+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.heatno+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">Available: "+data.available+"<br>Total: "+data.total+"</span>\n</td>\n<td class=\"tabledit-view-mode\"><input onkeyup=\"recal_parent_linked_quantity()\" type=\"number\" step=0.01 min=0 max='"+parseFloat(data.available)+"' class=\"form-control\" name=\"parentvalues[]\" value=\"0\" >\n</td>\n<td class=\"tabledit-view-mode\">\n<button class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button>\n</td>\n</tr>";
+            	var dum = "<tr >\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.id+"</span>\n<input type=\"hidden\" name=\"parentname[]\" value=\""+data.id+"\">\n</td>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.entrytime+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">"+data.heatno+"</span>\n<td class=\"tabledit-view-mode\"><span class=\"tabledit-span\">Available: "+Math.round(data.available*100)/100+"<br>Total: "+data.total+"</span>\n</td>\n<td class=\"tabledit-view-mode\"><input onkeyup=\"recal_parent_linked_quantity()\" type=\"number\" step=0.01 min=0 max='"+parseFloat(data.available)+"' class=\"form-control\" name=\"parentvalues[]\" value=\"0\" >\n</td>\n<td class=\"tabledit-view-mode\">\n<button class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button>\n</td>\n</tr>";
             	tbodyobj.innerHTML = tbodyobj.innerHTML + dum;
             	document.getElementById('add-mid').value = "";
             }

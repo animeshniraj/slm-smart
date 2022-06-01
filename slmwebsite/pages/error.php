@@ -15,7 +15,7 @@
 	Swal.fire({
 		icon: "error",
 		title: "<?php echo $ERR_TITLE; ?>",
-		html: "<?php echo $ERR_MSG; ?>",
+		html: "<?php echo $ERR_MSG; ?><br><a href='/user/'>Go Back to User Dashboard</a>",
 		showCancelButton: false,
   		showConfirmButton: false,
         allowEscapeKey: false,

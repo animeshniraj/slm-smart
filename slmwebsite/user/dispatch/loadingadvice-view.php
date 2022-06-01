@@ -80,6 +80,8 @@
 
 </script>
 
+<style>
+.btn{margin-left: 5px!important;}</style>
 
 
 <div class="pcoded-content">
@@ -148,18 +150,18 @@
 <div class="card-block">
 
 
-	<table class="table">
+<table class="table table-responsive table-bordered table-striped table-xs">
 	<thead>
 		<tr>
 		<th>#</th>
 		<th>Loading Advice</th>
 		<th>Customer</th>
 		<th>Entry Time</th>
-		<th></th>
+		<th>Edit Loading Advice</th>
 		<?php 
 			if($deletePermission)
 			{
-				echo "<th></th>";
+				echo "<th>Delete Loading Advice</th>";
 			}
 		?>
 		</tr>
@@ -325,16 +327,28 @@ $(document).ready(function() {
 
 
 
-
 function removeProcess(externalid)
 {
-	Swal.fire({
-		  icon: 'error',
-		  title: 'Delete Purshace Order',
-		  html: 'Are you sure you want to delete Purshace Order '+externalid,
-		  confirmButtonText: 'Yes',
-		  cancelButtonText: 'No',
+
+
+	const swalWithBootstrapButtons  = Swal.mixin({
+	customClass: {
+		confirmButton: 'btn btn-success',
+		cancelButton: 'btn btn-danger'
+	},
+	buttonsStyling: false
+	})
+
+
+
+	swalWithBootstrapButtons .fire({
+		  icon: 'warning',
+		  title: 'Delete Loading Advice',
+		  html: 'Are you sure you want to delete the Loading Advice '+externalid,
+		  confirmButtonText: '<i class="fa fa-trash"></i> Yes',
+		  cancelButtonText: '<i class="fa fa-window-close"></i> No',
 		  showCancelButton: true,
+		  reverseButtons: true
 		  
 		}).then((result) => {
 			  if (result.isConfirmed) {

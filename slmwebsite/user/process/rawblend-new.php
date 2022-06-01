@@ -86,7 +86,7 @@
 
 	    	$prefix = $prefix . str_pad($count, 3, '0', STR_PAD_LEFT);
 
-	    	$result = runQuery("INSERT INTO processentry VALUES('$prefix','$processname','CREATION',CURRENT_TIMESTAMP,'UNLOCKED')");
+	    	$result = runQuery("INSERT INTO processentry VALUES('$prefix','$processname','CREATION','$creationDate','UNLOCKED')");
 
 	    	$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Pre-Processed','Atomized')");
     		$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Date','$creationDate')");
@@ -129,7 +129,7 @@
     		if($result->num_rows==0)
     		{
 
-    			$result = runQuery("INSERT INTO processentry VALUES('$sqlprefix','$processname','CREATION',CURRENT_TIMESTAMP,'UNLOCKED')");
+    			$result = runQuery("INSERT INTO processentry VALUES('$sqlprefix','$processname','CREATION','$creationDate','UNLOCKED')");
 
 	    	$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$sqlprefix','CREATION','Pre-Processed','Sponge')");
     		$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$sqlprefix','CREATION','Date','$creationDate')");
@@ -341,7 +341,7 @@ p {
 
 <form method="POST">
 
-		
+<p style="display:block;text-align:center;color:#212121;">Last Created Id: <?php echo get_last_id($processname) ?></p>		
 <p style="display:block;text-align:center;color:#212121;">Enter the Raw Blend Input Date and Time</p>
 <div class="form-group" style="display:flex; justify-content: center;">
 						

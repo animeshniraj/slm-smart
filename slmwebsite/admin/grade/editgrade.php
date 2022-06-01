@@ -185,7 +185,7 @@ if($processname!="Melting")
 </div>
 <div class="card-block">
 
-<div class="dt-responsive table-responsive">
+<div class="dt-responsive table-responsive text-center">
 <div id="grade-table_wrapper" class="dataTables_wrapper dt-bootstrap4">
 
 	<div class="row">
@@ -205,9 +205,9 @@ if($processname!="Melting")
 		<table id="grade-table" class="table table-striped table-bordered nowrap dataTable" role="grid">
 <thead>
  <tr role="row">
-	<th rowspan="1" colspan="1"  style="width: 84.578125px;">Sl No.</th>
-	<th rowspan="1" colspan="1"  style="width: 356.875px;">Grade Name</th>
-	<th rowspan="1" colspan="1"  style="width: 176.703125px;">Options</th>
+	<th rowspan="1" colspan="1"  style="width:15%">Sl No.</th>
+	<th rowspan="1" colspan="1"  style="width:30%">Grade Name</th>
+	<th rowspan="1" colspan="1"  style="width:55%">Options</th>
 	
 	
 
@@ -237,8 +237,15 @@ if($processname!="Melting")
 				echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button></div></td>";
 			}
 			else
+			if ($processname!="Final Blend")
 			{
 				echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Copy Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"copygrade('".$row["gradename"]."')\"><i class=\"fa fa-copy\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"deleteGrade('".$row["gradename"]."')\"><i class=\"fa fa-trash\"></i></button> </div></td>";
+			}
+
+			if($processname=="Final Blend")
+			{
+				echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Copy Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"copygrade('".$row["gradename"]."')\"><i class=\"fa fa-copy\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Print Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"window.open('print-final-grade.php?grade=".$row["gradename"]."')\"><i class=\"fa fa-print\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"deleteGrade('".$row["gradename"]."')\"><i class=\"fa fa-trash\"></i></button> </div></td>";
+
 			}
 
 			

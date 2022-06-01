@@ -262,6 +262,7 @@
 			$result = runQuery("SELECT * FROM gradeproperties WHERE processname='$processname'  AND gradename='$gradename' ORDER BY ordering");
 			while($row=$result->fetch_assoc())
 			{	
+				
 
 				array_push($params,$row["properties"]);
 			}
@@ -319,7 +320,7 @@
 	{
 		global $HOLD_QTY;
 		$allData = [];
-
+		$all_num = [];
 		$dumData = [];
 
 		array_push($dumData,"checked","Bag ID","Date","Grade");
@@ -411,6 +412,30 @@
 			}
 
 			array_push($dumData,$total-$used-$hold);
+
+			$dumNo = "";
+			$dumid = $processid[$i][0];
+			
+			if($processname=="Raw Bag")
+			{
+				$result_d = runQuery("SELECT * FROM processentryparams WHERE processid = '$dumid' AND  param='Raw Bag No.'");
+			}
+			else
+			{
+				
+				$result_d = runQuery("SELECT * FROM processentryparams WHERE processid = '$dumid' AND  param='Bin Number'");
+			}
+
+			if($result_d->num_rows!=0)
+			{
+				$dumNo = $result_d->fetch_assoc()['value'];
+			}
+
+			$all_num[$processid[$i][0]] = $dumNo;
+			
+
+			
+
 			array_push($allData,$dumData);
 
 			
@@ -419,7 +444,7 @@
 
 
 
-		return [$allData,$params];
+		return [$allData,$params,$all_num];
 
 		
 	}

@@ -397,6 +397,18 @@ if($show != "yes")
 
 </div>
 			<hr>
+			<script language="JavaScript">
+				function toggle(source) {
+				checkboxes = document.getElementsByName('prop[]');
+				for(var i=0, n=checkboxes.length;i<n;i++) {
+					checkboxes[i].checked = source.checked;
+				}
+				}			
+			</script>
+
+		<a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">Show More Filters</a>
+		
+		<div class="collapse multi-collapse" id="multiCollapseExample1">
 			
 			<h5>Select desired Properties to show:</h5>
 
@@ -404,7 +416,7 @@ if($show != "yes")
 				<table class="table table-bordered">
 					<thead>
 						<tr>
-							<th></th>
+							<th><input type="checkbox" onClick="toggle(this)" data-toggle="tooltip" data-placement="top" title="Select All"/><br/></th>
 							<th>Property</th>
 							<th>Min</th>
 							<th>Max</th>
@@ -442,6 +454,7 @@ if($show != "yes")
 				</tbody>
 				</table>
 			</div>
+		</div>
 			<div class="col-sm-12">
 				<button class="btn btn-primary pull-right" type="submit"><i class="fa fa-refresh"></i>Generate Report</button>
 			</div>
@@ -519,7 +532,8 @@ if($show == "yes")
 	<tr style="font-size:11px;font-weight:bold;background-color:#990000;color:#fff;text-align:center;padding:0.25em!important;">
 		<th scope="col">Sl.<br>No.</th>
 		<th>Raw Blend ID</th>
-		<th>Entry Time</th>
+		<th>Blend No</th>
+		<th>Created Date</th>
 		<th>Grade</th>
 		<?php
 
@@ -554,7 +568,18 @@ if($show == "yes")
 
 <tr  style="font-size:14px;">
 	<td width="2%" style="text-align:center;"><?php echo $k++; ?>.</td>
-	<td width="5%"><a target="_blank" href="/user/report/basic-rawblend.php?id=<?php echo $data["id"]; ?>"><?php echo $data["id"]; ?></a></td></td>
+	<td width="5%"><a target="_blank" href="/user/report/basic-rawblend.php?id=<?php echo $data["id"]; ?>"><?php echo $data["id"]; ?></a></td>
+	<?php 
+			$did = $data["id"];
+			$paramval ="";
+			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND param='Blend Number'");
+			if($result2->num_rows!=0)
+			{
+				$paramval = $result2->fetch_assoc()['value'];
+			}
+		?>
+		<td><?php echo $paramval; ?></td>
+
 	<td width="5%"><?php echo $data["entrydate"]; ?></td>
 	<td width="5%"><?php echo $data["grade"]; ?></td>
 <?php
@@ -601,6 +626,8 @@ if($show == "yes")
 		}
 
 	?>
+<td></td>
+<td></td>
 <td></td>
 <td></td>
 <td></td>
@@ -652,7 +679,7 @@ if($show == "yes")
 
 
             <?php 
-            $startnumber = 4;
+            $startnumber = 5;
             $i=0;
             	foreach ($heading as $head) {
 

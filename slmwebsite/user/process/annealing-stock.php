@@ -201,9 +201,13 @@
     	while($row2=$result2->fetch_assoc())
     	{
 
+    		if($row2["value"])
+    		{
+	    		$avg[getpropShortname($processname,$row2["param"])][0] +=  $row2["value"];
+	    		$avg[getpropShortname($processname,$row2["param"])][1]++;
+	    	}
+
     		
-    		$avg[getpropShortname($processname,$row2["param"])][0] +=  $row2["value"];
-    		$avg[getpropShortname($processname,$row2["param"])][1]++;
     	}
 
 
@@ -450,14 +454,29 @@ if($show != "yes")
 
 </div>
 			<hr>
+
+		<a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">Show More Filters</a>
+		
+		<div class="collapse multi-collapse" id="multiCollapseExample1">
+
 			
 			<h5>Select desired Properties to show:</h5>
+
+			<script language="JavaScript">
+				function toggle(source) {
+				checkboxes = document.getElementsByName('prop[]');
+				for(var i=0, n=checkboxes.length;i<n;i++) {
+					checkboxes[i].checked = source.checked;
+				}
+				}			
+			</script>
+
 
 			<div class="col-sm-8 table-responsive">
 				<table class="table table-bordered">
 					<thead>
 						<tr>
-							<th></th>
+							<th><input type="checkbox" onClick="toggle(this)" data-toggle="tooltip" data-placement="top" title="Select All"/><br/></th>
 							<th>Property</th>
 							<th>Min</th>
 							<th>Max</th>
@@ -495,7 +514,9 @@ if($show != "yes")
 				</tbody>
 				</table>
 			</div>
-			<div class="col-sm-12">
+		</div>
+		
+		<div class="col-sm-12">
 				<button class="btn btn-primary pull-right" type="submit"><i class="fa fa-refresh"></i>Generate Report</button>
 			</div>
 			
@@ -654,6 +675,7 @@ if($show == "yes")
 		}
 
 	?>
+<td></td>
 <td></td>
 <td></td>
 <td></td>

@@ -529,6 +529,7 @@
 
 
 
+
     include("../../pages/userhead.php");
     include("../../pages/usermenu.php");
 
@@ -832,7 +833,6 @@ input[type=number] {
 			{
 				?>
 				<div class="col-sm-12">
-				<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/print/rawblend-tag.php?processid=<?php echo $processid; ?>&grade=<?php echo $currGradeName; ?>&quantity=<?php echo getTotalQuantity($processid) ?>')"><i class="icofont icofont-barcode"></i>Generate Label</button>
 				<button type="button" class="btn btn-primary m-b-0 ml-1 pull-left" onclick="window.open('/user/report/basic-rawblend.php?id=<?php echo $processid; ?>')"><i class="icofont icofont-page"></i>Generate Report</button>
 				<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
 				</div>
@@ -1327,6 +1327,29 @@ if($operationalPermission)
 
 						form.appendChild(i);
 
+
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"grade");
+						i.setAttribute('value','<?php echo $currGradeName ?>');
+
+						form.appendChild(i);
+
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"batchno");
+						i.setAttribute('value','<?php echo $processid; ?>');
+
+						form.appendChild(i);
+
+
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"entrydate");
+						i.setAttribute('value','<?php echo $entrytime; ?>');
+
+						form.appendChild(i);
+
 					
 
 						document.body.appendChild(form);
@@ -1339,15 +1362,18 @@ if($operationalPermission)
 <?php if($blendmasterpermission){?>
 
 	<div>
+		<button type="button"  onclick="unhide_unchecked();this.remove();"  class="btn btn-primary m-b-0 pull-left"><i class="fa fa-eye"></i>Show hidden</button>
 		<button type="button" onclick="printblendmaster()"  class="btn btn-primary m-b-0 pull-right"><i class="fa fa-print"></i>Print Blend Master</button>		
 	</div>
 	<br>
 	<br>
+	<div class="table-responsive">
 	<table id="blendmasterparenttable"  class="table table-striped table-bordered bms">
 	<thead id="blendmasterparentthead">
 	
 		<tr>
 	<?php
+		$blendmaster_no = $blendmasterData[2];
 		$blenmasterparams = $blendmasterData[1];
 			$blendmasterData = $blendmasterData[0];
 		for($i=1;$i<count($blendmasterData[0]);$i++)
@@ -1382,7 +1408,7 @@ if($operationalPermission)
 						<input onchange="evalAverage(this)"  type="checkbox" <?php echo $blendmasterData[$i][0]; ?> id="bmparent-<?php echo $i; ?>"  value="<?php echo $blendmasterData[$i][2]; ?>" name = "parentname[]">
 						
 						<label for = "bmparent-<?php echo $i; ?>">
-							<?php echo $blendmasterData[$i][2]; ?>
+							<?php echo $blendmasterData[$i][2]; ?> (Bag No: <?php echo $blendmaster_no[$blendmasterData[$i][2]]; ?>)
 						</label>
 					</div>
 				</td>
@@ -1426,7 +1452,8 @@ if($operationalPermission)
 </tbody>
 
 </table>
-
+</div>
+<div class="table-responsive">
 <table id="blendmasterspectable" class="table table-striped table-bordered">
 	<thead>
 	<tr>
@@ -1437,7 +1464,12 @@ if($operationalPermission)
 
 			for($i=0;$i<count($testParams);$i++)
 			{
+				if($testParams[$i][8]=='Chemical')
+				{
+					continue;
+				}
 				?>
+
 
 					<th rowspan="1" colspan="1"><?php echo $testParams[$i][0] ?></th>
 
@@ -1461,7 +1493,10 @@ if($operationalPermission)
 
 			for($i=0;$i<count($testParams);$i++)
 			{
-
+				if($testParams[$i][8]=='Chemical')
+				{
+					continue;
+				}
 
 				if($testParams[$i][4]=="BAL" || $testParams[$i][5]=="BAL")
 				{
@@ -1514,7 +1549,7 @@ if($operationalPermission)
 
 </tbody>
 </table>
-
+</div>
 <div class="col-sm-12">
 		<button type="submit"  name="updateprocess5" id="process5-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
 		</div>
@@ -1524,6 +1559,54 @@ if($operationalPermission)
 
 <script type="text/javascript">
 	findAvg();
+
+	var tbody = document.getElementById('blendmasterparenttbody');
+	for(var i=0;i<tbody.children.length-1;i++)
+	{
+		currrow = tbody.children[i];
+
+		if(currrow.children[0].children[0].children[0].checked)
+		{
+			hide_unchecked()
+			break;
+		}
+
+	}
+
+	function hide_unchecked()
+	{
+
+		var tbody = document.getElementById('blendmasterparenttbody');
+
+		for(var i=0;i<tbody.children.length-1;i++)
+		{
+			currrow = tbody.children[i];
+			
+
+			if(!currrow.children[0].children[0].children[0].checked)
+			{
+				currrow.style.display="none";
+			}
+			
+		}
+	}
+
+	function unhide_unchecked()
+	{
+
+		var tbody = document.getElementById('blendmasterparenttbody');
+
+		for(var i=0;i<tbody.children.length-1;i++)
+		{
+			currrow = tbody.children[i];
+
+			if(!currrow.children[0].children[0].children[0].checked)
+			{
+				currrow.style.display="";
+			}
+			
+		}
+	}
 	function evalAverage(inObj)
 	{
 
@@ -1605,6 +1688,9 @@ if($operationalPermission)
 
 			changecolor(dumtest,dumhead)
 
+
+			
+
 	}
 
 
@@ -1626,6 +1712,15 @@ if($operationalPermission)
 			
 			if(curr.substring(0,5)=="Sieve")
 			{
+				if(curr=="Sieve PAN")
+        {
+        	testval[curr]+=carryover
+          carryover=0;
+
+          testval[curr] = Math.round(testval[curr]*1000)/1000;
+        	//cumulativearr[curr] = testval[curr];
+          continue;
+        }
 				if(!spechead.includes(curr))
 				{
 					carryover+= testval[curr];
@@ -1638,6 +1733,12 @@ if($operationalPermission)
 					carryover=0;
 				}
 			}
+			/*
+			else
+      {
+        cumulativearr[curr] = testval[curr];
+      }
+      */
 		}
 
 		if(lastrow.children[0].innerHTML=='Value')

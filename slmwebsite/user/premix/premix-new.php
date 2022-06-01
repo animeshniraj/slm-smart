@@ -282,7 +282,8 @@ p {
 
 <form method="POST" id="newstock">
 
-		
+
+<p style="display:block;text-align:center;color:#212121;">Last Created Id: <?php echo get_last_premixid($processname) ?></p>		
 <p style="display:block;text-align:center;color:#212121;">Enter the Date</p>
 					<div class="form-group" style="display:flex; justify-content: center;">
 						

@@ -36,10 +36,11 @@
 		
 
 		$shelflife = $_POST['shelflife'];
+		$buyincre = $_POST['increment'];
 
 		$additive =  $_POST["additive"];
 
-		runQuery("INSERT INTO premix_additives VALUES('$additive','$shelflife')");
+		runQuery("INSERT INTO premix_additives VALUES('$additive','$shelflife','$buyincre')");
 	}
 
 	if(isset($_POST["addnewgroup"]))
@@ -137,7 +138,17 @@
 
 		</div>
 		
-	</div>
+		</div>
+
+
+		<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Buy Increment</label>
+			<div class="col-sm-10">
+			<input type="number" required class="form-control" name="increment" id="shelflife" placeholder="">
+
+		</div>
+		
+		</div>
 
 
 
@@ -286,6 +297,7 @@
  <tr role="row">
 	<th rowspan="1" colspan="1" >Sl No.</th>
 	<th rowspan="1" colspan="1" >Additive</th>
+	<th rowspan="1" colspan="1" >Buy Increment</th>
 	<th rowspan="1" colspan="1" >Shelf Life (Days)</th>
 
 	<th rowspan="1" colspan="1">Options</th>
@@ -318,12 +330,21 @@
 			
 			echo "<td>".$row["additive"]."\t</td>";
 
+			echo "<td>".$row["buyincrement"]."\t</td>";
+
 			echo "<td>".$row["shelflife"]."\t</td>";
 			
-			
 
+			if($row["additive"]!=="Iron")
+			{
+				echo "<td><form  method=\"POST\"><input type=\"hidden\" name=\"additive\" value=\"".$row["additive"]."\"><input type=\"hidden\" name=\"deleteadditive\" value=\"\"><a href=\"#\" onclick=\"delete_additive(this.parentNode);\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Additive\"><i class=\"fa fa-trash\" style=\"display:inline-block\"></i></a></form></td>";
+			}
+			else
+			{
+				echo "<td><td>";
+			}
 			
-			echo "<td><form  method=\"POST\"><input type=\"hidden\" name=\"additive\" value=\"".$row["additive"]."\"><input type=\"hidden\" name=\"deleteadditive\" value=\"\"><a href=\"#\" onclick=\"delete_additive(this.parentNode);\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Additive\"><i class=\"fa fa-trash\" style=\"display:inline-block\"></i></a></form></td>";
+			
 			echo "</tr>";
 
 

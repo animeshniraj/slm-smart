@@ -31,6 +31,13 @@
 
     $processname = "Semi Finished";
 
+    $LIMIT = 20;
+
+	if(isset($_GET['limit']))
+	{
+		$LIMIT =$_GET['limit'];
+	}
+
     if(isset($_POST['deleteProcess']))
     {
     	$processid = $_POST['processid'];
@@ -149,6 +156,8 @@
 		<tr>
 		<th>#</th>
 		<th>Semi Finished ID</th>
+		<th>Bin No</th>
+		<th>Grade</th>
 		<th>Entry Time</th>
 		<th></th>
 		<?php 
@@ -162,7 +171,7 @@
 	<tbody>
 
 		<?php
-				$result = runQuery("SELECT * FROM processentry WHERE processentry.processname = '$processname' ORDER BY entrytime DESC LIMIT 10");
+				$result = runQuery("SELECT * FROM processentry WHERE processentry.processname = '$processname' ORDER BY entrytime DESC LIMIT $LIMIT");
 				if($result->num_rows>0)
 				{
 					$k=0;
@@ -172,6 +181,27 @@
 	<tr>
 		<th scope="row"><?php echo ++$k; ?></th>
 		<td><?php echo $row["processid"]; ?></td>
+		<?php 
+			$did = $row["processid"];
+			$paramval ="";
+			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND param='Bin Number'");
+			if($result2->num_rows!=0)
+			{
+				$paramval = $result2->fetch_assoc()['value'];
+			}
+		?>
+		<td><?php echo $paramval; ?></td>
+
+		
+		<?php 
+			$paramval ="";
+			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND param='$GRADE_TITLE'");
+			if($result2->num_rows!=0)
+			{
+				$paramval = $result2->fetch_assoc()['value'];
+			}
+		?>
+		<td><?php echo $paramval; ?></td>
 		
 		<td><?php echo Date('Y-M-d H:i',strtotime($row["entrytime"])); ?></td>
 		<td><form method="POST" action="semifinished-edit.php"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
@@ -195,6 +225,18 @@
 
 	</tbody>
 	</table>
+
+	<form method="GET">
+	<div class="row">
+		<div class="col-sm-3">
+		<input type="number" class="form-control" step="1" min="1" name="limit" placeholder="Show last results" value="<?php echo $LIMIT ?>" >
+		</div>
+		<div class="col-sm-3">
+			<button class="btn btn-primary">Show Last</button>
+		</div>
+
+	</div>
+</form>
 
 
 
@@ -253,6 +295,27 @@ $(document).ready(function() {
   	
 
 });
+
+
+
+	$(document).ready( function () {
+    $('.table').DataTable(
+
+    {
+    	 "columnDefs": [
+            {
+                "targets": [ 0 ],
+                "visible": true,
+                "searchable": false
+            },
+
+            
+        ]
+    }
+
+
+    	);
+} );
 
 
 function getHeatid(inObj)

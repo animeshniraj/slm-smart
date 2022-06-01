@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Edit Heat ID",
+        "Page Title" => "Edit Heat ID | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-melting-view",
         "MainMenu"	 => "process_melting",
@@ -901,7 +901,7 @@ input[type=number] {
 					?>
 
 					<div class="form-group row">
-						<label class="col-md-3"><?php echo $genericParams[$i][0]; ?></label>
+						<label class="col-md-3" style="margin-top:10px;"><?php echo $genericParams[$i][0]; ?></label>
 						<div class="col-md-3">
 							<div class="input-group input-group-button">
 								<input type="hidden" name="allparams[]" value="<?php echo $MASS_TITLE; ?>">
@@ -1226,7 +1226,7 @@ if($testPermission)
 
 					?>
 	<div class="form-group row">
-			<label class="col-sm-2">Paste Result</label>
+			<label class="col-sm-2 mt-2">Paste Result</label>
 			<div class="col-sm-10">
 				<div class="input-group input-group-button">
 					<input  type="text"  class="form-control" id="test-pastevalue" placeholder="">
@@ -1245,7 +1245,7 @@ if($testPermission)
 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 	<input type="hidden" name="currtab" value="test-tabdiv">
 <div class="form-group row">
-				<table class="table table-striped table-bordered" id="process4table">
+				<table class="table table-striped table-bordered table-xs" id="process4table">
 		<thead>
 		<tr>
 
@@ -1275,13 +1275,12 @@ if($testPermission)
 <tr>
 
 <td class="tabledit-view-mode"><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
-<td class="tabledit-view-mode"><div class="tabledit-span">Min: <?php echo $testParams[$i][4] ?></div>
-<div class="tabledit-span">Max: <?php echo $testParams[$i][5] ?></div>
+<td class="tabledit-view-mode"><div class="tabledit-span">Min: <?php echo $testParams[$i][4] ?>, Max: <?php echo $testParams[$i][5] ?></div>
 <div class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
 </td>
 
 
-<td>
+<td style="padding-top:15px;padding-bottom:0;">
 
 	<?php
 					if($testParams[$i][3] == "INTEGER")

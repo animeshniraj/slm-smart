@@ -103,6 +103,45 @@
 
 	}
 
+
+	function getPagePermission($url)
+	{
+
+		
+		$crole = $_SESSION['userData']->user->getRoleid();
+
+		if($crole=='ADMIN')
+		{
+			return true;
+		}
+
+		$result = runQuery("SELECT * FROM rolepermission WHERE roleid='$crole' AND page='$url'");
+
+		if($result->num_rows==1)
+		{
+			$permissions = $result->fetch_assoc()['permission'];
+
+			if($permissions=="ALLOW")
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+	
+		}
+		else
+		{
+			runQuery("DELETE FROM rolepermission WHERE roleid='$crole' AND page='$url'");
+			runQuery("INSERT INTO rolepermission VALUES(NULL,'$crole','$url','ALLOW')");
+			return true;
+		}
+
+		return false;
+
+	}
+
 	
 
 ?>

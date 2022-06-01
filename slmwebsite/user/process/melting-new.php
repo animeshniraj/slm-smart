@@ -19,7 +19,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Create a new Heat ID",
+        "Page Title" => "Create a new Heat ID | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-melting-new",
         "MainMenu"	 => "process_melting",
@@ -319,7 +319,7 @@ p {
 
 <ul class="nav nav-tabs md-tabs " role="tablist">
 <li class="nav-item">
-<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab" style="font-size:18px;"><i class="icofont-i icofont-fire-burn"></i> Create a new Heat</a>
+<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab" style="font-size:18px;"><i class="icofont-i icofont-fire-burn"></i> Create a new Heat (Last Created Id: <?php echo get_last_id($processname);?>)</a>
 <div class="slide"></div>
 </li>
 

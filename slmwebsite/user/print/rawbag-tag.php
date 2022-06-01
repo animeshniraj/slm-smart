@@ -1,7 +1,24 @@
 <?php
 	
 	
+require_once('../../../requiredlibs/includeall.php');
 
+	
+	$session = getPageSession();
+  	$show_alert = false;
+  	$alert_message = "";
+	
+	if(!$session)
+	{
+		header('Location: /auth/');
+		die();
+	}
+
+	isAuthenticated($session,'user_module');
+
+
+	$myuserid = $session->user->getUserid();
+	$myrole = $session->user->getRoleid();
 
 	$processid = $_GET['processid'];
 	$gradename = $_GET['grade'];
@@ -12,14 +29,8 @@
 
 
 <!DOCTYPE html>
-<!--
- * HTML-Sheets-of-Paper (https://github.com/delight-im/HTML-Sheets-of-Paper)
- * Copyright (c) delight.im (https://www.delight.im/)
- * Licensed under the MIT License (https://opensource.org/licenses/MIT)
--->
-
 <style type="text/css">
-@page { size: A5 landscape }
+ @page { size: A5 landscape }
 .center {
   display: block;
   margin-left: auto;
@@ -45,22 +56,27 @@ tr.noBorder td {
 }
 .bdcen{font-weight:bold;text-align: center;}
 </style>
+
+
 <html>
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="description" content="Emulating real sheets of paper in web documents (using HTML and CSS)">
-		<title>A6-Material Identification Tag</title>
+		<title>Raw Bag Tag</title>
 		<link rel="stylesheet" type="text/css" href="paper.css">
 	</head>
-	<body class="document">
-		<div class="page" contenteditable="true">
-			<!DOCTYPE html>
-<html>
 
 
 <body class="A5 landscape">
 <section class="sheet padding-10mm">
+
+	<?php 
+
+		$bagno = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='Raw Bag No.'")->fetch_assoc()['value'];
+
+		$entrytime = runQuery("SELECT * FROM processentry WHERE processid='$processid'")->fetch_assoc()['entrytime'];
+
+	?>
 
 	<h3 style="text-align:center;background-color:#000;color:#fff;top:0;">MATERIAL IDENTIFICATION TAG</h3>
 	<table style="width:100%">
@@ -79,9 +95,9 @@ tr.noBorder td {
 		</tr>
 		<tr>
 			<td style="font-weight:bold;">Date</td>
-			<td style="text-align:right;">24/06/2021</td>
+			<td style="text-align:right;"><?php echo Date('d-M-Y',strtotime($entrytime));?></td>
 			<td style="font-weight:bold;">Bag No.</td>
-			<td style="text-align:right;">521</td>
+			<td style="text-align:right;"><?php echo $bagno;?></td>
 		</tr>
 		<tr>
 		</tr>

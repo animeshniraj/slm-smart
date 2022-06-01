@@ -28,7 +28,12 @@
     $myuserid = $session->user->getUserid();
 	$myrole = $session->user->getRoleid();
 
+	 $LIMIT = 20;
 
+	if(isset($_GET['limit']))
+	{
+		$LIMIT =$_GET['limit'];
+	}
 
     if(isset($_POST['deleteProcess']))
     {
@@ -150,7 +155,7 @@
 	<thead>
 		<tr>
 		<th>#</th>
-		<th>Premix Id</th>
+		<th>Blend ID</th>
 		<th>Entry Time</th>
 		<th></th>
 		<?php 
@@ -164,12 +169,29 @@
 	<tbody>
 
 		<?php
-				$result = runQuery("SELECT * FROM premix_batch ORDER BY entrydate DESC");
+				$result = runQuery("SELECT * FROM premix_batch ORDER BY entrydate DESC LIMIT $LIMIT");
 				if($result->num_rows>0)
 				{
 					$k=0;
 					while($row=$result->fetch_assoc())
 					{
+
+						$dumFlag = true;
+						$dumid = $row["premixid"];
+
+						$result2 = runQuery("SELECT * FROM loadingadvice_batches WHERE batch='$dumid'");
+
+						if($result2->num_rows!=0)
+						{
+							$dumFlag = false;
+						}
+
+						$result2 = runQuery("SELECT * FROM dispatch_invoices WHERE batch='$dumid'");
+
+						if($result2->num_rows!=0)
+						{
+							$dumFlag = false;
+						}
 		?>
 	<tr>
 		<th scope="row"><?php echo ++$k; ?></th>
@@ -180,7 +202,7 @@
 		<?php
 
 
-			if($deletePermission)
+			if($deletePermission && $dumFlag)
 			{
 				echo "<td><button class=\"btn btn-danger\" name=\"deleteProcess\" onclick=\"removeProcess('".$row["premixid"]."')\" type=\"button\"><i class=\"feather icon-trash\"></i>Remove</button></td>";
 			}
@@ -198,8 +220,41 @@
 	</tbody>
 	</table>
 
+	<form method="GET">
+	<div class="row">
+		<div class="col-sm-3">
+		<input type="number" class="form-control" step="1" min="1" name="limit" placeholder="Show last results" value="<?php echo $LIMIT ?>" >
+		</div>
+		<div class="col-sm-3">
+			<button class="btn btn-primary">Show Last</button>
+		</div>
+
+	</div>
+</form>
+
 
 	<script type="text/javascript">
+
+
+		
+	$(document).ready( function () {
+    $('.table').DataTable(
+
+    {
+    	 "columnDefs": [
+            {
+                "targets": [ 0 ],
+                "visible": true,
+                "searchable": false
+            },
+
+            
+        ]
+    }
+
+
+    	);
+} );
 	
 	function getexternalid()
 	{

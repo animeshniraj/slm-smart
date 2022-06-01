@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | Melting Stock Report",
+        "Page Title" => "Melting Stock Report | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-melting-stock",
         "MainMenu"	 => "process_melting",

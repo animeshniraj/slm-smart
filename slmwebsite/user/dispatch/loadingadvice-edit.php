@@ -309,7 +309,7 @@ input[type=number] {
 				
 				<div class="d-inline">
 					<h5>Edit Order (<?php echo $laid; ?>)</h5>
-					<span>Edit premix parameters</span>
+					<span>Edit Loading Advice parameters</span>
 				</div>
 			</div>
 		</div>
@@ -437,6 +437,13 @@ input[type=number] {
 	Customer Id: <?php echo $dumC ?> 		<br>
 	Tentative Dispatch Date: <?php echo $result3["value"] ?>
 
+
+	<?php 
+
+		$CUTOMER_NAME = $result2["value"];
+
+	?>
+
 	<br>
 	<br>
 
@@ -487,7 +494,7 @@ input[type=number] {
 						<div class="col-sm-12">
 						<button type="submit" class="btn btn-primary btn-block col-sm-2 pull-right" name="updatebasic"><i class="feather icon-edit"></i>Update Details</button>
 						</div>
-					</div>
+		</div>
 
 		<?php
 
@@ -517,7 +524,7 @@ input[type=number] {
 					});
 					
 
-					</script>
+	</script>
 
 	<script type="text/javascript">
 		
@@ -555,7 +562,7 @@ input[type=number] {
 			</tr>
 		</thead>
 
-		<tbody>
+		<tbody id="batch-tbody">
 			
 			<?php 
 
@@ -599,7 +606,7 @@ input[type=number] {
 
 						</select>
 					</td>
-					<td><input required type="text" name="qty[]" class="form-control" value="<?php echo $row["quantity"];?>"></td>
+					<td><input required type="number" min="0" step="0.01" name="qty[]" class="form-control" value="<?php echo $row["quantity"];?>"></td>
 					<td>
 						<select id="pkg-select-<?php echo $k;?>" required class="form-control" name="pkg[]">
 							<?php
@@ -624,6 +631,8 @@ input[type=number] {
 
 					<td>
 						<button onclick="duplicaterow(document.getElementById('batchrow-<?php echo $k;?>'),this.closest('tbody'))" class="btn btn-primary" type="button"><i class="fa fa-copy"></i>Duplicate</button>
+
+						<button onclick="this.closest('tr').remove()" class="btn btn-danger" type="button"><i class="fa fa-trash"></i>Delete</button>
 					</td>
 
 						<script type="text/javascript">
@@ -672,6 +681,7 @@ input[type=number] {
 			
 			<div class="col-sm-12">	
 			<button type="submit"  name="confirmld" class="btn btn-primary pull-right"><i class="fa fa-check"></i>Confirm</button>
+			<button type="button" onclick="printbatch()"  class="btn btn-primary pull-left"><i class="fa fa-print"></i>Print</button>
 			<span class="messages"></span>
 			</div>
 	</div>
@@ -685,7 +695,159 @@ input[type=number] {
 
 
 
+<script type="text/javascript">
+	
+	function printbatch()
+	{
 
+		alldata = [];
+		
+
+		
+		var form  = document.createElement('form');
+  		form.setAttribute('method','POST');
+  		form.setAttribute('action','/user/dispatch/loadingadvice-print.php');
+  		form.setAttribute('target','_blank');
+
+  		var i = document.createElement("input"); //input element, text
+		i.setAttribute('type',"hidden");
+		i.setAttribute('name',"laid");
+		i.setAttribute('value',"<?php echo $laid ?>");
+
+		form.appendChild(i);
+
+
+		var i = document.createElement("input"); //input element, text
+		i.setAttribute('type',"hidden");
+		i.setAttribute('name',"delivery_date");
+		i.setAttribute('value',"<?php echo $delivery_date ?>");
+
+		form.appendChild(i);
+
+
+		var i = document.createElement("input"); //input element, text
+		i.setAttribute('type',"hidden");
+		i.setAttribute('name',"customer");
+		i.setAttribute('value',"<?php echo $CUTOMER_NAME; ?>");
+
+		form.appendChild(i);
+
+
+		<?php
+
+
+			$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='Address'");
+			$result2 = $result2->fetch_assoc(); 
+			$c_address = $result2['value'];
+
+		?>
+			var i = document.createElement("input"); //input element, text
+			i.setAttribute('type',"hidden");
+			i.setAttribute('name',"customer_address[]");
+			i.setAttribute('value',"<?php echo $c_address ; ?>");
+
+			form.appendChild(i);
+
+		<?php
+			$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='City'");
+			$result2 = $result2->fetch_assoc(); 
+			$c_city = $result2['value'];
+
+		?>
+			var i = document.createElement("input"); //input element, text
+			i.setAttribute('type',"hidden");
+			i.setAttribute('name',"customer_address[]");
+			i.setAttribute('value',"<?php echo $c_city ; ?>");
+
+			form.appendChild(i);
+
+		<?php
+
+
+			$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='State'");
+			$result2 = $result2->fetch_assoc(); 
+			$c_state = $result2['value'];
+
+		?>
+			var i = document.createElement("input"); //input element, text
+			i.setAttribute('type',"hidden");
+			i.setAttribute('name',"customer_address[]");
+			i.setAttribute('value',"<?php echo $c_state ; ?>");
+
+			form.appendChild(i);
+
+		<?php
+
+
+			$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='Pincode'");
+			$result2 = $result2->fetch_assoc(); 
+			$c_pincode = $result2['value'];
+
+
+		?>
+
+			var i = document.createElement("input"); //input element, text
+			i.setAttribute('type',"hidden");
+			i.setAttribute('name',"customer_address[]");
+			i.setAttribute('value',"<?php echo $c_pincode ; ?>");
+
+			form.appendChild(i);
+		
+
+		
+
+
+		tbody = document.getElementById('batch-tbody');
+
+		for(var j =0; j <tbody.children.length;j++)
+		{
+			var curr = tbody.children[j];
+
+			
+
+
+			var i = document.createElement("input"); //input element, text
+			i.setAttribute('type',"hidden");
+			i.setAttribute('name',"datagrade[]");
+			i.setAttribute('value',curr.children[1].children[0].value);
+
+			form.appendChild(i);
+
+
+			var i = document.createElement("input"); //input element, text
+			i.setAttribute('type',"hidden");
+			i.setAttribute('name',"databatch[]");
+			i.setAttribute('value',curr.children[2].children[0].value);
+
+			form.appendChild(i);
+
+
+			var i = document.createElement("input"); //input element, text
+			i.setAttribute('type',"hidden");
+			i.setAttribute('name',"dataqty[]");
+			i.setAttribute('value',curr.children[3].children[0].value);
+
+			form.appendChild(i);
+
+
+			var i = document.createElement("input"); //input element, text
+			i.setAttribute('type',"hidden");
+			i.setAttribute('name',"datapkg[]");
+			i.setAttribute('value',curr.children[4].children[0].value);
+
+			form.appendChild(i);
+
+			
+		}
+
+
+
+		document.body.appendChild(form);
+		form.submit();
+		document.body.removeChild(form);
+	}
+
+</script>
 
 
 

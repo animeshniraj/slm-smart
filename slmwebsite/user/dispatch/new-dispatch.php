@@ -19,7 +19,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Create new Dispatch",
+        "Page Title" => "Create new Dispatch | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "dispatch-new",
         "MainMenu"	 => "dispatch_menu",
@@ -202,10 +202,10 @@ p {
 	<div class="row align-items-end">
 		<div class="col-lg-8">
 			<div class="page-header-title">
-				<i class="fa fa-shopping-bag bg-c-blue"></i>
+				<i class="fa fa-truck bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>New Order</h5>
-					<span>Start a New order</span>
+					<h3>New Dispatch</h3>
+					<span>Enter details to create a new Dispatch</span>
 				</div>
 			</div>
 		</div>
@@ -216,9 +216,13 @@ p {
 <div class="main-body">
 <div class="page-wrapper">
 
+
+
 <div class="page-body">
+
 <div class="row">
-<div class="col-lg-12">
+
+<div class="col-lg-6">
 
 <?php
 
@@ -226,17 +230,16 @@ p {
 
 <div class="card">
 <div class="card-header">
+	<img src="pallete.gif" class="head-center">
+</div>
 
-<div class="card-header-right">
-</div>
-</div>
 <div class="card-block">
 
 
 
 <ul class="nav nav-tabs md-tabs " role="tablist">
 <li class="nav-item">
-<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab">Dispatch Creation</a>
 <div class="slide"></div>
 </li>
 
@@ -266,7 +269,7 @@ p {
 
 					
 					<div class="form-group" style="display:flex; justify-content: center">
-						<select required class="form-control col-sm-3" name="laid" >
+						<select required class="form-control col-md-10" name="laid" >
 							<option selected disabled value=""> Choose a Loading Advice</option>
 
 							<?php 
@@ -288,7 +291,7 @@ p {
 
 
 					<div class="form-group" style="display:flex; justify-content: center" >
-						<input type="text" class="form-control col-sm-3" required name="cid" value="" placeholder="Consignment Id">
+						<input type="text" class="form-control col-md-10" required name="cid" value="" placeholder="Provide a Consignment ID">
 					</div>
 
 					
@@ -328,10 +331,10 @@ p {
 					<input type="hidden" name="updateprocess1" value="">
 	
 
-	<div class="form-group row">
+	<div class="form-group row justify-content-md-center">
 		
-		<div class="col-sm-12">
-		<button type="submit" class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Create New Entry</button>
+		<div class="col-sm-6 ">
+		<button type="submit" class="btn btn-primary btn-block"><i class="fa fa-plus-square"></i>Create Dispatch</button>
 		</div>
 	</div>
 
@@ -340,7 +343,7 @@ p {
 
 </div>
 
-<
+
 
 
 

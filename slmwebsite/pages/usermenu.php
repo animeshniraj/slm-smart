@@ -159,6 +159,13 @@
 		</a>
 		</li>
 
+		<li id="process-reannealing-new" class="">
+		<a href="/user/process/reannealing-new.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Create New Reannealing</span>
+		</a>
+		</li>
+
 
 		<li id="process-annealing-view" class="">
 		<a href="/user/process/annealing-view.php" class="waves-effect waves-dark">
@@ -186,6 +193,9 @@
 
 	</ul>
 </li>
+
+
+
 
 
 <li id="process_semifinished" class="pcoded-hasmenu" dropdown-icon="style1" subitem-icon="style1">
@@ -308,67 +318,65 @@
 <span class="pcoded-micon"><i class="fa fa-flask"></i></span>
 <span class="pcoded-mtext">Premix</span>
 </a>
-	<ul class="pcoded-submenu">
-		<li id="premix-additivesnew" class="">
-		<a href="/user/premix/additive-new.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">Add New External Additive Stock</span>
-		</a>
-		</li>
-
-	</ul>
-
+	
 
 	<ul class="pcoded-submenu">
-		<li id="premix-additivesview" class="">
-		<a href="/user/premix/additive-view.php" class="waves-effect waves-dark">
+	<li id="processgrade-melting" class="pcoded-hasmenu ">
+		<a href="javascript:void(0)" class="waves-effect waves-dark">
 
-		<span class="pcoded-mtext">View External Additive Stock</span>
+		<span class="pcoded-mtext">Additives</span>
 		</a>
-		</li>
 
-	</ul>
-
-
-	<ul class="pcoded-submenu">
-		<li id="premix-additivesinternalview" class="">
-		<a href="/user/premix/additive-internal-view.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">View Internal Additive Stock</span>
-		</a>
-		</li>
-
-	</ul>
-
-	<ul class="pcoded-submenu">
-		<li id="premix-additivesdaily" class="">
-		<a href="/user/premix/additive-daily.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">View Daily Additive Stock</span>
-		</a>
-		</li>
-
-	</ul>
-
-	<ul class="pcoded-submenu">
-		<li id="premix-additivesfifo" class="">
-		<a href="/user/premix/additive-fifo.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">View Additive FIFO</span>
-		</a>
-		</li>
-
-	</ul>
+		<ul class="pcoded-submenu">
 
 
-	<ul class="pcoded-submenu">
-		<li id="premix-additivesreeval" class="">
-		<a href="/user/premix/additive-reeval.php" class="waves-effect waves-dark">
+			<li id="premix-additivesnew" class="">
+				<a href="/user/premix/additive-new.php" class="waves-effect waves-dark">
 
-		<span class="pcoded-mtext">Reevaluate Expired Additives</span>
-		</a>
-		</li>
+				<span class="pcoded-mtext">Add New External Additive Stock</span>
+				</a>
+			</li>
 
+
+			<li id="premix-additivesview" class="">
+				<a href="/user/premix/additive-view.php" class="waves-effect waves-dark">
+
+				<span class="pcoded-mtext">View External Additive Stock</span>
+				</a>
+			</li>
+
+
+			<li id="premix-additivesinternalview" class="">
+				<a href="/user/premix/additive-internal-view.php" class="waves-effect waves-dark">
+
+				<span class="pcoded-mtext">View Internal Additive Stock</span>
+				</a>
+			</li>
+
+			<li id="premix-additivesdaily" class="">
+				<a href="/user/premix/additive-daily.php" class="waves-effect waves-dark">
+
+				<span class="pcoded-mtext">View Daily Additive Stock</span>
+				</a>
+			</li>
+
+			<li id="premix-additivesfifo" class="">
+				<a href="/user/premix/additive-fifo.php" class="waves-effect waves-dark">
+
+				<span class="pcoded-mtext">View Additive FIFO</span>
+				</a>
+			</li>
+
+			<li id="premix-additivesreeval" class="">
+				<a href="/user/premix/additive-reeval.php" class="waves-effect waves-dark">
+
+				<span class="pcoded-mtext">Reevaluate Expired Additives</span>
+				</a>
+			</li>
+
+
+		</ul>
+	</li>
 	</ul>
 
 
@@ -387,6 +395,17 @@
 		<a href="/user/premix/premix-view.php" class="waves-effect waves-dark">
 
 		<span class="pcoded-mtext">View Premix</span>
+		</a>
+		</li>
+
+	</ul>
+
+
+	<ul class="pcoded-submenu">
+		<li id="premix-stock" class="">
+		<a href="/user/premix/premix-stock.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Premix Stock</span>
 		</a>
 		</li>
 
@@ -633,3 +652,24 @@
 
 </script>
 </nav>
+
+<?php
+
+$url = strtok($_SERVER["REQUEST_URI"], '?');
+if(substr($url, -1)=="/")
+{
+	$url = substr($url,0, -1);
+}
+if($url !="/user/index.php" && $url !="/user/" && $url !="/user")
+{
+	if(!getPagePermission($url))
+	{
+		echo "<div class=\"pcoded-content\">Error: You dont have permission to view this page".$url."</div>";
+		include('endbody.php');
+
+
+		die();	
+	}
+}
+
+?>

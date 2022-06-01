@@ -164,8 +164,46 @@
     	$dum["test"]["header"] = $heading;
     	$dum["test"]["data"] = $allTest;
 
+    	
+
+
+    	$allTest = [];
+    $heading = [];
+
+    	
+
+
+    	$result2 = runQuery("SELECT DISTINCT(param) FROM processinternaltestparams WHERE processid = '$currid'");
+
+    	while($row2=$result2->fetch_assoc())
+    	{
+    		array_push($heading,$row2["param"]);
+    	}
+
+    	$result2 = runQuery("SELECT * FROM processinternaltestparams WHERE processid='$currid'");
+    	while($row2=$result2->fetch_assoc())
+    	{
+    		if(!isset($allTest[$row2["testid"]] ))
+    		{
+    			$allTest[$row2["testid"]] = [];
+    		}
+
+    		$allTest[$row2["testid"]]["id"] = $row2["testid"];
+    		$allTest[$row2["testid"]][$row2["param"]] = $row2["value"];
+
+    	}
+
+    	$dum["internaltest"]["header"] = $heading;
+    	$dum["internaltest"]["data"] = $allTest;
+
     	array_push($allData,$dum);
+
+
     }
+
+
+    
+    
 
 
 
@@ -479,6 +517,97 @@ foreach($currDataList as $datalist)
 </tbody>
 </table>
 
+
+<br><hr style="border-top: 3px solid"><br>
+
+
+
+<big style="font-weight: bold;">Other Test</big>
+<table class="table table-striped table-bordered" >
+	
+<thead>
+	
+
+	<tr>
+
+		<th>Test Id: </th>
+		<?php
+
+		$testheading = $data["internaltest"]["header"];
+
+		foreach ($testheading as $head) {
+			
+
+
+
+
+		?>
+
+		
+				<th><?php echo $head ?></th>
+
+		<?php
+
+			}
+
+
+		?>
+		
+		
+
+	</tr>
+</thead>
+<tbody>
+
+<?php 
+
+$currDataList = $data["internaltest"]["data"];
+$k=0;
+foreach($currDataList as $datalist)
+{
+
+
+
+
+?>
+
+<tr>
+	
+
+	<td><?php echo $datalist["id"]; ?></td>
+
+
+	<?php
+
+		foreach ($testheading as $head) {
+			if(!isset($datalist[$head]))
+			{
+				$datalist[$head]="-";
+			}
+	?>
+
+
+		<td><?php echo $datalist[$head]; ?></td>
+
+	<?php
+
+		}
+
+	?>
+
+</tr>
+
+
+<?php 
+
+}
+
+?>
+
+
+
+</tbody>
+</table>
 
 
 <br><hr style="border-top: 3px solid"><br>

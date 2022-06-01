@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "View all Dispatch Order | SLM SMART",
+        "Page Title" => "View all Dispatches | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "dispatch-view",
         "MainMenu"	 => "dispatch_menu",
@@ -79,6 +79,9 @@
 
 </script>
 
+<style>
+.btn{margin-left: 5px!important;}</style>
+
 
 
 <div class="pcoded-content">
@@ -90,7 +93,7 @@
 				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
 					<h5>View all Dispatches</h5>
-					<span>Select order to edit</span>
+					<span>Select order to edit or remove</span>
 				</div>
 			</div>
 		</div>
@@ -107,22 +110,20 @@
 
 
 
-<div class="card">
+<div class="card col-md-6">
 <div class="card-header">
-
-<div class="card-header-right">
-</div>
+	<h5 style="font-weight:bold;">Search by Consignment ID  <i class="fa fa-search"></i></h5>
 </div>
 <div class="card-block">
 
 
 <div class="form-group row">
-			<label class="col-sm-2 col-form-label"> Consignment Id</label>
-			<div class="col-sm-10">
+			<label class="col-sm-3 col-form-label"> Consignment ID</label>
+			<div class="col-sm-8">
 			<div class="input-group input-group-button">
 				<input required id="data_externalid" name="externalid" type="text" class="form-control form-control-uppercase" placeholder="">
 				<div class="input-group-append">
-				<button class="btn btn-primary" type="button" onclick="getexternalid(this)"><i class="feather icon-arrow-up-right"></i>Open</button>
+				<button class="btn btn-primary" type="button" onclick="getexternalid(this)"><i class="feather icon-arrow-up-right"></i> Open</button>
 				</div>
 			</div>
 			
@@ -147,19 +148,19 @@
 <div class="card-block">
 
 
-	<table class="table">
+	<table class="table table-responsive table-bordered table-striped table-xs">
 	<thead>
-		<tr>
+		<tr style="text-align:center;">
 		<th>#</th>
 		<th>Consignment ID</th>
 		<th>Loading Advice</th>
 		<th>Customer</th>
 		<th>Entry Date</th>
-		<th></th>
+		<th>Edit</th>
 		<?php 
 			if($deletePermission)
 			{
-				echo "<th></th>";
+				echo "<th>Remove</th>";
 			}
 		?>
 		</tr>
@@ -167,7 +168,7 @@
 	<tbody>
 
 		<?php
-				$result = runQuery("SELECT * FROM dispatch ");
+				$result = runQuery("SELECT * FROM dispatch ORDER BY entrydate DESC");
 				if($result->num_rows>0)
 				{
 					$k=0;
@@ -184,7 +185,7 @@
 
 		<td><?php echo $result2["value"]."(".$row["customer"].")"; ?></td>
 
-		<td><?php echo Date('Y-M-d H:i',strtotime($row["entrydate"])); ?></td>
+		<td><?php echo Date('d-M-Y',strtotime($row["entrydate"])); ?></td>
 		<td><form method="POST" action="dispatch-edit.php"><input type="hidden" name="cid" value="<?php echo $row["cid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
@@ -297,6 +298,7 @@
 
 ?>
 
+
 <script type="text/javascript">
 
 
@@ -329,14 +331,23 @@ $(document).ready(function() {
 
 function removeProcess(externalid)
 {
-	Swal.fire({
-		  icon: 'error',
+	const swalWithBootstrapButtons  = Swal.mixin({
+	customClass: {
+		confirmButton: 'btn btn-success',
+		cancelButton: 'btn btn-danger'
+	},
+	buttonsStyling: false
+	})
+
+
+	swalWithBootstrapButtons.fire({
+		  icon: 'warning',
 		  title: 'You are deleting a Dispatch',
 		  html: 'Are you sure you want to delete it. This action is irreversible. <br> Dispatch ID.:' +externalid,
-		  confirmButtonText: 'Yes',
-		  cancelButtonText: 'No',
+		  confirmButtonText: '<i class="fa fa-trash"></i> Yes',
+		  cancelButtonText: '<i class="fa fa-window-close"></i> No',
 		  showCancelButton: true,
-		  
+		  reverseButtons: true
 		}).then((result) => {
 			  if (result.isConfirmed) {
 			    		

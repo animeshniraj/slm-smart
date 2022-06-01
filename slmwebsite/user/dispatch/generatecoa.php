@@ -202,18 +202,19 @@ if($isfinal)
     <link rel="stylesheet" href="coa.css" media="all" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="sheets-of-paper-a4.css">
+    <style>
+        .lab-sign{width:230px!important;height:auto;float:right;}
+        h6{font-size:15px;}
+        </style>
   </head>
   <body>
   <div class="page" contenteditable="true">
     <div id="ui-view" data-select2-id="ui-view">
         <div>
             <div class="card">
-                <div class="card-header">COA
-                    <strong>GRADE: <?php echo $data['grade']; ?></strong>
+                <div class="card-header">
                     <a class="btn btn-sm btn-secondary float-right mr-1 d-print-none" href="#" onclick="javascript:window.print();" data-abc="true">
                         <i class="fa fa-print"></i> Print</a>
-                    <a class="btn btn-sm btn-info float-right mr-1 d-print-none" href="#" data-abc="true">
-                        <i class="fa fa-save"></i> Save</a>
                 </div>
                 <div class="card-body">
 
@@ -229,31 +230,43 @@ if($isfinal)
                     <div class="row mb-4 mt-3">
                         <div class="col-sm-3">
                             <h6 class="mb-1">GRADE:</h6>
-                            <h3>
+                            <h5>
                                 <strong><?php echo $data['grade']; ?></strong>
-                            </h3>
-                            <div><?php echo $data['basic']['customer']; ?></div>
-                            <div><?php echo $data['basic']['customeraddress']; ?></div>
-                            <div><?php echo $data['basic']['customercity']; ?>, <?php echo $data['basic']['customerstate']; ?> - <?php echo $data['basic']['customerpincode']; ?></div>
+                            </h5>
+                            <h6>BATCH NO:<div class="mb-1"><?php echo $data['basic']['batch']; ?></div></h6>
+
+                            <div><p style="font-size:14px;font-weight:bold;line-height:13px;"><?php echo $data['basic']['customer']; ?></p></div>
+                            <div><p style="font-size:13px;line-height:13px;"><?php echo $data['basic']['customeraddress']; ?></p></div>
+                            <div><p style="font-size:13px;"><?php echo $data['basic']['customercity']; ?>, <?php echo $data['basic']['customerstate']; ?> - <?php echo $data['basic']['customerpincode']; ?></p></div>
                         </div>
                         <div class="col-sm-3">
-                            <h6>PRODUCTION DATE</h6>
-                            <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['productiondate'])); ?></div>
-                            <h6>DISPATCH DATE</h6>
-                            <div><?php echo Date('d-M-Y',strtotime($data['dispatchdate'])); ?></div>
+                        <h6>PROD. CODE:
+
+                            <?php
+                                $dum_prodcode ="";
+                                $did = $data['basic']['batch'];
+                                $result = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND step='CREATION' AND param='prodcode'");
+
+                                if($result->num_rows==1)
+                                {
+                                    $dum_prodcode = $result->fetch_assoc()['value'];
+                                }
+                            ?>
+                        <div class="mb-1"><?php echo $dum_prodcode; ?></div></h6>                            
+                        <h6>PROD. DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['productiondate'])); ?></div></h6>
+                        <h6>DISPATCH DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['dispatchdate'])); ?></div></h6>
+
                         </div>
                         <div class="col-sm-3">
-                            <h6>PRODUCTION QUANTITY</h6>
-                            <div class="mb-3"><?php echo $data['batchqty']; ?> KG</div>
-                            <h6>DISPATCH QTY</h6>
-                            <div><?php echo $data['dispatchqty']; ?> KG</div>
+                            <h6>PROD. QTY.: <div class="mb-3"><?php echo $data['batchqty']; ?> KG</div></h6>
+                            <h6>DISPATCH QTY.: <div class="mb-3"><?php echo $data['dispatchqty']; ?> KG</div></h6>
                         </div>
                         <div class="col-sm-3">
-                            <h6>PO DETAILS</h6>
-                            <div class="mb-3"><?php echo $data['ponumber']; ?></div>
-                            <h6>PO DATE</h6>
-                            <div><?php echo Date('d-M-Y',strtotime($data['podate'])); ?></div>
+                        <h6>P.O. DETAILS:<div><?php echo $data['ponumber']; ?></div></h6>
+                        <h6>P.O. DATE:<div><?php echo Date('d-M-Y',strtotime($data['podate'])); ?></div></h6>
+
                         </div>
+
                     </div>
 
                     <div class="table-responsive-sm">
@@ -291,7 +304,7 @@ if($isfinal)
                                     <td class="center"><?php echo "MPIF ".$cdata['mpif'] ?></td>
                                     <td class="center"><?php echo $cdata['min'] ?></td>
                                     <td class="center"><?php echo $cdata['max'] ?></td>
-                                    <td class="center"><?php echo $cdata['value'] ?></td>
+                                    <td class="center"><?php if($cdata['value']){echo $cdata['value'];} ?></td>
                                 </tr>
 
 
@@ -405,15 +418,15 @@ if($isfinal)
                             <div><?php echo $data['packageweight']. "kg " . $data['package']; ?></div>
                                 
                         </div>-->
-                        <div class="col-sm-4">
+                        <div class="col-sm-6">
                             <h6>NET WEIGHT</h6>
                             <h6><?php echo $data['dispatchqty'] ?> KG</h6>
                         </div>
-                        <div class="col-sm-4">
+                        <!--<div class="col-sm-4">
                             <h6>GROSS WEIGHT</h6>
                             <h6><?php echo $data['dispatchqty']?> KG</h6>
-                        </div>
-                        <div class="col-sm-4 lab-sign">
+                        </div> -->
+                        <div class="col-sm-6 lab-sign text-right">
                           <img src="lab-sign.png">
                         </div>
                     </div>
@@ -618,15 +631,15 @@ else
                     
 
                     <div class="row mb-4 mt-3">
-                        <div class="col-sm-4">
+                        <div class="col-sm-6">
                             <h6>NET WEIGHT</h6>
                             <h6><?php echo $data['dispatchqty'] ?> KG</h6>
                         </div>
-                        <div class="col-sm-4">
+                        <!--<div class="col-sm-4">
                             <h6>GROSS WEIGHT</h6>
                             <h6><?php echo $data['dispatchqty']+$data['packageweight'] ?> KG</h6>
-                        </div>
-                        <div class="col-sm-4 lab-sign">
+                        </div>-->
+                        <div class="col-sm-6 lab-sign text-right">
                           <img src="lab-sign.png">
                         </div>
                     </div>

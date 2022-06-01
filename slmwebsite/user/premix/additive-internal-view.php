@@ -180,6 +180,8 @@
 
 	<?php 
 			foreach ($allAdditive as $additive) {
+
+				if($additive[0]=="Iron"){continue;}
 			
 		?>
 

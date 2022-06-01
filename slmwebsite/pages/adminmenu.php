@@ -36,13 +36,26 @@
 		<li id="user-createuser" class="">
 		<a href="/admin/user/createnew.php" class="waves-effect waves-dark">
 
-		<span class="pcoded-mtext">Create New</span>
+		<span class="pcoded-mtext">Create New User</span>
+		</a>
+		</li>
+
+		<li id="user-createrole" class="">
+		<a href="/admin/user/createnewrole.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Create New Role</span>
 		</a>
 		</li>
 
 		<li id="user-showall" class="">
 		<a href="/admin/user/showall.php" class="waves-effect waves-dark">
 		<span class="pcoded-mtext">All Users</span>
+		</a>
+		</li>
+
+		<li id="role-showall" class="">
+		<a href="/admin/user/showallroles.php" class="waves-effect waves-dark">
+		<span class="pcoded-mtext">All Roles</span>
 		</a>
 		</li>
 
@@ -456,14 +469,51 @@
 
 
 
-<li id="logs_menu">
-<a href="/admin/logs.php" class="waves-effect waves-dark">
-<span class="pcoded-micon">
-<i class="fa fa-book"></i>
-</span>
+<li id="logs_menu" class="pcoded-hasmenu" dropdown-icon="style1" subitem-icon="style1">
+<a href="javascript:void(0)" class="waves-effect waves-dark">
+<span class="pcoded-micon"><i class="fa fa-book"></i></span>
 <span class="pcoded-mtext">Logs</span>
 </a>
+	<ul class="pcoded-submenu">
+		<li id="logs-general" class="">
+		<a href="/admin/logs/general.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">General Logs</span>
+		</a>
+		</li>
+
+
+		<li id="logs-login" class="">
+		<a href="/admin/logs/login.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Login Logs</span>
+		</a>
+		</li>
+
+		<li id="logs-process" class="">
+		<a href="/admin/logs/process.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Process Logs</span>
+		</a>
+		</li>
+
+<?php /* 
+		<li id="logs-process" class="">
+		<a href="/admin/logs/backuplog.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Backup Logs</span>
+		</a>
+		</li>
+
+	*/
+?>
+
+	</ul>
 </li>
+
+
+
+
 
 <li id="settings_menu">
 <a href="/admin/settings.php" class="waves-effect waves-dark">

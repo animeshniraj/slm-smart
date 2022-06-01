@@ -44,7 +44,7 @@
 
 
 
-    	$showmonth = date('F');
+    $showmonth = date('F');
 	$showmonthInt = date('m');
 	$showyear = date('Y');
 
@@ -69,13 +69,15 @@
      $allAdditive = [];
     $daily = [];
     $allrecon = [];
-
+    $allAdditiveBuyIncrement = [];
 
     $result = runQuery("SELECT * FROM premix_additives WHERE additive<>'Iron'");
 
     while($row=$result->fetch_assoc())
     {	
     	$curr = $row["additive"];
+
+    	$allAdditiveBuyIncrement[$curr] = $row["buyincrement"];
 
     	$daily[$curr] = [];
     	$allrecon[$curr] =[];
@@ -164,6 +166,8 @@
     while($row=$result->fetch_assoc())
     {	
     	$curr = $row["groupname"];
+
+    	$allAdditiveBuyIncrement[$curr] = 1;
     	$openingStock = 0;
     	$currStock =0;
 
@@ -367,7 +371,7 @@
 			<td id="additive-proc-<?php echo $k; ?>">0</td>
 			<script type="text/javascript"> 
 				
-				additivedata['<?php echo $additive[0]; ?>'] = [this.document.getElementById('additive-req-<?php echo $k; ?>'),this.document.getElementById('additive-curr-<?php echo $k; ?>'),this.document.getElementById('additive-proc-<?php echo $k; ?>')]</script>
+				additivedata['<?php echo $additive[0]; ?>'] = [this.document.getElementById('additive-req-<?php echo $k; ?>'),this.document.getElementById('additive-curr-<?php echo $k; ?>'),this.document.getElementById('additive-proc-<?php echo $k; ?>'),<?php echo $allAdditiveBuyIncrement[$additive[0]]?>]</script>
 		</tr>
 
 
@@ -412,7 +416,7 @@
 		var tbody = document.getElementById('products-tbody');
 
 
-		
+		console.log(additivedata)
 
 		Object.keys(additivedata).forEach(function (key) {
 
@@ -431,21 +435,24 @@
 
 			for(var j=0;j<c_grade_data.length;j++)
 			{
-				console.log(j);
+				
 				var currAdditive = c_grade_data[j][0];
 				
 				var currpercent = parseFloat(c_grade_data[j][1]);
-				console.log(currAdditive,currpercent);
+				//console.log(currAdditive,currpercent);
 				var req = (currpercent/100)*qty;
 				if(req!=0)
 				{
-					console.log(additivedata[currAdditive]);
+					req += parseFloat(additivedata[currAdditive][0].innerHTML);
+					req = Math.round(req*1000)/1000;;
+					
+					//console.log(additivedata[currAdditive]);
 					additivedata[currAdditive][0].innerHTML = req;
 
 					var proc = req -parseFloat(additivedata[currAdditive][1].innerHTML);
 
 					if(proc>0)
-						additivedata[currAdditive][2].innerHTML = 	proc;	
+						additivedata[currAdditive][2].innerHTML = 	Math.ceil(proc/additivedata[currAdditive][3])*additivedata[currAdditive][3];	
 				}
 				
 

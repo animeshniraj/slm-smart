@@ -80,7 +80,7 @@
 		$prefix = "%".$fid."%";
 		$allIds = [];
 
-		$result = runQuery("SELECT * FROM processentry WHERE processname='Annealing' AND processid LIKE '$prefix' AND islocked <> 'BLOCKED'");
+		$result = runQuery("SELECT * FROM processentry WHERE processname='Annealing' AND processid LIKE '$prefix' AND (islocked <> 'BLOCKED' OR islocked <> 'FAILED')");
 		if($result->num_rows>0)
 		{
 			while($row=$result->fetch_assoc())

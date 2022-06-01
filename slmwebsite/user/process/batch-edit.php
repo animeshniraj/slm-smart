@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Edit Batch",
+        "Page Title" => "Edit Batch | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-batch-view",
         "MainMenu"	 => "process_batch",
@@ -224,6 +224,55 @@
     }
 
 
+
+    if(isset($_POST["updateinternaltestform"]))
+    {
+
+    	$allParams = $_POST['allparams'];
+    	$paramsvalue = $_POST['paramsvalue'];
+    	
+    	$testedby = $_POST['testedby'];
+    	
+
+    		$sqlprefix = $processid."/%";
+    		$prefix = $processid."/";
+    		
+    		$result = runQuery("SELECT * FROM processinternaltest WHERE testid LIKE '$sqlprefix' ORDER BY entrytime DESC LIMIT 1");
+
+	    	if($result->num_rows==0)
+	    	{	
+	    		$alpha = "A";
+	    	}
+	    	else
+	    	{
+	    		$lastID = $result->fetch_assoc()["testid"];
+		    	$lastID = substr($lastID, 0, strpos($lastID, $prefix)).substr($lastID, strpos($lastID, $prefix)+strlen($prefix));
+		    	$alpha = ++$lastID;
+	    	}
+	    	$prefix = $prefix . $alpha;
+
+	    
+	    	runQuery("INSERT INTO processinternaltest VALUES('$prefix','$processid','$processname',CURRENT_TIMESTAMP,'DEFAULT')");
+	    	
+	    	for($i=0;$i<count($allParams);$i++)
+	    	{
+	    		
+	    		
+
+	    			runQuery("INSERT INTO processinternaltestparams VALUES(NULL,'$prefix','$processid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED','$testedby[$i]')");
+
+	    	
+	    		
+	    		
+	    		
+	    	}
+
+    	
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Batch ('.$processid.') new internal Test added');
+
+
+    }
+
     if(isset($_POST["updateprocess5"]))
     {
 
@@ -259,12 +308,14 @@
 
     	$approved = $_POST['approved-by'];
     	$finalqty = $_POST['finalqty'];
+    	$prodcode = $_POST['prodcode'];
 
 
 
     	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','CREATION','approved-by','$approved')");
     	runQuery("DELETE FROM processentryparams WHERE processid='$processid' AND param='$MASS_TITLE'");
 	    runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','GENERIC','$MASS_TITLE','$finalqty')");
+	    runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','CREATION','prodcode','$prodcode')");
     	runQuery("UPDATE processentry SET islocked='BATCHED' WHERE processid='$processid'");
 
     	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Batch ('.$processid.') approved by '.$approved);
@@ -786,6 +837,11 @@ input[type=number] {
 <div class="slide"></div>
 </li>
 
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#testinternal-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Other Tests </a>
+<div class="slide"></div>
+</li>
+
 <?php
 /*
 ?>
@@ -854,7 +910,6 @@ input[type=number] {
 			{
 				?>
 				<div class="col-sm-12">
-				<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/print/batch-tag.php?processid=<?php echo $processid; ?>&grade=<?php echo $currGradeName; ?>&quantity=<?php echo getTotalQuantity($processid) ?>')"><i class="icofont icofont-barcode"></i>Generate Label</button>
 				<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
 				</div>
 
@@ -865,6 +920,12 @@ input[type=number] {
 
 	?>
 
+
+<div class="col-sm-12">
+	<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/print/batch-tag.php?processid=<?php echo $processid; ?>&grade=<?php echo $currGradeName; ?>&quantity=<?php echo getTotalQuantity($processid) ?>')"><i class="icofont icofont-barcode"></i>Generate Label</button>
+
+	<button type="button" class="btn btn-primary m-b-0 ml-1 pull-left" onclick="window.open('/user/report/basic-batch.php?id=<?php echo $processid; ?>')"><i class="icofont icofont-page"></i>Generate Report</button>
+</div>
 
 
 
@@ -901,6 +962,17 @@ input[type=number] {
 	}
 
 
+	$cprodcode = "Not Assigned";
+	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='prodcode'");
+	if($result->num_rows>0)
+	{
+		$result=$result->fetch_assoc();
+		$cprodcode = $result['value'];
+	}
+
+
+
+
 	$result = runQuery("SELECT * FROM processentry WHERE processid='$finalblendid'");
 	$result  = $result->fetch_assoc();
 
@@ -932,6 +1004,11 @@ input[type=number] {
 	<tr>
 		<td>Grade </td>
 		<td> <?php echo $currgrade; ?></td>
+	</tr>
+
+	<tr>
+		<td>Prod Code </td>
+		<td> <?php echo $cprodcode; ?></td>
 	</tr>
 </table>
 
@@ -1343,6 +1420,212 @@ if($testPermission)
 
 
 
+<div class="tab-pane" id="testinternal-tabdiv" role="tabpanel">
+
+<form method="POST">
+<?php
+if($testPermission)
+				{
+
+
+					?>
+
+
+
+
+		<?php
+}
+
+					?>
+	
+	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
+	<input type="hidden" name="currtab" value="testinternal-tabdiv">
+
+	<script type="text/javascript">
+		function addinttestprop()
+		{
+			var tbody = document.getElementById('testinternal-tablediv');
+
+			var tr = document.createElement('tr');
+
+			tr.innerHTML = "<td><input class='form-control' required type ='text' name='allparams[]'></td>";
+			tr.innerHTML += "<td><input class='form-control' required type ='text' name='paramsvalue[]'></td>";
+
+			tr.innerHTML += "<td><input class='form-control' required type ='text' list='labtechlist' name='testedby[]'></td>";
+			tr.innerHTML += "<td><button class='btn btn-primary' onclick='this.closest(\"tr\").remove()'><i class ='fa fa-trash'></i>Remove</button></td>";
+
+			document.getElementById('updateinternaltest').disabled = false;
+			tbody.appendChild(tr);
+		}
+	</script>
+
+<div class="row">
+				<button type="button" onclick="addinttestprop()"  class="btn btn-primary pull-right"><i class="feather icon-plus"></i>Add Test Property</button>
+</div>
+<br>
+
+<div class="form-group row">
+				<table class="table table-striped table-bordered" id="testinternaltable">
+		<thead>
+		<tr>
+
+		<th>Property</th>
+		<th>Value</th>
+		<th>Tested By</th>
+		<th></th>
+		</tr>
+		</thead>
+		
+		
+		<tbody id="testinternal-tablediv">
+
+
+
+			
+
+	</tbody>
+
+
+</table>
+
+<?php
+
+		
+
+			
+			if($testPermission)
+			{
+				?>
+				<div class="col-sm-12">
+				<button type="submit" disabled name="updateinternaltestform" id="updateinternaltest" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i>Add Test Result</button>
+				</div>
+
+				<?php
+			}
+
+			
+
+			
+
+		?>
+	</div>
+
+
+
+</form>
+
+
+<br><br><br>
+
+
+<?php
+	
+	$result = runQuery("SELECT * FROM processinternaltest WHERE processid='$processid'");
+	$k=1;
+	if($result->num_rows>0)
+	{
+
+		?>
+<h5>All Tests</h5>
+<table class="table">
+	<th rowspan="1" colspan="1"  style="width: 84.578125px;">Sl No.</th>
+	<th rowspan="1" colspan="1" >Test Id</th>
+	<th rowspan="1" colspan="1" >Entry Time</th>
+
+
+
+	<th rowspan="1" colspan="1" >Options</th>
+	<th rowspan="1" colspan="1" ></th>
+
+
+	<?php 
+
+		while($row=$result->fetch_assoc())
+		{
+
+			$dumtestid = $row["testid"];
+			$result2 = runQuery("SELECT * FROM processinternaltestparams WHERE testid='$dumtestid'");
+			$dumParam = "[";
+			$dumValue = "[";
+			$qstatus = "UNLOCKED";
+			if($result2->num_rows>0)
+			{
+				while($row2 = $result2->fetch_assoc())
+				{
+						$currParam = $row2["param"];
+						
+						echo "<script>console.log('".$dapproved."')</script>";
+						
+							$dumParam = $dumParam . "'" . $row2["param"] . " (Tested By: ".$row2["testedby"].")" ."',";
+						
+						
+						$dumValue = $dumValue . "'" . $row2["value"]."',";
+
+						if($row2["status"]=="BLOCKED")
+						{
+							$qstatus = "BLOCKED";
+						}
+				}
+			}
+
+			$dumParam = $dumParam. "]";
+			$dumValue = $dumValue. "]";
+			
+
+
+			if($k%2==0)
+			{
+				$type = "even";
+			}
+			else
+			{
+				$type = "odd";
+			}
+
+			if($qstatus=="UNLOCKED")
+			{
+				echo "<tr role=\"row\" class=\"".$type."\" >";
+			}
+			else
+			{
+				echo "<tr style=\"color:red;\" role=\"row\" class=\"".$type."\" >";
+			}
+			
+				
+			
+
+			
+
+			echo "<td>".$k++."</td>";
+			echo "<td>".$row["testid"]."</td>";
+			echo "<td>".$row["entrytime"]."</td>";
+			
+				echo "<td><div><button type=\"button\"  class=\"btn btn-primary m-b-0\" onclick=\"viewTest('".$row["testid"]."',".$dumParam.",".$dumValue.")\"><i class=\"fa fa-eye\"></i>View</button><button type=\"button\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"rejectTest('".$row["testid"]."')\"><i class=\"fa fa-trash\"></i>Delete</button></div></td><td>";
+			
+			
+			
+
+			
+			echo "</tr>";
+
+			
+
+
+		}
+
+	?>
+</table>
+
+<?php 
+	}
+
+?>
+
+</div>
+
+
+
+
 
 
 
@@ -1482,6 +1765,8 @@ else
 	 	<div class="form-group" style="display:flex; justify-content: center;">
 						
 						<input type="text" required name="approved-by"class="form-control" style="display: inline; text-align: center;" placeholder="Approved By">
+
+						<input type="text" required name="prodcode"class="form-control" style="display: inline; text-align: center;" placeholder="Prod Code">
 
 						<input type="number" name="finalqty" required min="0.01" step="0.01" max='<?php echo $qty ; ?>' class="form-control" style="display: inline; text-align: center;" placeholder="Final Qty (Kg)" >
 						

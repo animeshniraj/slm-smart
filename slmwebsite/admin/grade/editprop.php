@@ -18,7 +18,7 @@
 	
 	$processname = $_GET["process"];
     $PAGE = [
-        "Page Title" => "SLM | Grade Properties",
+        "Page Title" => "Grade Properties | SLM SMART",
         "Home Link"  => "/admin/",
         "Menu"		 => "processgrade-".str_replace(" ", "",strtolower($processname)),
         "MainMenu"	 => "processgrade_menu",
@@ -142,6 +142,7 @@
 			<div class="col-md-2">
 				<h5>Type</h5>
 			</div>
+			
 		</div>
 
 		<hr>

@@ -182,6 +182,8 @@
 
     		array_push($dum["child"],$dumRaw);
 
+
+
     		$dum["remaining"] -= $row2["value"]	;
     	}
 
@@ -273,7 +275,7 @@
 
    
 
-    
+  
 
     $heading = array_unique($heading);
 
@@ -631,6 +633,7 @@ if($show == "yes")
 		}
 
 	?>
+<td></td>
 <td></td>
 <td></td>
 <td></td>

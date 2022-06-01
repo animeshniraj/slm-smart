@@ -31,6 +31,13 @@
 
     $processname = "Final Blend";
 
+     $LIMIT = 20;
+
+	if(isset($_GET['limit']))
+	{
+		$LIMIT =$_GET['limit'];
+	}
+
     if(isset($_POST['deleteProcess']))
     {
     	$processid = $_POST['processid'];
@@ -115,16 +122,16 @@
 <div class="form-group row">
 			<label class="col-sm-2 col-form-label">Final Blend ID</label>
 			<div class="col-sm-10">
-			<div class="input-group input-group-button">
-				<input required id="processid" name="processid" type="text" class="form-control form-control-uppercase" placeholder="">
-				<div class="input-group-append">
-				<button class="btn btn-primary" type="button" onclick="getHeatid(this)"><i class="feather icon-arrow-up-right"></i>Open</button>
+				<div class="input-group input-group-button">
+					<input required id="processid" name="processid" type="text" class="form-control form-control-uppercase" placeholder="">
+					<div class="input-group-append">
+						<button class="btn btn-primary" type="button" onclick="getHeatid(this)"><i class="feather icon-arrow-up-right"></i>Open</button>
+					</div>
 				</div>
-			</div>
-			
+				
 			</div>
 
-		</div>
+</div>
 
 </form>
 
@@ -148,6 +155,8 @@
 		<tr>
 		<th>#</th>
 		<th>Final Blend ID</th>
+		<th>Blend No</th>
+		<th>Grade</th>
 		<th>Entry Time</th>
 		<th></th>
 		<?php 
@@ -161,23 +170,62 @@
 	<tbody>
 
 		<?php
-				$result = runQuery("SELECT * FROM processentry WHERE processentry.processname = '$processname' ORDER BY entrytime DESC LIMIT 20");
+				$result = runQuery("SELECT * FROM processentry WHERE processentry.processname = '$processname' ORDER BY entrytime DESC LIMIT $LIMIT");
 				if($result->num_rows>0)
 				{
 					$k=0;
 					while($row=$result->fetch_assoc())
 					{
+
+
+						$dumFlag = true;
+						$dumid = $row["processid"];
+
+						$result2 = runQuery("SELECT * FROM loadingadvice_batches WHERE batch IN ( SELECT processid FROM processentryparams WHERE param='$dumid' AND step='PARENT')");
+
+						if($result2->num_rows!=0)
+						{
+							$dumFlag = false;
+						}
+
+						$result2 = runQuery("SELECT * FROM dispatch_invoices WHERE batch IN ( SELECT processid FROM processentryparams WHERE param='$dumid' AND step='PARENT')");
+
+						if($result2->num_rows!=0)
+						{
+							$dumFlag = false;
+						}
 		?>
 	<tr>
 		<th scope="row"><?php echo ++$k; ?></th>
 		<td><?php echo $row["processid"]; ?></td>
+		<?php 
+			$did = $row["processid"];
+			$paramval ="";
+			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND param='Blend Number'");
+			if($result2->num_rows!=0)
+			{
+				$paramval = $result2->fetch_assoc()['value'];
+			}
+		?>
+		<td><?php echo $paramval; ?></td>
+
+		
+		<?php 
+			$paramval ="";
+			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND param='$GRADE_TITLE'");
+			if($result2->num_rows!=0)
+			{
+				$paramval = $result2->fetch_assoc()['value'];
+			}
+		?>
+		<td><?php echo $paramval; ?></td>
 		
 		<td><?php echo Date('Y-M-d H:i',strtotime($row["entrytime"])); ?></td>
 		<td><form method="POST" action="finalblend-edit.php"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
 
-			if($deletePermission)
+			if($deletePermission && $dumFlag)
 			{
 				echo "<td><button class=\"btn btn-danger\" name=\"deleteProcess\" onclick=\"removeProcess('".$row["processid"]."')\" type=\"button\"><i class=\"feather icon-trash\"></i>Remove</button></td>";
 			}
@@ -194,6 +242,19 @@
 
 	</tbody>
 	</table>
+
+
+	<form method="GET">
+	<div class="row">
+		<div class="col-sm-3">
+		<input type="number" class="form-control" step="1" min="1" name="limit" placeholder="Show last results" value="<?php echo $LIMIT ?>" >
+		</div>
+		<div class="col-sm-3">
+			<button class="btn btn-primary">Show Last</button>
+		</div>
+
+	</div>
+</form>
 
 
 
@@ -252,6 +313,26 @@ $(document).ready(function() {
   	
 
 });
+
+
+	$(document).ready( function () {
+    $('.table').DataTable(
+
+    {
+    	 "columnDefs": [
+            {
+                "targets": [ 0 ],
+                "visible": true,
+                "searchable": false
+            },
+
+            
+        ]
+    }
+
+
+    	);
+} );
 
 
 function getHeatid(inObj)

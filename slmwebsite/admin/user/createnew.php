@@ -22,6 +22,7 @@
 		$fname = $_POST["fname"];
 		$lname = $_POST["lname"];
 		$role = $_POST["userrole"];
+		$initial = strtoupper($_POST["initial"]);
 
 		$newuser = new user($userid);
 		if($newuser->setAll($fname,$lname,$role,true))
@@ -29,6 +30,7 @@
 			$newpass = $newuser->setDefaultPassword();
 			$show_alert = true;
 			$alert = showAlert("success","User Added","The Default Password is ".$newpass);
+			runQuery("INSERT INTO user_sign VALUES('$userid','$initial')");
 			$session->user->addLog("Created new user (Userid: ".$userid." Role: ".$newuser->getRolename().")");
 		}
 		else
@@ -131,6 +133,13 @@
 			</div>
 		</div>
 
+		<div class="form-group row">
+			<label class="col-md-4 col-form-label">Initial (Cannot be changed later)</label>
+			<div class="col-md-8">
+			<input disabled type="text" maxlength="3" minlength="2" required class="form-control  form-control-uppercase" name="initial" id="initial" placeholder="">
+			<span class="messages"></span>
+			</div>
+		</div>
 
 		<div class="form-group row">
 			<label class="col-md-4 col-form-label">Role</label>
@@ -204,6 +213,7 @@
                 document.getElementById("fname").disabled=false;
                 document.getElementById("lname").disabled=false;
                 document.getElementById("userrole").disabled=false;
+                document.getElementById("initial").disabled=false;
 
             }
             else

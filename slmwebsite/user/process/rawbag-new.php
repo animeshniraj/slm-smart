@@ -88,7 +88,7 @@
 
     	
     	
-    	$result = runQuery("INSERT INTO processentry VALUES('$prefix','$processname','CREATION',CURRENT_TIMESTAMP,'UNLOCKED')");
+    	$result = runQuery("INSERT INTO processentry VALUES('$prefix','$processname','CREATION','$creationDate','UNLOCKED')");
     	$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','GENERIC','Raw Bag No.','$rawbagno')");
 
     	if($result)
@@ -278,7 +278,8 @@ p {
 
 <form method="POST">
 
-		
+
+		<p style="display:block;text-align:center;color:#212121;">Last Created Id: <?php echo get_last_id($processname) ?></p>
 <p style="display:block;text-align:center;color:#212121;">Enter the Raw Bag Output Date</p>
 <div class="form-group" style="display:flex; justify-content: center;">
 						

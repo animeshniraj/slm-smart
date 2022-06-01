@@ -61,17 +61,16 @@
 <html lang="en">
 
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-<title>SLM | Change Password</title>
+<title>SLM SMART | Change Password</title>
 
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="description" content="Admindek Bootstrap admin template made using Bootstrap 4 and it has huge amount of ready made feature, UI components, pages which completely fulfills any dashboard needs." />
-<meta name="keywords" content="bootstrap, bootstrap admin template, admin theme, admin dashboard, dashboard template, admin template, responsive" />
-<meta name="author" content="colorlib" />
+<meta name="description" content="SMART is SLM Technology's proprietary software developed by Amazing Workz Studios to record and track each event followed in their factory." />
+<meta name="author" content="Amazing Workz Studios" />
 
-<link rel="icon" href="https://colorlib.com/polygon/admindek/files/assets/images/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/pages/jpg/favicon.ico" type="image/x-icon">
 
 <link href="/pages/font/opensan.css" rel="stylesheet">
 <link href="/pages/font/opensand.css" rel="stylesheet">

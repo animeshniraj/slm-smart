@@ -36,6 +36,7 @@
     	$cid = $_POST['cid'];
     	$customer = $_POST['customer'];
     	$creationDate = $_POST["creation-date"];
+    	$company = $_POST['company'];
 
 
     
@@ -46,7 +47,7 @@
 
 
 
-    	$result = runQuery("INSERT INTO sample_dispatch VALUES('$cid','$customer','$creationDate')");
+    	$result = runQuery("INSERT INTO sample_dispatch VALUES('$cid','$customer','$creationDate','$company')");
 
     	
 
@@ -261,6 +262,15 @@ p {
 					</div>
 
 
+					<div class="form-group" style="display:flex; justify-content: center">
+						<select required class="form-control col-sm-3" name="company" >
+							<option selected disabled value=""> Choose company</option>
+							<option value="SLM Metal">SLM Metal</option>
+							<option value="SLM Technology">SLM Technology</option>
+
+
+						</select>
+					</div>
 
 
 					

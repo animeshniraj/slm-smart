@@ -114,6 +114,9 @@
 
     $heading = [];
 
+    $allgrade = [];
+    $allgradeqty = [];
+
 	if($currgrade=="all")
     {
     	$result = runQuery("SELECT * FROM processentry WHERE processname='$processname' AND entrytime>= '$starttime' AND entrytime <= '$stoptime' ORDER BY entrytime");
@@ -165,6 +168,9 @@
     			continue;
     		}
     	}
+
+
+
 
 
     	$start= $row["entrytime"];
@@ -271,10 +277,19 @@
     		array_push($allData,$dum);
     	}
 
+    	if(!in_array($dum["grade"],$allgrade))
+    	{
+    		array_push($allgrade,$dum["grade"]);
+
+    		$allgradeqty[$dum["grade"]] = 0;
+    	}
+
+    	$allgradeqty[$dum["grade"]] += $dum["remaining"];
+
     	
     }
 
-   
+    
 
     
 
@@ -430,6 +445,19 @@ if($show != "yes")
 
 </div>
 			<hr>
+			<script language="JavaScript">
+				function toggle(source) {
+				checkboxes = document.getElementsByName('prop[]');
+				for(var i=0, n=checkboxes.length;i<n;i++) {
+					checkboxes[i].checked = source.checked;
+				}
+				}			
+			</script>
+
+<a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">Show More Filters</a>
+		
+		<div class="collapse multi-collapse" id="multiCollapseExample1">
+
 			
 			<h5>Select desired Properties to show:</h5>
 
@@ -437,7 +465,7 @@ if($show != "yes")
 				<table class="table table-bordered">
 					<thead>
 						<tr>
-							<th></th>
+							<th><input type="checkbox" onClick="toggle(this)" data-toggle="tooltip" data-placement="top" title="Select All"/><br/></th>
 							<th>Property</th>
 							<th>Min</th>
 							<th>Max</th>
@@ -475,7 +503,10 @@ if($show != "yes")
 				</tbody>
 				</table>
 			</div>
-			<div class="col-sm-12">
+
+		</div>
+		
+		<div class="col-sm-12">
 				<button class="btn btn-primary pull-right" type="submit"><i class="fa fa-refresh"></i>Generate Report</button>
 			</div>
 			
@@ -541,10 +572,23 @@ if($show != "yes")
 if($show == "yes")
 {
 ?>
-<div class="row" style="margin:1rem;">
 
+<?php
+$outcounter=0;
+foreach ($allgrade as $dgrade) {
+	$outcounter++;
+
+?>
+<div class="row" style="margin:1rem;">
 <div class="table-responsive dt-responsive table-responsive">
-<table id="stockdatatable" class="table table-striped table-bordered table-xs" style="width:100%;">
+
+
+
+<div class="col-sm-12" style="text-align: center;"><big style="font-weight: bold;" ><?php echo $dgrade; ?></big></div>
+<br>
+<br>
+
+<table id="stockdatatable<?php echo $outcounter; ?>" class="table table-striped table-bordered table-xs" style="width:100%;">
 	
 <thead>
 	
@@ -552,6 +596,7 @@ if($show == "yes")
 	<tr style="font-size:11px;font-weight:bold;background-color:#990000;color:#fff;text-align:center;padding:0.25em!important;">
 		<th scope="col">Sl.<br>No.</th>
 		<th>Batch ID</th>
+		<th>Final Blend Id</th>
 		<th>Entry Time</th>
 		<th>Grade</th>
 		<?php
@@ -581,13 +626,24 @@ if($show == "yes")
 	
 	$k=1;
 	foreach ($allData as $data) {
-		
+		if($data["grade"]!=$dgrade)
+		{
+			continue;
+		}
 ?>
 
 
 <tr  style="font-size:14px;">
 	<td width="2%" style="text-align:center;"><?php echo $k++; ?>.</td>
 	<td width="5%"><a target="_blank" href="/user/report/basic-batch.php?id=<?php echo $data["id"]; ?>"><?php echo $data["id"]; ?></a></td></td>
+	<?php 
+		$did = $data["id"];
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND step='PARENT'")->fetch_assoc()['param'];
+
+
+	?>
+	<td width="5%"><?php echo $result; ?></td>
+	
 	<td width="5%"><?php echo $data["entrydate"]; ?></td>
 	<td width="5%"><?php echo $data["grade"]; ?></td>
 <?php
@@ -638,7 +694,9 @@ if($show == "yes")
 <td></td>
 <td></td>
 <td></td>
-<td style="font-weight:bold;font-size:16px;color:#990000;text-align:right;" ><div style="display:inline;"><?php echo $asof; ?></div> kg</td>
+<td></td>
+<td></td>
+<td style="font-weight:bold;font-size:16px;color:#990000;text-align:right;" ><div style="display:inline;"><?php echo $allgradeqty[$dgrade]; ?></div> kg</td>
 
 	
 
@@ -650,9 +708,10 @@ if($show == "yes")
 </tbody>
 </table>
 
+
 <script type="text/javascript">
 	$(document).ready( function () {
-    $('.table').DataTable(
+    $('#stockdatatable<?php echo $outcounter; ?>').DataTable(
 
     {
     	dom: 'Bfrtip',
@@ -685,7 +744,7 @@ if($show == "yes")
 
 
             <?php 
-            $startnumber = 4;
+            $startnumber = 5;
             $i=0;
             	foreach ($heading as $head) {
 
@@ -717,6 +776,13 @@ if($show == "yes")
 } );
 </script>
 </div>
+</div>
+<br>
+
+<?php 
+
+}
+?>
 
 
 <?php 
@@ -724,20 +790,9 @@ if($show == "yes")
 }
 ?>
 
-<?php
-	if($show=="yes")
-	{
-?>
-<div class="col-sm-12">
-	<button onclick="printreport()" class="btn btn-primary pull-right mr-1 mb-1"><i class="fa fa-print"></i> Print</button>
-</div>
-
-<?php
-}
-?>
 
 
-</div>
+
 </div>
 
 <script type="text/javascript">

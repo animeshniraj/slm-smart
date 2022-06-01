@@ -1185,7 +1185,7 @@ if($testPermission)
 
 </form>
 
-<div class="col-md-6">
+<div class="col-md-12">
 <?php
 	
 	$result = runQuery("SELECT * FROM processtest WHERE processid='$processid'");
@@ -1273,7 +1273,7 @@ if($testPermission)
 </table>
 </div>
 
-</div>
+
 
 <br><br><br>
 

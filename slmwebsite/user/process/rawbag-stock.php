@@ -111,7 +111,7 @@
 
     }
     
-
+    $ff = 0;
     while($row=$result->fetch_assoc())
     {
 
@@ -142,9 +142,12 @@
     			$dum["grade"] = $row2["value"];
     	}
 
+    	$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$currid' AND  param='Raw Bag No.'");
+    	$row2=$result2->fetch_assoc();
+    	$dum["bagno"]  = $row2['value'];
 
     	$start= $row["entrytime"];
-
+    	
 
     	$result2 = runQuery("SELECT * FROM processentryparams WHERE param='$currid' AND step='PARENT' AND processid in (SELECT processid from processentry WHERE (entrytime BETWEEN '$start' AND '$stoptime') )");
 
@@ -397,50 +400,63 @@ if($show != "yes")
 
 </div>
 			<hr>
-			
-			<h5>Select desired Properties to show:</h5>
 
-			<div class="col-sm-8 table-responsive">
-				<table class="table table-bordered">
-					<thead>
-						<tr>
-							<th></th>
-							<th>Property</th>
-							<th>Min</th>
-							<th>Max</th>
-						</tr>
-					</thead>
-					<tbody>
-				<?php
-				
-					foreach ($heading as $head) {
+			<a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">Show More Filters</a>
 
-						$dchecked = "";
-							if(in_array($head,$props))
-							{
-								$dchecked = "checked";
-							}
+			<script language="JavaScript">
+				function toggle(source) {
+				checkboxes = document.getElementsByName('prop[]');
+				for(var i=0, n=checkboxes.length;i<n;i++) {
+					checkboxes[i].checked = source.checked;
+				}
+				}			
+			</script>
 
-						?>
+			<div class="collapse multi-collapse" id="multiCollapseExample1">
+				<h5>Select desired Properties to show:</h5>
 
-						
+				<div class="col-sm-8 table-responsive">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th><input type="checkbox" onClick="toggle(this)" data-toggle="tooltip" data-placement="top" title="Select All"/><br/></th>
+								<th>Property</th>
+								<th>Min</th>
+								<th>Max</th>
+							</tr>
+						</thead>
+						<tbody>
+					<?php
+					
+						foreach ($heading as $head) {
+
+							$dchecked = "";
+								if(in_array($head,$props))
+								{
+									$dchecked = "checked";
+								}
+
+							?>
+
+							
 
 
-						<tr>
-							<td><input id="prop-<?php echo $head?>" type="checkbox" <?php echo $dchecked; ?> name="prop[]" value="<?php echo $head; ?>"></td>
-							<td><?php echo $head; ?></td>
-							<td><input id="propmin-<?php echo $head?>" type="number" min="0" step="0.001" name="propmin['<?php echo $head?>']" value=""></td>
-							<td><input id="propmax-<?php echo $head?>" type="number" min="0" step="0.001" name="propmax['<?php echo $head?>']" value=""></td>
+							<tr>
+								<td><input id="prop-<?php echo $head?>" type="checkbox" <?php echo $dchecked; ?> name="prop[]" value="<?php echo $head; ?>"></td>
+								<td><?php echo $head; ?></td>
+								<td><input id="propmin-<?php echo $head?>" type="number" min="0" step="0.001" name="propmin['<?php echo $head?>']" value=""></td>
+								<td><input id="propmax-<?php echo $head?>" type="number" min="0" step="0.001" name="propmax['<?php echo $head?>']" value=""></td>
 
-						</tr>
+							</tr>
 
-						<?php
-					}
+							<?php
+						}
 
 
-				?>
-				</tbody>
-				</table>
+					?>
+					</tbody>
+					</table>
+				</div>
 			</div>
 			<div class="col-sm-12">
 				<button class="btn btn-primary pull-right" type="submit"><i class="fa fa-refresh"></i>Generate Report</button>
@@ -519,6 +535,7 @@ if($show == "yes")
 	<tr style="font-size:11px;font-weight:bold;background-color:#990000;color:#fff;text-align:center;padding:0.25em!important;">
 		<th scope="col">Sl.<br>No.</th>
 		<th>Raw Bag ID</th>
+		<th>Raw Bag No.</th>
 		<th>Entry Time</th>
 		<th>Grade</th>
 		<?php
@@ -555,6 +572,7 @@ if($show == "yes")
 <tr  style="font-size:14px;">
 	<td width="2%" style="text-align:center;"><?php echo $k++; ?>.</td>
 	<td width="5%"><a target="_blank" href="/user/report/basic-rawbag.php?id=<?php echo $data["id"]; ?>"><?php echo $data["id"]; ?></a></td></td>
+	<td width="5%"><?php echo $data["bagno"]; ?></td>
 	<td width="5%"><?php echo $data["entrydate"]; ?></td>
 	<td width="5%"><?php echo $data["grade"]; ?></td>
 <?php
@@ -601,6 +619,8 @@ if($show == "yes")
 		}
 
 	?>
+<td></td>
+<td></td>
 <td></td>
 <td></td>
 <td></td>
@@ -652,7 +672,7 @@ if($show == "yes")
 
 
             <?php 
-            $startnumber = 4;
+            $startnumber = 5;
             $i=0;
             	foreach ($heading as $head) {
 

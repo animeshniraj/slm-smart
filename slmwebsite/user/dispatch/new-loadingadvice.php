@@ -38,6 +38,15 @@
     	$ponumber = $_POST["ponumber"];
  			$transport = $_POST['transport'];
  			$company = $_POST['company'];
+
+ 			if($company=='SLM Metal')
+ 			{
+ 				$type = "M"; 
+ 			}
+ 			else
+ 			{
+ 				$type = "T"; 
+ 			}
     
 
 
@@ -47,8 +56,10 @@
     	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
 
     	$month = explode("-",explode(" ",$creationDate)[0])[1];
-    	$prefix = "LD/".$year."/";
-    	$sqlprefix = "LD/".$year."/%";
+    	
+
+    	$prefix = $year."/LD".$type."/";
+    	$sqlprefix =$year."/LD".$type."/%";
 
 
     	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(laid, '/', -1) AS SIGNED)) max_val FROM loading_advice WHERE laid LIKE '$sqlprefix'");
@@ -91,6 +102,7 @@
     		$dGrade = $row["grade"];
     		$dqty = $row["quantity"];
 				$dpackage = $row["package"];
+
 
 
     		runQuery("INSERT INTO loadingadvice_batches VALUES(NULL,'$prefix','$dGrade','','$dqty','$dpackage')");

@@ -189,6 +189,14 @@
 			</div>
 		</div>
 
+		<div class="form-group row">
+			<label class="col-md-4 col-form-label">Initial</label>
+			<div class="col-md-8">
+			<input type="text" readonly class="form-control form-control-uppercase"  placeholder="" value="<?php echo getInitial($userdetails["userid"])?>">
+			<span class="messages"></span>
+			</div>
+		</div>
+
 
 		<div class="form-group row">
 			<label class="col-md-4 col-form-label">Role</label>

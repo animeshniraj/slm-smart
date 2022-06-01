@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "ANNEALING FURNACE INPUT MATERIAL RECORD | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-annealing-stock",
         "MainMenu"	 => "process_annealing",
@@ -73,6 +73,8 @@
 
         $dum['feedhr'] = "";
         $dum['feedrate'] = "";
+        $dum['feedhrformated'] ="";
+        $dum['breaktime'] = 0;
 
 
 
@@ -107,22 +109,9 @@
 
 
 
-        $result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$currid' AND param='Hopper Discharge Time'");
-        {
-            if($result->num_rows==1)
-            {
-                $dum1 = $result2->fetch_assoc()['value'];
-                if($dum1)
-                {
-                    $dum['outtime'] = $dum1;
+        
 
-                    $dum['feedhr'] = (strtotime($dum['outtime']) - strtotime($dum['feedtime']))/3600;
-                    $dum['feedrate'] = $dum["mass"]/$dum['feedhr'];
-                }
-            }
-        }
 
-       
 
 
        
@@ -182,7 +171,30 @@
                 {
                     $dum2 = [$type,explode('::',explode('->',$row2['note'])[1])[0],explode('Total Time-> ',$row2['note'])[1]];
 
+                    $dstarttime = strtotime(explode(' - ',$dum2[2])[0]);
+                    $dstoptime = strtotime(explode(' - ',$dum2[2])[1]);
+                    $dum["breaktime"] += $dstoptime-$dstarttime;
+
                     array_push($notes,$dum2);
+                }
+            }
+        }
+
+
+
+
+        $result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$currid' AND param='Hopper Discharge Time'");
+        {
+            if($result->num_rows==1)
+            {
+                $dum1 = $result2->fetch_assoc()['value'];
+                if($dum1)
+                {
+                    $dum['outtime'] = $dum1;
+
+                    $dum['feedhr'] = ((strtotime($dum['outtime']) - strtotime($dum['feedtime']))-$dum['breaktime'])/3600;
+                    $dum['feedrate'] = $dum["mass"]/$dum['feedhr'];
+                    $dum['feedhrformated'] = sprintf('%02d:%02d', (int) $dum['feedhr'], fmod($dum['feedhr'], 1) * 60);;
                 }
             }
         }
@@ -240,8 +252,8 @@
 
 	<div class="card">
                 <div class="card-header">
-                    <a class="btn btn-sm btn-primary float-right mr-1 d-print-none" href="annealing-view-report.html" target="_blank">
-                        <i class="fa fa-print"></i> Print Report</a>
+                <button onclick="window.open('annealing-detailed.php?id=<?php echo $processid; ?>','_blank').focus();" class="btn waves-effect waves-light btn-primary pull-right"><i class="fa fa-print"></i> Print Report</button>
+
                 </div>
                 <div class="card-body" style="">
 
@@ -433,7 +445,7 @@
 
                                         if($result2['val'])
                                         {
-                                            $dval2 = $result2['val'];
+                                            $dval2 = round($result2['val'],3);
                                         }
 
                                 ?>
@@ -489,13 +501,14 @@
                                     <td scope="col" colspan="1" class="center" style="width:50%">GAS RATIO</td>
                                     <td scope="col" colspan="1" class="center" style="width:50%"><?php echo $dval; ?></td>
                                 </tr>
+
                                 <tr>
                                     <td scope="col" colspan="1" class="center" style="width:50%">TOTAL RUNNING HRS.</td>
-                                    <td scope="col" colspan="1" class="center" style="width:50%"><?php echo round($dum["feedhr"],2); ?></td>
+                                    <td scope="col" colspan="1" class="center" id = "total_running" style="width:50%"><?php echo $dum["feedhrformated"]; ?></td>
                                 </tr>
                                 <tr>
                                     <td scope="col" colspan="1" class="center" style="width:50%">FEED RATE KG/HR</td>
-                                    <td scope="col" colspan="1" class="center" style="width:50%"><?php echo round($dum["feedrate"],2); ?></td>
+                                    <td scope="col" colspan="1" class="center" id = "feed_rate" style="width:50%"><?php echo round($dum["feedrate"],2); ?></td>
                                 </tr>
                          </tbody>
                         </table>
@@ -596,13 +609,18 @@
                             <tbody>
 
                                 <?php 
+
+                                $totaldt = 0;
+                                $hours =0;
+                                $minutes = 0;
+
                                     foreach ($notes as $value) {
                                     
                                     $dstarttime = strtotime(explode(' - ',$value[2])[0]);
                                     $dstoptime = strtotime(explode(' - ',$value[2])[1]);
                                     $dt = $dstoptime-$dstarttime;
-
-                                    
+                                    $totaldt +=$dt;
+                                    //$totaldt+= $dt/3600;
 
                                     $hours = floor($dt / 3600);
                                     $hours = sprintf('%02d', $hours);
@@ -619,17 +637,29 @@
 
                                 <?php 
                                     }
+
+                                    
+
+                                    $totaldt_hours = floor($totaldt / 3600);
+                                    $totaldt_hours = sprintf('%02d', $totaldt_hours);
+                                    $totaldt_minutes = floor(($totaldt / 60) % 60);
+                                    $totaldt_minutes = sprintf('%02d', $totaldt_minutes);
+
                                 ?>
                                 
                             </tbody>
+                                <tr>
+                                    <td class="left" style="width:30%"></td>
+                                    <td class="center" style="width:50%">Total Time</td>
+                                    <td class="center" style="width:20%"><?php echo $totaldt_hours.":".$totaldt_minutes ?></td>
+                                </tr>
+                            <tfoot>
+                                
+                            </tfoot>
+                            
                         </table>
                     </div>
 
-
-                <div class="remarks">
-                    <h5>Remarks:</h5>
-                    <p></p>
-                </div>
 
             </div>
 

@@ -6,8 +6,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- Mirrored from colorlib.com/polygon/admindek/default/menu-header-fixed.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 12 Dec 2019 16:08:34 GMT -->
-<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 <head>
 <title><?php echo $PAGE["Page Title"]; ?></title>
 
@@ -20,9 +19,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="description" content="Admindek Bootstrap admin template made using Bootstrap 4 and it has huge amount of ready made feature, UI components, pages which completely fulfills any dashboard needs." />
-<meta name="keywords" content="bootstrap, bootstrap admin template, admin theme, admin dashboard, dashboard template, admin template, responsive" />
-<meta name="author" content="colorlib" />
+<meta name="description" content="SMART is SLM Technology's proprietary software developed by Amazing Workz Studios to record and track each event followed in their factory." />
+<meta name="author" content="Amazing Workz Studios" />
 
 <!-- Fav icon -->
 
@@ -207,7 +205,9 @@
 </li>
 </ul>
 <ul class="nav-right">
-
+    <li>
+    <div id="activityTime"></div>
+    </li>
     <li>
     <div id="serverTime"></div>
     <script type="text/javascript">
@@ -217,6 +217,38 @@
         setInterval(function(){
             getServerTime();
         },20000)
+
+
+        <?php 
+                    $myuserid = $session->user->getUserid();
+                    $result = runQuery("SELECT * FROM loginlog WHERE userid='$myuserid' ORDER BY currtime DESC");
+                    $lasttime="";
+                    if($result->num_rows>0)
+                    {
+                        $LOGIN_TIME = $result->fetch_assoc()['currtime'];
+
+                    }
+
+
+        ?>
+
+
+
+        function getTimeDiff(t1)
+        {
+            let t0 = "<?php echo $LOGIN_TIME; ?>";
+            let d = (new Date(t1)) - (new Date(t0));
+            let weekdays     = Math.floor(d/1000/60/60/24/7);
+            let days         = Math.floor(d/1000/60/60/24 - weekdays*7);
+            let hours        = Math.floor(d/1000/60/60    - weekdays*7*24            - days*24);
+            let minutes      = Math.floor(d/1000/60       - weekdays*7*24*60         - days*24*60         - hours*60);
+            let seconds      = Math.floor(d/1000          - weekdays*7*24*60*60      - days*24*60*60      - hours*60*60      - minutes*60);
+            let milliseconds = Math.floor(d               - weekdays*7*24*60*60*1000 - days*24*60*60*1000 - hours*60*60*1000 - minutes*60*1000 - seconds*1000);
+            let t = {};
+            ['weekdays', 'days', 'hours', 'minutes', 'seconds', 'milliseconds'].forEach(q=>{ if (eval(q)>0) { t[q] = eval(q); } });
+            return t;
+        }
+
 
         function getServerTime()
         {
@@ -239,6 +271,23 @@
                 if(data.response)
                 {
                     document.getElementById("serverTime").innerHTML = data.time;
+
+                    var activeTime = "";
+                    if(getTimeDiff(data.time)["days"])
+                    {
+                        activeTime = activeTime + " " + getTimeDiff(data.time)["days"] +" days"
+                    }
+                    if(getTimeDiff(data.time)["hours"])
+                    {
+                        activeTime = activeTime + " " + getTimeDiff(data.time)["hours"] +" hours"
+                    }
+                    if(getTimeDiff(data.time)["minutes"])
+                    {
+                        activeTime = activeTime + " " + getTimeDiff(data.time)["minutes"] +" mins"
+                    }
+                    
+
+                    document.getElementById("activityTime").innerHTML = "Active for " + activeTime;
                 }
                 
             

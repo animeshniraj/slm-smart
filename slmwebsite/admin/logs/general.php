@@ -1,6 +1,6 @@
 <?php
     
-	require_once('../../requiredlibs/includeall.php');
+	require_once('../../../requiredlibs/includeall.php');
 
 	
 	$session = getPageSession();
@@ -20,14 +20,14 @@
     $PAGE = [
         "Page Title" => "SLM | Admin Dashboard",
         "Home Link"  => "/admin/",
-        "Menu"		 => "logs_menu",
-        "MainMenu"	 => "",
+        "Menu"		 => "logs-general",
+        "MainMenu"	 => "logs_menu",
 
     ];
 
 
-    include("../pages/adminhead.php");
-    include("../pages/adminmenu.php");
+    include("../../pages/adminhead.php");
+    include("../../pages/adminmenu.php");
 
 ?>
 
@@ -68,7 +68,7 @@
 </div>
 </div>
 <div class="card-block">
-	<form method="POST" target="_blank" action="/admin/downloadlog.php">
+	<form method="POST" target="_blank" action="/admin/logs/downloadlog.php">
 		<div class="form-group row">
 			<label class="col-sm-2 col-form-label">Date Range</label>
 			<div class="col-sm-4">
@@ -203,7 +203,7 @@
 
 <?php
     
-    include("../pages/endbody.php");
+    include("../../pages/endbody.php");
 
 ?>
 <script type="text/javascript">

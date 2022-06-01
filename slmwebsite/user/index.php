@@ -44,7 +44,19 @@
 				<img src="/pages/png/user.gif" alt="Logged User" class="logged-icon">
 				<div class="d-inline">
 					<h3>Welcome <span><?php echo $session->user->getFullname(); ?></span></h3>
-					<span>Your last login was on 10:59 29th Nov 2021</span>
+					<?php 
+					$myuserid = $session->user->getUserid();
+					$result = runQuery("SELECT * FROM loginlog WHERE userid='$myuserid' ORDER BY currtime DESC");
+					$lasttime="";
+		            if($result->num_rows>0)
+		            {
+		                $lasttime = $result->fetch_assoc()['lasttime'];
+
+		            }
+
+
+					?>
+					<span>Your last login was on <?php echo Date('d-M-Y H:i',strtotime($lasttime)) ?> </span>
 				</div>
 			</div>
 		</div>

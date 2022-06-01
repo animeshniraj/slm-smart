@@ -4,7 +4,7 @@
 	$MASS_TITLE = 'Quantity (in Kg)';
 	$SLAGMASS_TITLE = 'Slag Quantity (in Kg)';
 	$GRADE_TITLE = 'Grade';
-	$HEATNO = "Heat Number";
+	$HEATNO = "Heat No.";
 	$HOLD_QTY = "Hold Quantity (in Kg)";
 
 
@@ -12,6 +12,8 @@
 
 	$DEVICE_TYPES = ["SCALE","PRINTER"];
 	$DEVICE_KEY = "kC4OqwMSQzPKMIj5zGdf";
+
+	$BACKUP_LOCATION = "/home/ubuntu/slmBackupApp/data/";
 
 
 

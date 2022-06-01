@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Edit Final Blend",
+        "Page Title" => "Edit Final Blend | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-finalblend-view",
         "MainMenu"	 => "process_finalblend",
@@ -211,12 +211,27 @@
 
     	$approved = $_POST['approved-by'];
 
-    	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','PARENT','approved-by','$approved')");
-    	runQuery("UPDATE processentry SET islocked='LOCKED' WHERE processid='$processid'");
 
-    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Final Blend Process ('.$processid.') approved');
+    	if($_POST["isfail"]=="true")
+    	{
+    		runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','PARENT','approved-by','$approved')");
+    	runQuery("UPDATE processentry SET islocked='FAILED' WHERE processid='$processid'");
+
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Final Blend Process ('.$processid.') change to NC');
+    	}
+    	else
+    	{
+    		runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','PARENT','approved-by','$approved')");
+    		runQuery("UPDATE processentry SET islocked='LOCKED' WHERE processid='$processid'");
+
+    		addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Final Blend Process ('.$processid.') approved');
+    	}
+
+    	
 
     }
+
+    
 
 
     if(isset($_POST["addNotes"]))
@@ -250,16 +265,25 @@
     {
     	$editidPermission = true;
     	$approvedblend = false;
+    	$failedblend = false;
     }
     else
     {
     	$editidPermission = false;
     	$approvedblend = false;
+    	$failedblend = false;
     }
 
     if($result["islocked"]=="LOCKED")
     {
     	$approvedblend = true;
+    	$failedblend = false;
+    }
+
+    if($result["islocked"]=="FAILED")
+    {
+    	$approvedblend = true;
+    	$failedblend = true;
     }
 
     $stepPermission = false;
@@ -424,7 +448,7 @@
 	    		$result2 = $result2->fetch_assoc();
 
 
-
+          
 	    		array_push($testParams,[$dumParam,"","",$result2["type"],$row["min"],$row["max"],$row["quarantine"],$result2['mpif'],$result2['class']]);
 
     		}
@@ -482,6 +506,7 @@
 
    
    $blendmasterData = getAllBlendmasterGrades($processid,$processname);
+
 
 
 
@@ -700,6 +725,19 @@ input[type=number] {
 <div class="card-block">
 
 
+  <?php
+  if($failedblend)
+  {
+?>
+<div class="alert alert-danger background-danger">This batch is marked NC.
+
+
+</div>
+<?php
+}
+?>
+
+
 <ul class="nav nav-tabs md-tabs " role="tablist" id="tablist">
 	
 
@@ -802,7 +840,6 @@ input[type=number] {
 			{
 				?>
 				<div class="col-sm-12">
-				<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/print/finalblend-tag.php?processid=<?php echo $processid; ?>&grade=<?php echo $currGradeName; ?>&quantity=<?php echo getTotalQuantity($processid) ?>')"><i class="icofont icofont-barcode"></i>Generate Label</button>
 				<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
 				</div>
 
@@ -818,6 +855,12 @@ input[type=number] {
 
 
 </form>
+
+<div class="col-sm-12">
+	<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/print/finished-tag.php?processid=<?php echo $processid; ?>&grade=<?php echo $currGradeName; ?>')"><i class="icofont icofont-barcode"></i>Generate Label</button>
+	<button type="button" class="btn btn-primary m-b-0 ml-1 pull-left" onclick="window.open('/user/report/basic-finalblend.php?id=<?php echo $processid; ?>')"><i class="icofont icofont-page"></i>Generate Report</button>
+</div>
+
 
 
 </div>
@@ -1262,7 +1305,7 @@ if($operationalPermission)
 	
 	function printblendmaster()
 	{
-		var form  = document.createElement('form');
+						var form  = document.createElement('form');
 			  		form.setAttribute('method','POST');
 			  		form.setAttribute('action','/user/report/printblendmaster.php');
 			  		form.setAttribute('target','_blank');
@@ -1291,6 +1334,28 @@ if($operationalPermission)
 
 						form.appendChild(i);
 
+
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"grade");
+						i.setAttribute('value','<?php echo $currGradeName ?>');
+
+						form.appendChild(i);
+
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"batchno");
+						i.setAttribute('value','<?php echo $processid; ?>');
+
+						form.appendChild(i);
+
+
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"entrydate");
+						i.setAttribute('value','<?php echo $entrytime; ?>');
+
+						form.appendChild(i);
 					
 
 						document.body.appendChild(form);
@@ -1299,22 +1364,26 @@ if($operationalPermission)
 
 </script>
 
-
+<style> .wt-ad {max-width:90px!important;text-align:right;}
+	</style>
 <div class="tab-pane bm2" id="blendmaster-tabdiv" role="tabpanel">
 <?php if($blendmasterpermission){?>
 
 
 	<div>
-		<button type="button"  onclick="printblendmaster()"  class="btn btn-primary m-b-0 pull-right"><i class="fa fa-print"></i>Print Blend Master</button>		
+		<button type="button"  onclick="printblendmaster()"  class="btn btn-primary m-b-0 pull-right"><i class="fa fa-print"></i>Print Blend Master</button>	
+		<button type="button"  onclick="unhide_unchecked();this.remove();"  class="btn btn-primary m-b-0 pull-left"><i class="fa fa-eye"></i>Show hidden</button>		
 	</div>
 	<br>
 	<br>
 
-	<table id="blendmasterparenttable" class="table table-striped table-bordered bms">
+  <div class="table-responsive">
+	<table id="blendmasterparenttable" class="table table-striped table-bordered bms w-auto">
 	<thead id="blendmasterparentthead">
 	<tr>
 
 	<?php
+	$blendmaster_no = $blendmasterData[2];
 		$blenmasterparams = $blendmasterData[1];
 			$blendmasterData = $blendmasterData[0];
 		for($i=1;$i<count($blendmasterData[0]);$i++)
@@ -1346,7 +1415,7 @@ if($operationalPermission)
 						<input onchange="evalAverage(this)"  type="checkbox" <?php echo $blendmasterData[$i][0]; ?> id="bmparent-<?php echo $i; ?>"  value="<?php echo $blendmasterData[$i][2]; ?>" name = "parentname[]">
 						
 						<label for = "bmparent-<?php echo $i; ?>">
-							<?php echo $blendmasterData[$i][2]; ?>
+							<?php echo $blendmasterData[$i][2]; ?> (Bin No: <?php echo $blendmaster_no[$blendmasterData[$i][2]]; ?>)
 						</label>
 					</div>
 				</td>
@@ -1360,7 +1429,7 @@ if($operationalPermission)
 		<?php if($j == count($blendmasterData[$i])-1){ ?>	
 			<td id = "bmparent-<?php echo $i."-balqty"; ?>"><?php echo $blendmasterData[$i][$j]; ?></td>
 		<?php }else{ ?>
-		<td  id = "bmparent-<?php echo $i."-"."$j"; ?>"><?php echo $blendmasterData[$i][$j]; ?></td>
+		<td id = "bmparent-<?php echo $i."-"."$j"; ?>"><?php echo $blendmasterData[$i][$j]; ?></td>
 
 		<?php } ?>
 
@@ -1370,12 +1439,12 @@ if($operationalPermission)
 			$max = $blendmasterData[$i][1]+$blendmasterData[$i][count($blendmasterData[$i])-1];
 			if($blendmasterData[$i][0]=="checked")
 			{
-							echo "<td ><input  onchange ='findAvg()' id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  value=\"".$blendmasterData[$i][1]."\"></td>";
+							echo "<td ><input class=\"wt-ad\" onchange ='findAvg()' id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  value=\"".$blendmasterData[$i][1]."\"></td>";
 
 			}
 			else
 			{
-							echo "<td ><input onchange ='findAvg()' id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  disabled value=\"".$blendmasterData[$i][1]."\"></td>";
+							echo "<td ><input class=\"wt-ad\" onchange ='findAvg()' id=\"bmparent-".$i."-qty\" type=\"number\" name = \"parentvalues[]\" max = ".$max."  disabled value=\"".$blendmasterData[$i][1]."\"></td>";
 
 			}
 			echo "</tr>";
@@ -1390,7 +1459,8 @@ if($operationalPermission)
 </tbody>
 
 </table>
-
+</div>
+<div class="table-responsive">
 <table id="blendmasterspectable" class="table table-striped table-bordered">
 	<thead>
 	<tr>
@@ -1401,6 +1471,10 @@ if($operationalPermission)
 
 			for($i=0;$i<count($testParams);$i++)
 			{
+        if($testParams[$i][8]=='Chemical')
+        {
+          continue;
+        }
 				?>
 
 					<th rowspan="1" colspan="1"><?php echo $testParams[$i][0] ?></th>
@@ -1427,6 +1501,10 @@ if($operationalPermission)
 
 			for($i=0;$i<count($testParams);$i++)
 			{
+        if($testParams[$i][8]=='Chemical')
+        {
+          continue;
+        }
 				if($testParams[$i][4]=="BAL" || $testParams[$i][5]=="BAL")
 				{
 					?>
@@ -1478,7 +1556,7 @@ if($operationalPermission)
 
 
 </table>
-
+</div>
 
 <div class="col-sm-12">
 		<button type="submit"  name="updateprocess5" id="process5-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Blend</button>
@@ -1489,6 +1567,58 @@ if($operationalPermission)
 
 <script type="text/javascript">
 	findAvg();
+
+	var tbody = document.getElementById('blendmasterparenttbody');
+
+	for(var i=0;i<tbody.children.length-1;i++)
+	{
+		currrow = tbody.children[i];
+
+		if(currrow.children[0].children[0].children[0].checked)
+		{
+			hide_unchecked()
+			break;
+		}
+
+	}
+
+	
+
+	function hide_unchecked()
+	{
+
+		var tbody = document.getElementById('blendmasterparenttbody');
+
+		for(var i=0;i<tbody.children.length-1;i++)
+		{
+			currrow = tbody.children[i];
+		
+
+			if(!currrow.children[0].children[0].children[0].checked)
+			{
+				currrow.style.display="none";
+			}
+			
+		}
+	}
+
+	function unhide_unchecked()
+	{
+
+		var tbody = document.getElementById('blendmasterparenttbody');
+
+		for(var i=0;i<tbody.children.length-1;i++)
+		{
+			currrow = tbody.children[i];
+
+			if(!currrow.children[0].children[0].children[0].checked)
+			{
+				currrow.style.display="";
+			}
+			
+		}
+	}
+
 	function evalAverage(inObj)
 	{
 
@@ -1557,12 +1687,14 @@ if($operationalPermission)
 				{
 					avgdiv.innerHTML += "<th>"+ Math.round((sum[j-3]/total[j-3])*100)/100 +"</th>";
 					dumtest[thead.children[0].children[j].innerHTML] = Math.round((sum[j-3]/total[j-3])*100)/100;
+          
 
 				}
 				else
 				{
 					avgdiv.innerHTML += "<th>0</th>";
 					dumtest[thead.children[0].children[j].innerHTML] = 0;
+          
 				}
 				
 			}
@@ -1570,28 +1702,45 @@ if($operationalPermission)
 			
 			avgdiv.innerHTML += "<th></th>";
 			avgdiv.innerHTML += "<th>"+ totalSelected +"</th>";
+      
 			changecolor(dumtest,dumhead)
 
+			
 	}
 
 	function changecolor(testval,allhead)
 	{
 		
+
 		var spectbody = document.getElementById('spec-tbody');
 
 		var lastrow = spectbody.children[spectbody.children.length-1];
 
 		
 		spechead = blendtest.map(function(value,index) { return value[1]; });
+
 		
 
 		carryover = 0;
+		previous = 0;
+		cumulative = 0
+		//cumulativearr =[];
+		cumulativearr = testval.splice();
 		for(var i=0;i<allhead.length;i++)
 		{
 			curr = allhead[i];
 			
 			if(curr.substring(0,5)=="Sieve")
 			{
+
+        if(curr=="Sieve PAN")
+        {
+          testval[curr]+=carryover
+          carryover=0;
+          testval[curr] = Math.round(testval[curr]*1000)/1000;
+          cumulativearr[curr] = testval[curr];
+          continue;
+        }
 				if(!spechead.includes(curr))
 				{
 					carryover+= testval[curr];
@@ -1600,12 +1749,42 @@ if($operationalPermission)
 				{
 					testval[curr]+=carryover;
 
+
+					cumulative += testval[curr]
+					
 					testval[curr] = Math.round(testval[curr]*1000)/1000;
+					
+					cumulativearr[curr] = Math.round(cumulative*1000)/1000;;
 					carryover=0;
 				}
 			}
+      else
+      {
+        cumulativearr[curr] = testval[curr];
+      }
 		}
 
+		<?php 
+
+		$result = runQuery("SELECT * FROM processgrades WHERE processname='Final Blend' AND gradename='$currGradeName'");
+
+		if($result->num_rows>0)
+		{
+
+			$result = $result->fetch_assoc();
+
+			if($result['cumulative']=="YES")
+			{
+
+		?>
+		testval = cumulativearr;
+
+		<?php 
+			}}
+
+		?>
+		
+		
 		if(lastrow.children[0].innerHTML=='Value')
 		{
 			lastrow.remove();
@@ -1677,6 +1856,7 @@ if($operationalPermission)
 		}
 
 		spectbody.appendChild(tr);
+    
 	}
 
 
@@ -2094,6 +2274,14 @@ else
 
 		if(!$approvedblend)
 		{
+
+      $approvedisabled="";
+      $result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='PARENT' AND param<>'approved-by'");
+      if($result->num_rows==0)
+      {
+        $approvedisabled="disabled";
+      }
+
 	?>
 
 <form method="POST" id="approveform">
@@ -2107,14 +2295,60 @@ else
 		</div>
 
 	 	<div class="col-sm-12">
-		<button type="submit"  name="approveprocess" id="process5-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-check"></i>Approve</button>
+		<button <?php echo $approvedisabled; ?> type="submit"  name="approveprocess" id="process5-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-check"></i>Approve</button>
+
+		<input type="hidden" name="isfail" id="isfail" value="false">
+
+		<input type="hidden" name="approveprocess">
+
+			<button <?php echo $approvedisabled; ?> type="button" name="approveprocess" onclick="document.getElementById('isfail').value='true';  if(this.closest('form').checkValidity()){ this.closest('form').submit();} else{alert_enterapproved();}" id="failprocess" class="btn btn-primary m-b-0 pull-left"><i class="fa fa-times"></i>Failed</button>
 		</div>
 
 </form>
 
+<script type="text/javascript">
+  function alert_enterapproved()
+  {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      html: 'Please enter who failed the batch.',
+      confirmButtonText: 'Ok',
+      cancelButtonText: 'No',
+      showCancelButton: false,
+    })
+  }
+</script>
+
 <?php
 	}
-	else
+	elseif($failedblend)
+	{
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='approved-by' AND step='PARENT'");
+
+		$approvedby = "";
+		if($result->num_rows>0)
+		{
+			$approvedby = $result->fetch_assoc()['value'];
+		}
+		
+	
+?>
+
+<div class="form-group" style="display:flex; justify-content: center; font-weight: bold; color: red;">
+	This Batch was failed.
+</div>
+<div class="form-group" style="display:flex; justify-content: center;">
+					
+						<input type="text" disabled name="approved-by"class="form-control" style="display: inline; text-align: center;" placeholder="Approved By" value="<?php echo $approvedby ?>">
+						
+		</div>
+
+
+		<?php 
+
+}
+else
 	{
 		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='approved-by' AND step='PARENT'");
 

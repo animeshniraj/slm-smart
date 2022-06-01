@@ -20,10 +20,10 @@
     die();
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "Annealing Report | SLM SMART",
         "Home Link"  => "/user/",
-        "Menu"		 => "process-rawblend-stock",
-        "MainMenu"	 => "process_rawblend",
+        "Menu"		 => "process-annealing-stock",
+        "MainMenu"	 => "process_annealing",
 
     ];
 

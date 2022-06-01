@@ -60,8 +60,13 @@
 
    		$grades = $_POST['grade'];
    		$qtys = $_POST['qty'];
+   		$notes = $_POST['notes'];
+   		$prodcode = $_POST['prodcode'];
+
+   		$dumcid = "SAMPLE/".$cid;
  		
  		runQuery("DELETE FROM sdispatch_batches WHERE cid='$cid'");
+ 		runQuery("DELETE FROM coa_notes WHERE cid='$dumcid'");
 
  		for($i=0;$i<count($processids);$i++)
  		{
@@ -69,11 +74,39 @@
  			$cpid = $processids[$i];
  			$cqty = $qtys[$i];
  			$cgrade = $grades[$i];
+ 			$cnote = $notes[$i];
+ 			$cpcode = $prodcode[$i];
 
- 			runQuery("INSERT INTO sdispatch_batches VALUES(NULL,'$cid','$cpid','$cprocess','$cgrade','$cqty')");
+ 			runQuery("INSERT INTO sdispatch_batches VALUES(NULL,'$cid','$cpid','$cprocess','$cgrade','$cqty','$cpcode')");
+
+ 			
+ 			
+
+ 			runQuery("INSERT INTO coa_notes VALUES(NULL,'$dumcid','$cpid','$cnote')");
  		}
 
  		
+
+   }
+
+
+   if(isset($_POST['confirmtest']))
+   {
+
+
+   	$dumTestval = $_POST['testval'];
+
+   	
+   	runQuery("DELETE FROM sdispatch_test WHERE cid='$cid'");
+
+   	foreach ($dumTestval as $dumprocess => $dumprocesstest) {
+   		foreach ($dumprocesstest as $dprop => $dval) {
+   			
+
+   			runQuery("INSERT INTO sdispatch_test VALUES(NULL,'$cid','$dumprocess','$dprop','$dval')");
+   		}
+   	}
+   	
 
    }
 
@@ -115,6 +148,8 @@
     		$result = runQuery("SELECT * FROM premix_batch");
     		while($row=$result->fetch_assoc())
     		{
+
+    			$used = getChildPremixQuantity($row['premixid']);
     			array_push($allSamples[$process],[$row['premixid'],$row['gradename']]);
     		}
     	}
@@ -123,9 +158,39 @@
     		$result = runQuery("SELECT * FROM processentry WHERE processname='$process'");
     		while($row=$result->fetch_assoc())
     		{
+    			$total = getTotalQuantity($row['processid']);
     			
+    			$used = getChildProcessQuantity($row['processid']);
 
-    			array_push($allSamples[$process],[$row['processid'],'Default Grade']);
+    			if(($total-$used)>0)
+    			{
+    				array_push($allSamples[$process],[$row['processid'],'Default Grade']);
+    			}
+    			
+    		}
+    	}
+    	elseif($process=="Batch")
+    	{
+    		$result = runQuery("SELECT * FROM processentry WHERE processname='$process'");
+    		while($row=$result->fetch_assoc())
+    		{
+    			$cpid = $row['processid'];
+    			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$cpid' AND param='$GRADE_TITLE'");
+    			
+    			if($result2 = $result2->fetch_assoc())
+    			{
+    				
+    				$remaining = getfinalbatchqty($row['processid']);
+
+    				if($remaining>0)
+    				{
+    					array_push($allSamples[$process],[$row['processid'],$result2['value']]);
+    				}
+    			
+    			}
+
+
+    			
     		}
     	}
     	else
@@ -138,7 +203,16 @@
     			
     			if($result2 = $result2->fetch_assoc())
     			{
-    				array_push($allSamples[$process],[$row['processid'],$result2['value']]);
+
+    				$total = getTotalQuantity($row['processid']);
+    			
+    				$used = getChildProcessQuantity($row['processid']);
+
+    				if(($total-$used)>0)
+    				{
+    					array_push($allSamples[$process],[$row['processid'],$result2['value']]);
+    				}
+    				
     			}
 
 
@@ -146,6 +220,43 @@
     		}
     	}
     }
+
+
+
+
+
+   $allTest = [];
+
+
+  $result = runQuery("SELECT * FROM sdispatch_batches WHERE cid='$cid'");
+
+  while($row=$result->fetch_assoc())
+  {
+  	$allTest[$row['processid']] = [];
+  	$allTest[$row['processid']]['grade'] = $row['grade'];
+  	$allTest[$row['processid']]['test'] = [];
+
+  	$cgrade = $row['grade'];
+  	$cprocess = $row['processid'];
+
+  	$result2 = runQuery("SELECT * FROM gradeproperties WHERE gradename='$cgrade' AND processname='Final Blend' ORDER BY ordering");
+
+  	while($row2=$result2->fetch_assoc())
+  	{
+  		$allTest[$row['processid']]['test'][$row2['properties']]=[];
+  		$allTest[$row['processid']]['test'][$row2['properties']]['min'] = $row2['min'];
+  		$allTest[$row['processid']]['test'][$row2['properties']]['max'] = $row2['max'];
+  		$allTest[$row['processid']]['test'][$row2['properties']]['value'] = "";
+
+  		$cprop = $row2['properties'];
+  		$result3 = runQuery("SELECT * FROM sdispatch_test WHERE processid='$cprocess' AND cid='$cid' AND property='$cprop'");
+
+  		if($result3->num_rows==1)
+  		{
+  			$allTest[$row['processid']]['test'][$row2['properties']]['value'] = $result3->fetch_assoc()['value'];
+  		}
+  	}
+  }
 
 
 
@@ -319,7 +430,10 @@ input[type=number] {
 <div class="slide"></div>
 </li>
 
-
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="fa fa-flask "></i>Test</a>
+<div class="slide"></div>
+</li>
 
 
 
@@ -348,6 +462,7 @@ input[type=number] {
 	$result = $result->fetch_assoc();
 
 	$dumC = $result["customer"];
+	$company = $result["company"];
 	$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='Name'");
 	$result2 = $result2->fetch_assoc(); 
 	$customerid = $dumC;
@@ -359,6 +474,7 @@ input[type=number] {
 	
 	Customer Name: <?php echo $result2["value"] ?> <br>
 	Customer Id: <?php echo $dumC ?> 		<br>
+	Company: <?php echo $company ?> 		<br>
 
 
 	<br>
@@ -439,6 +555,8 @@ input[type=number] {
 				<th>Process</th>
 				<th>Grade</th>
 				<th>Quantity</th>
+				<th>Prodcode</th>
+				<th>Notes</th>
 				<th></th>
 			</tr>
 		</thead>
@@ -457,12 +575,85 @@ input[type=number] {
 
 
 <script type="text/javascript">
+
+
+	function loadOptions(selected="")
+	{
+		out = "";
+
+
+		<?php 
+
+			$result = runQuery("SELECT * FROM processgrades WHERE processname='Final Blend'");
+
+			$dumGrades = [];
+
+			while($row=$result->fetch_assoc())
+			{
+				array_push($dumGrades,$row['gradename']);
+			}
+
+		?>
+
+
+		allOptions = <?php echo json_encode($dumGrades) ?>;
+		
+
+		 var opt = document.createElement('option');
+		    opt.value = "";
+		    opt.innerHTML = "Choose grade";
+		    opt.disabled = true;
+		   
+		    out += opt.outerHTML;
+
+
+		for (var i = 0; i<allOptions.length; i++){
+		    var opt = document.createElement('option');
+		    opt.value = allOptions[i];
+		    opt.innerHTML = allOptions[i];
+
+		    if(selected==allOptions[i])
+		    {
+		    	opt.setAttribute('selected', 'selected');
+		    	
+
+		    }
+		    out += opt.outerHTML;
+		}
+
+		
+		return out;
+	}
 	
 	function addtolist()
 	{
 		var select =  document.getElementById('sample-select');
 		var id = select.value
 		var qty = document.getElementById('sample-qty').value
+
+		if(id=="")
+		{
+			Swal.fire({
+				icon: 'error',
+				title: 'Choose a sample',
+				confirmButtonText: 'Yes',
+				cancelButtonText: 'No',
+				showCancelButton: false,
+			})
+			return;
+		}
+
+		if(qty=="")
+		{
+			Swal.fire({
+				icon: 'error',
+				title: 'Enter a quantity',
+				confirmButtonText: 'Yes',
+				cancelButtonText: 'No',
+				showCancelButton: false,
+			})
+			return;
+		}
 
 		var process = select.options[select.selectedIndex].getAttribute('data-process')
 		var grade = select.options[select.selectedIndex].getAttribute('data-grade')
@@ -472,7 +663,7 @@ input[type=number] {
 
 		var tr =  document.createElement('tr');
 
-		tr.innerHTML = "<td>"+id+"</td>" + "<td>"+process+"</td>" + "<td>"+grade+"</td>" + "<td>"+qty+"</td>" + "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button></td><input type='hidden' name=\"qty[]\" value='"+qty+"'><input type='hidden' name=\"process[]\" value='"+process+"'><input type='hidden' name=\"processid[]\" value='"+id+"'><input type='hidden' name=\"grade[]\" value='"+grade+"'></td>";
+		tr.innerHTML = "<td>"+id+"</td>" + "<td>"+process+"</td>" + "<td><select class=\"form-control\" required name=\"grade[]\">"+loadOptions()+"</select></td>" + "<td>"+qty+"</td><td><input type=\"text\" class=\"form-control\" name=\"prodcode[]\" value=''></td><td><input type=\"text\" class=\"form-control\" name=\"notes[]\"></td>" + "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button><button type=\"button\" class=\"btn btn-primary\" onclick=\"\"><i class=\"fa fa-print\"></i>COA</button></td><input type='hidden' name=\"qty[]\" value='"+qty+"'><input type='hidden' name=\"process[]\" value='"+process+"'><input type='hidden' name=\"processid[]\" value='"+id+"'></td>";
 
 		tbody.appendChild(tr);
 
@@ -488,14 +679,16 @@ input[type=number] {
 	}
 
 
-	function addtolistmanual(id,qty,process,grade)
+	function addtolistmanual(id,qty,process,grade,notes,prodcode)
 	{
 		
 		tbody = document.getElementById('sample-tbody');
 
 		var tr =  document.createElement('tr');
 
-		tr.innerHTML = "<td>"+id+"</td>" + "<td>"+process+"</td>" + "<td>"+grade+"</td>" + "<td>"+qty+"</td>" + "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button></td><input type='hidden' name=\"qty[]\" value='"+qty+"'><input type='hidden' name=\"process[]\" value='"+process+"'><input type='hidden' name=\"processid[]\" value='"+id+"'><input type='hidden' name=\"grade[]\" value='"+grade+"'></td>";
+		tr.innerHTML = "<td>"+id+"</td>" + "<td>"+process+"</td>" + "<td><select class=\"form-control\" required name=\"grade[]\">"+loadOptions(grade)+"</select></td>" + "<td>"+qty+"</td><td><input type=\"text\" class=\"form-control\" name=\"prodcode[]\" value=\""+prodcode+"\"></td><td><input type=\"text\" class=\"form-control\" name=\"notes[]\" value=\""+notes+"\"></td>" + "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"this.closest('tr').remove();\"><i class=\"fa fa-trash\"></i>Remove</button> <button type=\"button\" class=\"btn btn-danger pull-right\" onclick=\"window.open('/user/dispatch/generatesamplecoa.php?id="+id+"&cid=<?php echo $cid; ?>', '_blank')\"><i class=\"fa fa-print\"></i>COA</button></td><input type='hidden' name=\"qty[]\" value='"+qty+"'><input type='hidden' name=\"process[]\" value='"+process+"'><input type='hidden' name=\"processid[]\" value='"+id+"'></td>";
+
+
 
 		tbody.appendChild(tr);
 
@@ -511,9 +704,19 @@ input[type=number] {
 	while($row=$result2->fetch_assoc())
 	{
 
+		$dumid = "SAMPLE/".$cid;
+		$dumpid = $row['processid'];
+		$result3 = runQuery("SELECT * FROM coa_notes WHERE cid='$dumid' AND batch='$dumpid'");
+
+		$dnotes = "";
+
+		if($result3->num_rows==1)
+		{
+			$dnotes = $result3->fetch_assoc()['note'];
+		}
 ?>
 <script type="text/javascript">
-	addtolistmanual('<?php echo $row['processid'] ?>','<?php echo $row['quantity'] ?>','<?php echo $row['process'] ?>','<?php echo $row['grade'] ?>')
+	addtolistmanual('<?php echo $row['processid'] ?>','<?php echo $row['quantity'] ?>','<?php echo $row['process'] ?>','<?php echo $row['grade'] ?>','<?php echo $dnotes; ?>','<?php echo $row['prodcode']?>')
 
 	$( document ).ready(function() {
 	    document.getElementById('confirmbatches').disabled=false;
@@ -543,6 +746,87 @@ input[type=number] {
 
 
 
+
+
+<div class="tab-pane" id="test-tabdiv" role="tabpanel" >
+
+<form method="POST">
+	<input type="hidden" name="cid" value="<?php echo $cid; ?>">
+	<input type="hidden" name="currtab" value="test-tabdiv">
+
+<?php 
+	
+	foreach ($allTest as $dprocessid => $dvals) {
+		
+	
+?>
+
+
+	<table id="" class="table table-bordered">
+		<thead>
+			<tr>
+				<th colspan="2"><big>ID: <?php echo $dprocessid; ?></big></th>
+
+				<th colspan="3"><big>Grade: <?php echo $dvals['grade']; ?></big></th>
+			</tr>
+
+			<tr>
+				<th>Sl.No</th>
+				<th>Property</th>
+				<th>Min</th>
+				<th>Max</th>
+				<th>Value</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+			<?php 
+				$k=1;
+				foreach ($dvals['test'] as $dtest => $dtestval) {
+				
+
+			?>
+			<tr>
+				<td><?php echo $k; ?></td>
+				<td><?php echo $dtest; ?></td>
+				<td><?php echo $dtestval['min']; ?></td>
+				<td><?php echo $dtestval['max']; ?></td>
+				<td>
+					
+					<input class="form-control" type="number" step="0.001" name="testval[<?php echo $dprocessid; ?>][<?php echo $dtest; ?>]" value="<?php echo $dtestval['value']; ?>">
+				</td>
+			</tr>
+
+			<?php 
+				$k++;
+				}
+			?>
+		</tbody>
+
+	</table>
+
+	<br>
+	
+	<hr>
+	<br>
+
+<?php 
+}
+?>
+<div class="form-group row">
+			
+			<div class="col-sm-12">
+			<button type="submit"  name="confirmtest" class="btn btn-primary pull-right"><i class="fa fa-check"></i>Confirm</button>
+			<span class="messages"></span>
+			</div>
+
+
+	</div>
+
+</form>
+
+</div>
 
 
 

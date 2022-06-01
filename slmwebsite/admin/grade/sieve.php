@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | Sieve Properties",
+        "Page Title" => "SLM SMART| Sieve Properties",
         "Home Link"  => "/admin/",
         "Menu"		 => "processgrade-sieve",
         "MainMenu"	 => "processgrade_menu",
@@ -91,7 +91,7 @@
 
 <div class="page-body">
 <div class="row">
-<div class="col-md-12">
+<div class="col-md-9 col-sm-12">
 
 
 
@@ -103,6 +103,13 @@
 </div>
 </div>
 <div class="card-block">
+	<div class="row" style="font-weight:bold;">
+		<div class="col-md-4">Sieve Name</div>
+		<div class="col-md-2">Mesh</div>
+		<div class="col-md-2">Micron</div>
+		<div class="col-md-4">Remove</div>
+	</div>
+<hr>
 
 <form method="POST">
 
@@ -119,11 +126,13 @@
 				{
 
 
+				
 		?>
+
 		<div class="form-group row">
 			
-			<div class="col-md-3">
-			<input required type="text" required class="form-control" name="sieve-propname[]"  placeholder="Name" value="<?php echo $row["name"]; ?>">
+			<div class="col-md-4">
+			<input required type="text" <?php if($row["name"]=="Sieve PAN"){echo "readonly";} ?> required class="form-control" name="sieve-propname[]"  placeholder="Name" value="<?php echo $row["name"]; ?>">
 			<span class="messages"></span>
 			</div>
 
@@ -133,13 +142,13 @@
 				<input   type="text" required class="form-control" name="sieve-mesh[]" placeholder="Mesh" value="<?php echo $row["mesh"]; ?>">
 				<span class="messages"></span>
 			</div>
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 				<input   type="text" required class="form-control" name="sieve-micron[]" placeholder="Micron" value="<?php echo $row["micron"]; ?>">
 				<span class="messages"></span>
 			</div>
 
-			<div class="col-sm-2">
-				<button type="button" onclick="this.closest('.form-group').remove()" class="btn btn-danger m-b-0"><i class="fa fa-trash"></i>Remove</button>
+			<div class="col-sm-4">
+				<button type="button" <?php if($row["name"]=="Sieve PAN"){echo "disabled";} ?> onclick="this.closest('.form-group').remove()" class="btn btn-danger m-b-0"><i class="fa fa-trash"></i>Remove</button>
 			</div>
 
 		</div>

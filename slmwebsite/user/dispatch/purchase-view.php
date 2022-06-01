@@ -168,6 +168,9 @@
 
 </script>
 
+<style>
+.btn{margin-left: 5px!important;}</style>
+
 
 
 <div class="pcoded-content">
@@ -266,9 +269,9 @@
 					</script>
 
 
-			<div class="form-group row">
+			<div class="form-group row" style="display:flex; justify-content: center;">
 		
-					<div class="col-sm-12">
+					<div class="col-sm-3">
 					<button type="submit"  name ='getdata' id='getdatabtn' class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Get Data</button>
 					</div>
 			</div>
@@ -294,7 +297,7 @@
 <div class="card-block">
 
 
-	<table class="table">
+<table class="table table-responsive table-bordered table-striped table-xs">
 	<thead>
 		<tr>
 		<th>PO No</th>
@@ -304,11 +307,11 @@
 		<th>Dispatch Qty</th>
 		<th>Pending Qty</th>
 		<th>Package</th>
-		<th></th>
+		<th>Edit</th>
 		<?php 
 			if($deletePermission)
 			{
-				echo "<th></th>";
+				echo "<th>Delete PO</th>";
 			}
 		?>
 		</tr>
@@ -435,14 +438,26 @@ $(document).ready(function() {
 
 function removeProcess(externalid)
 {
-	Swal.fire({
-		  icon: 'error',
+
+	const swalWithBootstrapButtons  = Swal.mixin({
+	customClass: {
+		confirmButton: 'btn btn-success',
+		cancelButton: 'btn btn-danger'
+	},
+	buttonsStyling: false
+	})
+
+
+
+	swalWithBootstrapButtons.fire({
+		  icon: 'warning',
 		  title: 'Delete Purchase Order',
 		  html: 'Are you sure you want to delete it. <br> Purchase Order No.: '+externalid + '.<br>Note: All Data related to this purchase order will be deleted.',
-		  confirmButtonText: 'Yes',
-		  cancelButtonText: 'No',
+		  confirmButtonText: '<i class="fa fa-trash"></i> Yes',
+		  cancelButtonText: '<i class="fa fa-window-close"></i> No',
 		  showCancelButton: true,
-		  
+		  reverseButtons: true
+
 		}).then((result) => {
 			  if (result.isConfirmed) {
 			    		

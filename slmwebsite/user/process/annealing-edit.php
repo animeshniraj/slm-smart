@@ -50,6 +50,13 @@
     }
    
     
+    if(isset($_POST['failprocess']))
+    {
+
+    	runQuery("UPDATE processentry SET islocked='FAILED' WHERE processid='$processid'");
+
+    	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Final Blend Process ('.$processid.') change to NC');
+    }
 
      if(isset($_POST["updateprocess1"]))
     {
@@ -330,6 +337,14 @@
     }
 
 
+    if(isset($_POST['deletenote']))
+    {
+    	$id = $_POST['id'];
+
+    	runQuery("DELETE FROM processnotes WHERE processid='$processid' AND id='$id'");
+    }
+
+
     
 
       if(isset($_POST["rejecttest"]))
@@ -368,6 +383,9 @@
     	$editidPermission = false;
     }
 
+    $isfailed= $result["islocked"];
+    
+   
     $stepPermission = false;
 
 
@@ -390,7 +408,7 @@
 
     $genericParams = [];
     $genericPermission = false;
-
+    $parentPermission = true;
     $result = runQuery("SELECT * FROM processparams WHERE processname='$processname' AND step='GENERIC' ORDER BY ordering");
 
     if($result->num_rows>0)
@@ -425,6 +443,7 @@
 		if($dumPermission=="ALLOW" && $stepPermission)
 		{
 			$genericPermission = true;
+			$parentPermission = true;
 		}
 
 	}
@@ -567,14 +586,22 @@
 
 
 		$parentParams = [];
-    $parentPermission = false;
+    $parentPermission = true;
 
     $dum = getAllParents($processid);
     $parentParams = $dum["Parents"];
     $parent_total = $dum["Total"];
 
    
-
+    if($isfailed=="FAILED")
+    {
+    	$editidPermission = false;
+    	$parentPermission = false;
+    	$creationPermission = false;
+    	$genericPermission = false;
+    	$testPermission = false;
+    	$operationalPermission = false;
+    }
 
     include("../../pages/userhead.php");
     include("../../pages/usermenu.php");
@@ -791,6 +818,20 @@ input[type=number] {
 <div class="card-block">
 
 
+
+	<?php
+	if($isfailed=="FAILED")
+	{
+?>
+<div class="alert alert-danger background-danger">This batch is marked NC.
+
+
+</div>
+<?php
+}
+?>
+
+
 <ul class="nav nav-tabs md-tabs " role="tablist" id="tablist">
 	
 
@@ -879,12 +920,15 @@ input[type=number] {
 			{
 				?>
 				<div class="col-sm-12">
-				<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/print/annealing-tag.php?processid=<?php echo $processid; ?>&grade=<?php echo $currGradeName; ?>&quantity=<?php echo getTotalQuantity($processid) ?>')"><i class="icofont icofont-barcode"></i>Generate Label</button>
+				<button type="button" class="btn btn-primary m-b-0 ml-1 pull-left" onclick="window.open('/user/report/basic-annealing.php?id=<?php echo $processid; ?>')"><i class="icofont icofont-page"></i>Generate Report</button>
 				<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
 				</div>
 
 				<?php
 			}
+
+
+			
 
 
 
@@ -894,10 +938,52 @@ input[type=number] {
 
 
 
+
+
+
 </form>
+<br>
+<br>
+<form method="POST">
+	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
+	<input type="hidden" name="failprocess">
+						<input type="hidden" name="currtab" value="creation-tabdiv">
+<?php
+if($editidPermission&& $creationPermission)
+//if(true)
+			{
+				?>
+				
+				
+				<button type="button" onclick="failprocessfn(this.closest('form'))" class="btn btn-primary m-b-0 pull-right"><i class="fa fa-times"></i>Fail Batch</button>
+				
 
+				<?php
+			}
 
+			?>
+
+</form>
 </div>
+
+<script type="text/javascript">
+	function failprocessfn(form)
+	{
+		Swal.fire({
+			icon: 'error',
+		  title: 'Are you sure you want to change the status to NC',
+		  showCancelButton: true,
+		  cancelButtonText: 'No',
+		  confirmButtonText: 'Yes',
+		  
+		}).then((result) => {
+
+			if (result.isConfirmed) {
+				form.submit();
+			}
+		})
+	}
+</script>
 
 <div class="tab-pane" id="generic-tabdiv" role="tabpanel">
 
@@ -1939,10 +2025,18 @@ if($testPermission)
 		
 	</div>
 
+<?php 
+if($testPermission)
+{
+?>
 
 	<div class="col-sm-12">
 				<button type="submit" name="updatetestselection" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i>Update Test Selection</button>
 	</div>
+
+	<?php 
+}
+?>
 
 </form>
 
@@ -2199,14 +2293,20 @@ if($testPermission)
 
 </table>
 
-
+<?php 
+if($parentPermission)
+{
+?>
 <div class="form-group row">
 		
 		<div class="col-sm-12">
 		<button type="submit"  name="updateprocess5" id="process5-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
 		</div>
 </div>
+<?php 
+}
 
+?>
 
 
 </form>
@@ -2361,11 +2461,11 @@ else
 
                 					if($row["sender"]==$myuserid)
                 					{
-                						echo "<blockquote class=\"blockquote blockquote-reverse\"><p class=\"m-b-0\">".$row["note"]."</p><footer class=\"blockquote-footer\">You, <i>".$row["time"]."</i></footer></blockquote>";
+                						echo "<blockquote class=\"blockquote blockquote-reverse\"><p class=\"m-b-0\">".$row["note"]."</p><footer class=\"blockquote-footer\">You, <i>".$row["time"]." (<a href='#' onclick='deletenote(\"".$row['id']."\")'>delete</a>)</i></footer></blockquote>";
                 					}
                 					else
                 					{
-                						echo "<blockquote class=\"blockquote\"><p class=\"m-b-0\">".$row["note"]."</p><footer class=\"blockquote-footer\">".getFullName($row["sender"]).", <i>".$row["time"]."</i></footer></blockquote>";
+                						echo "<blockquote class=\"blockquote\"><p class=\"m-b-0\">".$row["note"]."</p><footer class=\"blockquote-footer\">".getFullName($row["sender"]).", <i>".$row["time"]." (<a href='#' onclick='deletenote(\"".$row['id']."\")'>delete</a>)</i></footer></blockquote>";
                 					}
                 			}
                 		}
@@ -2436,6 +2536,42 @@ else
 
 
 </form>
+
+
+<script type="text/javascript">
+	function deletenote(id)
+	{
+		form = document.createElement('form');
+		form.setAttribute('method','POST')
+
+		input = document.createElement('input');
+		input.setAttribute('type','hidden')
+		input.setAttribute('name','deletenote')
+		form.appendChild(input);
+
+		input = document.createElement('input');
+		input.setAttribute('type','hidden')
+		input.setAttribute('name','id')
+		input.setAttribute('value',id)
+		form.appendChild(input);
+
+		input = document.createElement('input');
+		input.setAttribute('type','hidden')
+		input.setAttribute('name','processid')
+		input.setAttribute('value','<?php echo $processid; ?>')
+		form.appendChild(input);
+
+		input = document.createElement('input');
+		input.setAttribute('type','hidden')
+		input.setAttribute('name','currtab')
+		input.setAttribute('value','notes-tabdiv')
+		form.appendChild(input);
+
+		document.body.appendChild(form);
+		form.submit();
+
+	}
+</script>
 
 
 <form id="custom-note" method="POST">

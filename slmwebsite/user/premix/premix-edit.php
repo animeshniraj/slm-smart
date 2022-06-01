@@ -426,8 +426,8 @@ $batchselectiondone = false;
 
 <style type="text/css">
 	
-
-
+.table.table-xs td, .table.table-xs th {
+  padding:0.2em 0.5em!important;}
 
 
 @media only screen and (max-width: 700px) {
@@ -451,6 +451,40 @@ input[type=number] {
 }
 
 
+
+.progress-new {
+    width: 400px;
+}
+.progress-new header span {
+    color: #666;
+    float: right;
+}
+.progress-new .bar {
+    position: relative;
+    background-color: #ccc;
+}
+.progress-new .bar .percent {
+    color: white;
+    background-color: #0c0;
+    width: 100%;
+}
+.progress-new .bar .ref {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background-color: black;
+}
+.progress-new .bar .ref:before {
+    content: attr(data-ref);
+    position: absolute;
+    width: 100px;
+    left: -50px;
+    top: 100%;
+    color: #888;
+    text-align: center;
+}
 </style>
 
 
@@ -638,18 +672,20 @@ if(false)
 			<input type="hidden" name="premixid" value="<?php echo $premixid; ?>">
 			<input type="hidden" name="currtab" value="feed-tabdiv">
 			<div class="table-responsive">
-			<table class="table table-striped table-bordered" >
+			<table class="table table-striped table-bordered table-xs" >
 				
 				<thead>
 
 					<tr>
 						<td colspan="100%" style="text-align:right;"><p><button type="submit" form="saveadditiveqty" class="btn btn-primary"><i class="fa fa-save"></i>Save Additives</button></p></td>
 					</tr>
-					<tr>
+					<tr style="font-size:13px;text-align:center;">
 						<th>Additives</th>
 						<th>Added %</th>
-						<th>% for 100%</th>
-						<th>Calculated Qty</th>
+						<th>% for<br> 100%</th>
+						<th>Calculated<br>Qty</th>
+						<th>Tolerance</th>
+						<th>Round Off<br>in kgs</th>
 						<th>Feed Qty</th>
 						<th>Batch No.</th>
 						<th></th>
@@ -699,36 +735,37 @@ if(false)
 								?>
 
 									<tr>
-											<td><?php echo $row["additive"]; ?></td>
-											<td><?php echo $row["composition"]; ?></td>
-											<td><?php echo round($row["composition"]/($total),2); ?></td>
+											<td style="font-weight:bold;"><?php echo $row["additive"]; ?></td>
+											<td style="text-align:right"><?php echo $row["composition"]; ?></td>
+											<td style="text-align:right"><?php echo round($row["composition"]/($total),2); ?></td>
 
-											<td><?php echo round((($row["composition"]/($total))*$mass)/100,2); ?>
+											<td><p style="font-weight:bold;padding:0;margin:0;text-align:right;"><?php echo round((($row["composition"]/($total))*$mass)/100,2); ?>kg</p></td>
 
 
-											<?php 
+											<td><?php 
 														if($row["additive"] != "Iron")
 														{
 
 
 											?>
 												
-											<br> Min Tolerance: <?php echo $row["mintol"]?> %
-											<br> Max Tolerance: <?php echo $row["maxtol"]?> %
+											Min.: <?php echo $row["mintol"]?>%<br>
+											Max.: <?php echo $row["maxtol"]?>%
 
 											<?php 
 														}
 												?>
 
-
-											<br> Round: <div><input type="text" form="update-step"  class="form-control col-sm-3" name="newstep[]" value="<?php echo $row["step"]?>">
-											 <button type="submit" form="update-step" class="btn btn-primary col-sm-2"><i class="fa fa-refresh"></i></button></div>
+											</td>
+											<td>
+											<div class="row" style="margin-left:0.5em;"><input type="text" form="update-step"  style="text-align:right;" class="form-control col-sm-6" name="newstep[]" value="<?php echo $row["step"]?>">
+											 <button type="submit" form="update-step" data-toggle="tooltip" data-placement="top" title="Round Off" class="btn btn-primary" style="margin:0.325rem!important;padding:0.375em 0.5em!important; font-weight:bold;font-size:18px;">≈</button></div>
 
 											 <input type="hidden" name="premixid" value="<?php echo $premixid; ?>" form="update-step">
 											 <input type="hidden" name="currtab" value="feed-tabdiv" form="update-step">
 											 <input type="hidden" name="param[]" value="<?php echo $row["additive"]; ?>" form="update-step">
 											</td>
-											<td><?php $feedqty =  getFeedQty(round((($row["composition"]/($total))*$mass)/100,2),$row["mintol"],$row["maxtol"],$row["step"],$mass); echo $feedqty; ?></td>
+											<td><?php $feedqty =  getFeedQty(round((($row["composition"]/($total))*$mass)/100,2),$row["mintol"],$row["maxtol"],$row["step"],$mass); echo $feedqty; ?> kg</td>
 
 											<?php 
 														if($row["additive"] != "Iron" && !$batchselectiondone)
@@ -928,11 +965,18 @@ if(false)
 
 	</script>
 		
-	
-
-
+<div class="progress-new">
+    <header><b>Weight Required </b><span>5 kg Left</span></header>
+    <div class="bar">
+        <div class="percent">20 of 25 kg</div>
+        <div class="ref" data-ref="Req. Weight"></div>
+    </div>
+</div>
+<br>
 <table class="table table-striped table-bordered">
 <thead>
+
+
 <tr>
 	<td>
 		<select class="form-control">
@@ -988,6 +1032,8 @@ if(false)
 	<th id="readscale-totalqty">0</th>
 </tfoot>
 </table>
+
+
 
 
 </div>
@@ -1064,16 +1110,17 @@ if(false)
 
 			<input type="hidden" name="premixid" value="<?php echo $premixid; ?>">
 			<input type="hidden" name="currtab" value="feed-tabdiv">
+			<div class="table-responsive">
 
-			<table class="table table-striped table-bordered" >
+			<table class="table table-striped table-bordered table-xs" >
 				
 				<thead>
 					<tr>
 						<th>Item</th>
 						<th>%</th>
-						<th>Calculated Feed Weight</th>
-						<th>Enter Scale Weight</th>
-						<th>Enter Feed Weight</th>
+						<th>Calculated<br>Feed Weight</th>
+						<th>Enter Scale<br>Weight</th>
+						<th>Enter Feed<br>Weight</th>
 						<th>Sequence</th>
 						<th></th>
 					</tr>
@@ -1128,14 +1175,14 @@ if(false)
 											
 											<td><?php echo round($allWeights[$row["additive"]]*$row["percent"]/100,2); ?>
 												</td>
-											<td><input required readonly type="number" min=0 step="0.01" name="sequencesvalue" id ="seq-sval-<?php echo $k;?>" value="0" placeholder="Scale Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
+											<td><input style="width:5rem;text-align:right;" required readonly type="number" min=0 step="0.01" name="sequencesvalue" id ="seq-sval-<?php echo $k;?>" value="0" placeholder="Scale Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
 												<button type="button" class="btn btn-primary" onclick="getscale('seq-sval-<?php echo $k;?>')"><i class="feather icon-airplay"></i></button>
 												<br>
-												Container Weight:<br><input required type="number" min=0 step="0.01" id ="seq-container-<?php echo $k;?>" value="0.0" placeholder="Container Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
+												Container Weight:<br><input style="width:5rem;text-align:right;" required type="number" min=0 step="0.01" id ="seq-container-<?php echo $k;?>" value="0.0" placeholder="Container Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
 												</td>
 
-											<td><input required type="number" min=0 step="0.01" name="sequencevalue" id ="seq-val-<?php echo $k;?>" value="<?php echo round($allWeights[$row["additive"]]*$row["percent"]/100,2); ?>" placeholder="Feed Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
-												</td>
+											<td><input style="width:5rem;text-align:right;" required type="number" min=0 step="0.01" name="sequencevalue" id ="seq-val-<?php echo $k;?>" value="<?php echo round($allWeights[$row["additive"]]*$row["percent"]/100,2); ?>" placeholder="Feed Weight" onchange = "deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')">
+												kg</td>
 												<script type="text/javascript">
 													$( document ).ready(function() {
 													    deductcontainer('seq-container-<?php echo $k;?>','seq-sval-<?php echo $k;?>','seq-val-<?php echo $k;?>')
@@ -1167,7 +1214,7 @@ if(false)
 
 			</table>
 
-
+		</div>
 </div>
 
 
@@ -1479,7 +1526,7 @@ if($testPermission)
 		{
 		
 
-		if($i==0)
+		if($i==0 && $testParams[$i][8]=="Physical")
 		{
 			echo "<tr><td colspan='5' style='text-align:center;font-weight: bold;'>Physical Properties</td></tr>";
 		}
@@ -2152,7 +2199,7 @@ function  getFeedQty($qty,$mintol,$maxtol,$step,$total)
 		if(($qty)/$total > $maxtol)
 		{
 			$qty = $total * ($maxtol);
-			echo "Cannot Round. Tolerance violation<br>";
+			echo "Cannot Round off.<br> Tolerance violation<br>";
 		}
 	}
 	elseif($oqty>$qty)
@@ -2160,7 +2207,7 @@ function  getFeedQty($qty,$mintol,$maxtol,$step,$total)
 		if(($qty)/$total < $mintol)
 		{
 			$qty = $total * ($mintol);
-			echo  "Tolerance violation. Rounded off to min allowed<br>";
+			echo  "<p style='color:red;font-weight:bold;font-size:12px;'>Tolerance violation.<br> Rounded off to<br> min. allowed.</p>";
 		}
 	}
 

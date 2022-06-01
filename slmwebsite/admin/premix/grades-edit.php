@@ -325,7 +325,14 @@ selectedAdditives = []
 
 	selectedAdditives.push('<?php echo $currC[0]; ?>');
 	var curr = '<?php echo $currC[0]; ?>';
-	selectObj.remove(curr);
+	
+
+	for (var i= 0; i<selectObj.options.length; i++) {
+	    if (selectObj.options[i].value===curr) {
+	      	selectObj.options[i].remove();
+	      	break;
+	    }
+	}
 	addNewAdditive('<?php echo $currC[0]; ?>','<?php echo $currC[1]; ?>','<?php echo $currC[2]; ?>','<?php echo $currC[3]; ?>','<?php echo $currC[4]; ?>','<?php echo $currC[5]; ?>','<?php echo $currC[6]; ?>')
 
 
@@ -377,7 +384,10 @@ selectedAdditives = []
 	{
 		selectObj = document.getElementById("addtives_select");
 		var curr = selectObj.value;
-		selectObj.remove(curr);
+		
+		selectObj.options[selectObj.selectedIndex].remove();
+
+
 		addNewAdditive(curr,0,1,"",10,10,1)
 	}
 

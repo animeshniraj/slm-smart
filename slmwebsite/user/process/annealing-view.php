@@ -29,11 +29,33 @@
 	$myrole = $session->user->getRoleid();
 
 
+	$LIMIT = 20;
+
+	if(isset($_GET['limit']))
+	{
+		$LIMIT =$_GET['limit'];
+	}
+
+
     $processname = "Annealing";
 
     if(isset($_POST['deleteProcess']))
     {
     	$processid = $_POST['processid'];
+
+    	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='Reannealing' AND value='yes'");
+
+		if($result->num_rows==1)
+		{
+			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='PARENT'")->fetch_assoc();
+
+			$ncid = $result2['param'];
+
+
+			runQuery("UPDATE processentry SET islocked='FAILED' WHERE processid='$ncid'");
+
+		}
+		
     	runQuery("call delete_process('$processid')");
     	addprocesslog('PROCESS',$processid,$session->user->getUserid(),'Annealing Process ('.$processid.') deleted');
     }
@@ -150,11 +172,11 @@
 		<th>Annealing ID</th>
 		<th>Furnace Name</th>
 		<th>Entry Time</th>
-		<th></th>
+		<th>Edit</th>
 		<?php 
 			if($deletePermission)
 			{
-				echo "<th></th>";
+				echo "<th>Delete</th>";
 			}
 		?>
 		</tr>
@@ -162,19 +184,32 @@
 	<tbody>
 
 		<?php
-				$result = runQuery("SELECT * FROM processentry LEFT JOIN processentryparams ON processentryparams.processid=processentry.processid WHERE processentry.processname = '$processname' AND processentryparams.param='Furnace' ORDER BY entrytime DESC LIMIT 10");
+				$result = runQuery("SELECT * FROM processentry LEFT JOIN processentryparams ON processentryparams.processid=processentry.processid WHERE processentry.processname = '$processname' AND processentryparams.param='Furnace' ORDER BY entrytime DESC LIMIT $LIMIT");
 				if($result->num_rows>0)
 				{
 					$k=0;
 					while($row=$result->fetch_assoc())
 					{
+
+						$dumid = $row["processid"];
+
+						$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$dumid' AND param='Reannealing' AND value='yes'");
+
+						if($result2->num_rows==1)
+						{
+							$dumurl = "reannealing-edit.php";
+						}
+						else
+						{
+							$dumurl = "annealing-edit.php";
+						}
 		?>
 	<tr>
 		<th scope="row"><?php echo ++$k; ?></th>
 		<td><?php echo $row["processid"]; ?></td>
 		<td><?php echo $row["value"]; ?></td>
 		<td><?php echo Date('Y-M-d H:i',strtotime($row["entrytime"])); ?></td>
-		<td><form method="POST" action="annealing-edit.php"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
+		<td><form method="POST" action="<?php echo $dumurl; ?>"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
 
@@ -195,6 +230,18 @@
 
 	</tbody>
 	</table>
+
+	<form method="GET">
+	<div class="row">
+		<div class="col-sm-3">
+		<input type="number" class="form-control" step="1" min="1" name="limit" placeholder="Show last results" value="<?php echo $LIMIT ?>" >
+		</div>
+		<div class="col-sm-3">
+			<button class="btn btn-primary">Show Last</button>
+		</div>
+
+	</div>
+</form>
 
 
 
@@ -253,6 +300,26 @@ $(document).ready(function() {
   	
 
 });
+
+
+	$(document).ready( function () {
+    $('.table').DataTable(
+
+    {
+    	 "columnDefs": [
+            {
+                "targets": [ 0 ],
+                "visible": true,
+                "searchable": false
+            },
+
+            
+        ]
+    }
+
+
+    	);
+} );
 
 
 function getHeatid(inObj)

@@ -1,6 +1,6 @@
 <?php
     
-	require_once('../../requiredlibs/includeall.php');
+	require_once('../../../requiredlibs/includeall.php');
 
 	
 	$session = getPageSession();
@@ -22,7 +22,7 @@
     {
     	$ERR_TITLE = "Error";
     	$ERR_MSG = "You are not authorized to view this page.";
-    	include("../pages/error.php");
+    	include("../../pages/error.php");
     	die();
     }
 

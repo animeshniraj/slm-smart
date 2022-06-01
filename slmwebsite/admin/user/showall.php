@@ -108,6 +108,7 @@
 	<th rowspan="1" colspan="1">First Name</th>
 	
 	<th rowspan="1" colspan="1">Last Name</th>
+	<th rowspan="1" colspan="1">Initial</th>
 	<th rowspan="1" colspan="1">Assigned Role</th>
 
 	<th rowspan="1" colspan="1">Options</th>
@@ -139,6 +140,7 @@
 			echo "<td>".$row["userid"]."</td>";
 			echo "<td>".$row["fname"]."</td>";
 			echo "<td>".$row["lname"]."</td>";
+			echo "<td>".getInitial($row["userid"])."</td>";
 			echo "<td>".$row["rolename"]."</td>";
 			echo "<td><form action=\"edituser.php\" method=\"POST\" style=\"display:inline;float:left;\"><input type=\"hidden\" name=\"userid\" value=\"".$row["userid"]."\"><input type=\"hidden\" name=\"edituser\" value=\"\"><a href=\"#\" onclick=\"this.parentNode.submit();\"><i class=\"fa fa-edit\" style=\"display:inline;float:left;margin-top:1px;\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit User\"></i></a></form><form  method=\"POST\"><input type=\"hidden\" name=\"userid\" value=\"".$row["userid"]."\"><input type=\"hidden\" name=\"deleteuser\" value=\"\"><a href=\"#\" onclick=\"delete_user(this.parentNode);\" ><i class=\"fa fa-trash\" style=\"display:inline;float:left;margin-left:10px;\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete User\"></i></a></form></td>";
 			echo "</tr>";

@@ -13,6 +13,47 @@
 		return "<script>Swal.fire({\nicon: \"".$icon."\",\ntitle: \"".$title."\",\nhtml: \"".$msg."\",\nshowCancelButton: false,\nshowConfirmButton: true,\nallowEscapeKey: true,\nallowOutsideClick: true,\n})</script>";
 	}
 
+	function getInitial($user)
+	{
+		$initial = "";
+
+		$result = runQuery("SELECT * FROM user_sign WHERE userid='$user'");
+		if($result->num_rows==1)
+		{
+			$initial = $result->fetch_assoc()['initial'];
+		}
+
+		return $initial;
+	}
+
+	function get_last_id($processname)
+	{
+		$result = runQuery("SELECT * FROM processentry WHERE processname='$processname' ORDER BY entrytime DESC LIMIT 1");
+
+    	if($result->num_rows==0)
+    	{	
+    		return "";
+    	}
+    	else
+    	{
+    		return $result->fetch_assoc()['processid'];
+    	}
+	}
+
+	function get_last_premixid($processname)
+	{
+		$result = runQuery("SELECT * FROM premix_batch  ORDER BY entrydate DESC LIMIT 1");
+
+    	if($result->num_rows==0)
+    	{	
+    		return "";
+    	}
+    	else
+    	{
+    		return $result->fetch_assoc()['premixid'];
+    	}
+	}
+
 	function getFullName($userid)
 	{
 		$dumUser = new user($userid);

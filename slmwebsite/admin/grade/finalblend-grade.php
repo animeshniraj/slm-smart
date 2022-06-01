@@ -113,6 +113,8 @@
     if(isset($_POST["updateprop"]))
     {
     	$propnames = $_POST["propnames"];
+
+    	
     	$min = $_POST["prop-min"];
     	$max = $_POST["prop-max"];
     	$quarantine = $_POST["prop-quarant"];
@@ -129,7 +131,7 @@
     			runQuery("INSERT INTO final_coa_grade_settings VALUES(NULL,'$gradename','$propnames[$i]','$propnames[$i]',1,'$count','Sieve')");
     		}
     		else{
-
+    			
     			$propclass = runQuery("SELECT * FROM processgradesproperties WHERE processname='$processname'  AND gradeparam='$propnames[$i]'")->fetch_assoc()['class'];
 
     			runQuery("INSERT INTO final_coa_grade_settings VALUES(NULL,'$gradename','$propnames[$i]','$propnames[$i]',1,'$count','$propclass')");

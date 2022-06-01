@@ -297,6 +297,22 @@ p {
 <div class="tab-pane active" id="creation-tabdiv" role="tabpanel">
 
 <form method="POST">
+	
+<p style="display:block;text-align:center;color:#212121;">Last Created Annealing Id: <?php echo get_last_id($processname) ?></p>
+<p style="display:block;text-align:center;color:#212121;">Last Created Raw Blend Id: <?php 
+	
+	$lastaid = get_last_id($processname);
+	$lastrid = ")";
+
+	$resulti = runQuery("SELECT * FROM processentryparams LEFT JOIN processentry on processentryparams.processid=processentry.processid WHERE  step='PARENT' AND processname='Annealing' ORDER by processentry.entrytime DESC");
+	if($resulti->num_rows!=0)
+	{
+		$lastrid = $resulti->fetch_assoc()["param"];
+	} 
+
+	echo $lastrid;
+	
+?></p>
 					<p style="display:block;text-align:center;color:#212121;">Enter the Feed Time</p>
 					<div class="form-group" style="display:flex; justify-content: center;">
 						
@@ -328,9 +344,10 @@ p {
 
 					</script>
 
+						
+						<p style="display:block;text-align:center;color:#212121;">Select a tentative Final Blend Grade for future reference</p>
 
 						<div class="form-group" style="display:flex; justify-content: center">
-
 						<select required class="form-control col-sm-3" name="finalblendgrade" >
 							<option selected  disabled value=""> Choose a Final Blend Grade</option>
 

@@ -443,6 +443,8 @@
 				if(req!=0)
 				{
 					
+					req += parseFloat(additivedata[currAdditive][0].innerHTML);
+					req = Math.round(req*1000)/1000;;
 					additivedata[currAdditive][0].innerHTML = req;
 
 					var proc = req
@@ -463,7 +465,7 @@
 				        xmlhttp.onreadystatechange = function() {
 				          if (this.readyState == 4 && this.status == 200) {
 				            
-				           console.log(this.responseText)
+				          // console.log(this.responseText)
 				            var data = JSON.parse(this.responseText);
 
 				            

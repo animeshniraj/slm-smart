@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Edit Semi Finished Batch",
+        "Page Title" => "Edit Semi Finished Batch | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-semifinished-view",
         "MainMenu"	 => "process_semifinished",
@@ -783,7 +783,7 @@ input[type=number] {
 			{
 				?>
 				<div class="col-sm-12">
-				<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/print/semifinished-tag.php?processid=<?php echo $processid; ?>&grade=<?php echo $currGradeName; ?>&quantity=<?php echo getTotalQuantity($processid) ?>')"><i class="icofont icofont-barcode"></i>Generate Label</button>
+				
 				<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
 				</div>
 
@@ -796,7 +796,11 @@ input[type=number] {
 
 
 
+<div class="col-sm-12">
+	<button type="button" class="btn btn-primary m-b-0 pull-left" onclick="window.open('/user/print/semi-finished-tag.php?processid=<?php echo $processid; ?>&grade=<?php echo $currGradeName; ?>&quantity=<?php echo getTotalQuantity($processid) ?>')"><i class="icofont icofont-barcode"></i>Generate Label</button>
 
+	<button type="button" class="btn btn-primary m-b-0 ml-1 pull-left" onclick="window.open('/user/report/basic-semifinished.php?id=<?php echo $processid; ?>')"><i class="icofont icofont-page"></i>Generate Report</button>
+</div>
 
 </form>
 

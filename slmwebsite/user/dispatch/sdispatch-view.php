@@ -38,7 +38,7 @@
     	
 
 
-
+    	runQuery("DELETE FROM sdispatch_test WHERE cid='$externalid'");
     	runQuery("DELETE FROM sdispatch_batches WHERE cid='$externalid'");
     	runQuery("DELETE FROM sdispatch_notes WHERE cid='$externalid'");
     	runQuery("DELETE FROM sample_dispatch WHERE cid='$externalid'");
@@ -167,7 +167,7 @@
 	<tbody>
 
 		<?php
-				$result = runQuery("SELECT * FROM sample_dispatch ");
+				$result = runQuery("SELECT * FROM sample_dispatch ORDER BY entrydate DESC");
 				if($result->num_rows>0)
 				{
 					$k=0;
