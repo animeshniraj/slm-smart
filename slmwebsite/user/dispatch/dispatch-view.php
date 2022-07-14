@@ -92,8 +92,8 @@
 			<div class="page-header-title">
 				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>View all Dispatches</h5>
-					<span>Select order to edit or remove</span>
+					<h3>View all Dispatches</h3>
+					<span>Click on Edit button to view or edit the Dispatch</span>
 				</div>
 			</div>
 		</div>
@@ -106,11 +106,11 @@
 
 <div class="page-body">
 <div class="row">
-<div class="col-lg-12">
+<div class="col-lg-6">
 
 
 
-<div class="card col-md-6">
+<div class="card">
 <div class="card-header">
 	<h5 style="font-weight:bold;">Search by Consignment ID  <i class="fa fa-search"></i></h5>
 </div>
@@ -137,6 +137,12 @@
 
 </div>
 </div>
+</div>
+
+<div class="col-lg-6">
+	<img src="images/dispatch.png">
+</div>
+
 
 
 <div class="card">
@@ -148,7 +154,7 @@
 <div class="card-block">
 
 
-	<table class="table table-responsive table-bordered table-striped table-xs">
+	<table class="table table-bordered table-striped table-xs">
 	<thead>
 		<tr style="text-align:center;">
 		<th>#</th>
@@ -186,7 +192,7 @@
 		<td><?php echo $result2["value"]."(".$row["customer"].")"; ?></td>
 
 		<td><?php echo Date('d-M-Y',strtotime($row["entrydate"])); ?></td>
-		<td><form method="POST" action="dispatch-edit.php"><input type="hidden" name="cid" value="<?php echo $row["cid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
+		<td><form method="POST" action="dispatch-edit.php"><input type="hidden" name="cid" value="<?php echo $row["cid"]; ?>"><button class="btn btn-info" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
 

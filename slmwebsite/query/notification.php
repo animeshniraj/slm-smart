@@ -32,7 +32,7 @@
 	{
 		$time = strtotime("now");
 
-		echo json_encode(["response"=>true,"time"=>Date('d-M-Y H:i',$time)]);
+		echo json_encode(["response"=>true,"time"=>Date('d-M-Y h:i A',$time)]);
 
 	}
 

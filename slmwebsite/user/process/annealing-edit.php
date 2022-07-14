@@ -1373,12 +1373,11 @@ if($editidPermission&& $creationPermission)
 					  $('input[name="recipetime"]').daterangepicker({
 					    singleDatePicker: true,
 					    timePicker: true,
-					    timePicker24Hour: true,
 					    minDate: '<?php echo Date('d-m-Y H:i',strtotime($entrytime)) ?>',
 					    showDropdowns: true,
 					    locale: 
 					    {    
-					    	format: 'DD-MM-YYYY HH:mm',
+					    	format: 'DD-MM-YYYY hh:mm A',
 					    },
 					  	
 					   
@@ -1674,13 +1673,12 @@ if($testPermission)
 					  $('input[name="testtime"]').daterangepicker({
 					    singleDatePicker: true,
 					    timePicker: true,
-					    timePicker24Hour: true,
 					    minDate: '<?php echo Date('d-m-Y H:i',strtotime($entrytime)) ?>',
 					    //maxDate: '<?php echo Date('d-m-Y H:i',strtotime($hopperdistime)) ?>',
 					    showDropdowns: true,
 					    locale: 
 					    {    
-					    	format: 'DD-MM-YYYY HH:mm',
+					    	format: 'DD-MM-YYYY hh:mm A',
 					    },
 					  	
 					    minYear: 1901,
@@ -2508,13 +2506,12 @@ else
 					  $('input[name="customnote-time"]').daterangepicker({
 					    singleDatePicker: false,
 					    timePicker: true,
-					    timePicker24Hour: true,
 					    drops: 'up',
 					    minDate: '<?php echo Date('d-m-Y H:i',strtotime($entrytime)) ?>',
 					    showDropdowns: true,
 					    locale: 
 					    {    
-					    	format: 'DD-MM-YYYY HH:mm',
+					    	format: 'DD-MM-YYYY hh:mm A',
 					    },
 					  	
 					    minYear: 1901,

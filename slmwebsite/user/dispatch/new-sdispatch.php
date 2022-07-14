@@ -35,7 +35,7 @@
 
     	$cid = $_POST['cid'];
     	$customer = $_POST['customer'];
-    	$creationDate = $_POST["creation-date"];
+    	$creationDate = toServerTime($_POST["creation-date"]);
     	$company = $_POST['company'];
 
 
@@ -318,11 +318,10 @@ p {
 					  $('input[name="creation-date"]').daterangepicker({
 					    singleDatePicker: true,
 					    timePicker: true,
-					    timePicker24Hour: true,
 					    showDropdowns: true,
 					    locale: 
 					    {    
-					    	format: 'YYYY-MM-DD HH:mm',
+					    	format: 'YYYY-MM-DD hh:mm A',
 					    },
 					  	
 					    minYear: 1901,

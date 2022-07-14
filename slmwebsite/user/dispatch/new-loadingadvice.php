@@ -50,7 +50,7 @@
     
 
 
-    	$creationDate = $_POST["creation-date"];
+    	$creationDate = toServerTime($_POST["creation-date"]);
     	
 
     	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
@@ -87,7 +87,7 @@
 
     	$result2 = runQuery("UPDATE purchase_order SET status = 'LOADING ADVICE' WHERE orderid ='$ponumber'");
 
-    	$result = runQuery("SELECT date FROM `purchaseorder_tentative` where date>= CURDATE() AND status ='UNFULFILLED' ORDER BY date LIMIT 1");
+    	$result = runQuery("SELECT date FROM `purchaseorder_tentative` where status ='UNFULFILLED' AND orderid='$ponumber' ORDER BY date LIMIT 1");
 
     	$currDate = $result->fetch_assoc()['date'];
     	
@@ -124,6 +124,21 @@
 
     			
     			}
+    			else
+    			{
+    				$externalid = $prefix;
+    	
+
+		    	runQuery("UPDATE purchase_order SET status='UNFULFILLED' WHERE orderid in (SELECT poid FROM loading_advice WHERE laid='$externalid')");
+
+		    	$result = runQuery("UPDATE purchaseorder_tentative SET status='UNFULFILLED' WHERE date in (SELECT value FROM loadingadvice_params WHERE laid='$externalid' AND param='Tentative Date')");
+
+		    	runQuery("DELETE FROM loadingadvice_batches WHERE laid='$externalid'");
+		    	runQuery("DELETE FROM loadingadvice_notes WHERE laid='$externalid'");
+		    	runQuery("DELETE FROM loadingadvice_params WHERE laid='$externalid'");
+		    	runQuery("DELETE FROM loading_advice WHERE laid='$externalid'");
+    			}
+    			echo "Error: Deleting the new loading advice created.";
 
     	die();
 
@@ -379,11 +394,10 @@ p {
 					  $('input[name="creation-date"]').daterangepicker({
 					    singleDatePicker: true,
 					    timePicker: true,
-					    timePicker24Hour: true,
 					    showDropdowns: true,
 					    locale: 
 					    {    
-					    	format: 'YYYY-MM-DD HH:mm',
+					    	format: 'YYYY-MM-DD hh:mm A',
 					    },
 					  	
 					    minYear: 1901,

@@ -71,7 +71,7 @@
     		$dumpre = "A";
     	}
 
-    	$creationDate = $_POST["creation-date"];
+    	$creationDate = toServerTime($_POST["creation-date"]);
     	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
     	$month = explode("-",explode(" ",$creationDate)[0])[1];
     	$prefix = $year."/".$month."-".$dumpre."-";
@@ -326,11 +326,10 @@ p {
 					  $('input[name="creation-date"]').daterangepicker({
 					    singleDatePicker: true,
 					    timePicker: true,
-					    timePicker24Hour: true,
 					    showDropdowns: true,
 					    locale: 
 					    {    
-					    	format: 'YYYY-MM-DD HH:mm',
+					    	format: 'YYYY-MM-DD hh:mm A',
 					    },
 					  	
 					    minYear: 1901,

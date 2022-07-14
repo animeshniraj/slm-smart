@@ -93,8 +93,8 @@
 			<div class="page-header-title">
 				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>View all Premix</h5>
-					<span>Select premix to edit</span>
+					<h3>Recent Premixes</h3>
+					<span>Click on Edit button to view or edit individual Premix Blend</span>
 				</div>
 			</div>
 		</div>
@@ -107,26 +107,26 @@
 
 <div class="page-body">
 <div class="row">
-<div class="col-lg-12">
+<div class="col-lg-6">
 
 
 
 <div class="card">
-<div class="card-header">
+	<div class="card-header">
+		<h5>Open by Premix ID</h5>
+		<i class="fa fa-search"></i>
+	</div>
 
-<div class="card-header-right">
-</div>
-</div>
-<div class="card-block">
+	<div class="card-block">
 
 
 <div class="form-group row">
-			<label class="col-sm-2 col-form-label">External ID</label>
+			<label class="col-sm-2 col-form-label">Premix ID</label>
 			<div class="col-sm-10">
 			<div class="input-group input-group-button">
 				<input required id="data_externalid" name="externalid" type="text" class="form-control form-control-uppercase" placeholder="">
 				<div class="input-group-append">
-				<button class="btn btn-primary" type="button" onclick="getexternalid(this)"><i class="feather icon-arrow-up-right"></i>Open</button>
+				<button class="btn btn-success" type="button" onclick="getexternalid(this)"><i class="feather icon-arrow-up-right"></i>Open</button>
 				</div>
 			</div>
 			
@@ -141,6 +141,12 @@
 </div>
 </div>
 
+</div>
+
+<div class="col-lg-6">
+	<img src="images/premix.png">
+</div>
+
 
 <div class="card">
 <div class="card-header">
@@ -151,17 +157,17 @@
 <div class="card-block">
 
 
-	<table class="table">
-	<thead>
+<table class="table table-striped table-bordered table-xs">
+	<thead style="text-align:center;font-size:13px;">
 		<tr>
 		<th>#</th>
 		<th>Blend ID</th>
 		<th>Entry Time</th>
-		<th></th>
+		<th>Edit<br>Premix</th>
 		<?php 
 			if($deletePermission)
 			{
-				echo "<th></th>";
+				echo "<th>Remove<br>Premix</th>";
 			}
 		?>
 		</tr>
@@ -197,8 +203,8 @@
 		<th scope="row"><?php echo ++$k; ?></th>
 		<td><?php echo $row["premixid"]; ?></td>
 
-		<td><?php echo Date('Y-M-d H:i',strtotime($row["entrydate"])); ?></td>
-		<td><form method="POST" action="premix-edit.php"><input type="hidden" name="premixid" value="<?php echo $row["premixid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
+		<td><?php echo Date('d-M-Y - h:i A',strtotime($row["entrydate"])); ?></td>
+		<td><form method="POST" action="premix-edit.php"><input type="hidden" name="premixid" value="<?php echo $row["premixid"]; ?>"><button class="btn btn-info" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
 

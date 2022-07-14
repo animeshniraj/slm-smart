@@ -345,15 +345,17 @@ $cid = $_GET["cid"];
                         </div>
                        
                         <div class="col-sm-4 lab-sign">
-                          <img src="lab-sign.png">
+                          <img src="slm_stamp.png">
                         </div>
                     </div>
 <!---- End of Packaging details -->
+                    <?php if($data['coanote']) {?>
                     <div class="row mb-4 mt-3">
                         <div class="col-sm-5" style="color:red">
                             NOTE: <?php echo $data['coanote']; ?>
                         </div>
                     </div>
+                <?php } ?>
 <!---- Footer -->
                     <div class="row mb-2">
                       <div class="col-sm-9 footer">

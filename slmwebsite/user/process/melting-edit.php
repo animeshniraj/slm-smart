@@ -53,6 +53,20 @@
     	runQuery("UPDATE processentry SET islocked ='BLOCKED_ALLOWED' WHERE processid='$processid'");
     }
 
+
+      if(isset($_POST["reconciliation"]))
+    {
+
+    	$dval = $_POST['reconciliation_val'];
+
+
+    	runQuery("DELETE FROM processentryparams WHERE processid='$processid' AND step='PARENT' AND param='$processid'");
+
+    	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','PARENT','$processid','$dval')");
+
+
+    }
+
      if(isset($_POST["updateprocess1"]))
     {
     	
@@ -657,7 +671,7 @@ input[type=number] {
 				<i id="titleicon" onmouseenter="titleicontoRefresh()" onmouseleave="titleicontonormal()" onclick="reloadCurrPage()" style="cursor: pointer;" class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
 					<h3 style="margin-bottom:0;">Currently updating Heat ID: <?php echo $processid; ?> </h3>
-					<p class="created">(Created on: <?php echo $entrytime; ?>)</p>
+					<p class="created">(Created on: <?php echo fromServerTimeTo12hr($entrytime); ?>)</p>
 				</div>
 			</div>
 		</div>
@@ -1096,6 +1110,61 @@ input[type=number] {
 	</div>
 
 </form>
+
+
+<form method="POST">
+		<input type="hidden" name="processid" value="<?php echo $processid; ?>">
+	<input type="hidden" name="currtab" value="generic-tabdiv">
+		<?php 
+
+			if($QUANTITY)
+			{
+
+				$remaining = $QUANTITY - getChildProcessQuantity($processid);
+				$reconcil= 0;
+				$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='$processid' AND step='PARENT'");
+
+				if($row = $result->fetch_assoc())
+				{
+					$reconcil += $row['value'];
+				}
+
+		?>
+
+
+
+		<div class="form-group row">
+						<label class="col-sm-2">Remaining (kg)</label>
+						<div class="col-sm-10">
+							<div class="input-group input-group-button">
+							
+								<input readonly class="form-control form-control-uppercase" placeholder="" value="<?php echo $remaining; ?>">
+								
+							</div>
+						</div>
+		</div>
+		
+		<div class="form-group row">
+						<label class="col-sm-2">Reconciliation (To deduct)</label>
+						<div class="col-sm-10">
+							<div class="input-group input-group-button">
+							
+								<input name="reconciliation_val"  type="number" step="0.01" min="0" max ="<?php echo $remaining+$reconcil; ?>" class="form-control" placeholder="" value="<?php echo $reconcil; ?>">
+								
+							</div>
+						</div>
+					</div>
+
+
+					<div class="col-sm-12">
+				<button type="submit" name="reconciliation" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Reconciliation</button>
+				</div>
+
+		<?php 
+			}
+
+		?>
+	</form>
 
 </div>
 
@@ -1814,6 +1883,23 @@ else
     include("../../pages/endbody.php");
 
 ?>
+
+
+<script type="text/javascript">
+
+function activaTab(tab){
+    $('.nav-tabs a[href="#' + tab + '"]').tab('show');
+	};
+
+y(document).ready(function () {
+	y(document).bind('keydown', 'shift+w', function () {
+		activaTab('messages');
+  	})
+	});
+
+</script>
+
+
 
 <script type="text/javascript">
 

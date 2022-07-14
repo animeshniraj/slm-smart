@@ -28,6 +28,13 @@
 			$show_alert = true;
 			$alert = showAlert("error","Error","Error. Try again.");
 		}
+		else
+		{
+			
+			runQuery("INSERT INTO defaultpermissions VALUES(NULL,'$roleid','admin_module','DENY')");
+			runQuery("INSERT INTO defaultpermissions VALUES(NULL,'$roleid','user_module','ALLOW')");
+			header("Location: showallroles.php");		
+		}
 
 	}
 

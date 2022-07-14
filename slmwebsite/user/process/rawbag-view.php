@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | User Dashboard",
+        "Page Title" => "View Recent Raw Bags | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-rawbag-view",
         "MainMenu"	 => "process_rawbag",
@@ -91,8 +91,8 @@
 			<div class="page-header-title">
 				<i class="fa fa-shopping-bag bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>Raw Bag</h5>
-					<span>Edit Raw Bag parameters</span>
+					<h3>Recent Raw Bags</h3>
+					<span>Click on Edit button to view or edit individual Raw Bag.</span>
 				</div>
 			</div>
 		</div>
@@ -105,39 +105,38 @@
 
 <div class="page-body">
 <div class="row">
-<div class="col-lg-12">
 
 
+<div class="col-lg-6">
 
-<div class="card">
-<div class="card-header">
-
-<div class="card-header-right">
-</div>
-</div>
-<div class="card-block">
-
-<form id="searchbyid" method="POST" action="rawbag-edit.php">
-<div class="form-group row">
-			<label class="col-sm-2 col-form-label">Raw Bag ID</label>
-			<div class="col-sm-10">
-			<div class="input-group input-group-button">
-				<input required id="processid" name="processid" type="text" class="form-control form-control-uppercase" placeholder="">
-				<div class="input-group-append">
-				<button class="btn btn-primary" type="button" onclick="getHeatid(this)"><i class="feather icon-arrow-up-right"></i>Open</button>
-				</div>
-			</div>
-			
-			</div>
-
+	<div class="card">
+		<div class="card-header">
+			<h5>Open by Raw Bag ID</h5>
+			<i class="fa fa-search"></i>
 		</div>
 
-</form>
-
-
-
+		<div class="card-block">
+			<form id="searchbyid" method="POST" action="rawbag-edit.php">
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">Raw Bag ID</label>
+					<div class="col-sm-10">
+						<div class="input-group input-group-button">
+								<input required id="processid" name="processid" type="text" class="form-control form-control-uppercase" placeholder="">
+								<div class="input-group-append">
+								<button class="btn btn-success" type="button" onclick="getHeatid(this)"><i class="feather icon-arrow-up-right"></i>Open</button>
+								</div>
+						</div>			
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
 </div>
+
+<div class="col-lg-6">
+	<img src="images/raw-bag.png">
 </div>
+
 
 
 <div class="card">
@@ -149,19 +148,19 @@
 <div class="card-block">
 
 
-	<table class="table">
-	<thead>
+<table class="table table-striped table-bordered table-xs">
+	<thead style="text-align:center;font-size:13px;">
 		<tr>
 		<th>#</th>
 		<th>Raw Bag ID</th>
 		<th>Raw Bag No.</th>
 		<th>Grade</th>
 		<th>Entry Time</th>
-		<th></th>
+		<th>Edit<br>Batch</th>
 		<?php 
 			if($deletePermission)
 			{
-				echo "<th></th>";
+				echo "<th>Remove<br>Batch</th>";
 			}
 		?>
 		</tr>
@@ -200,8 +199,8 @@
 			}
 		?>
 		<td><?php echo $paramval; ?></td>
-		<td><?php echo Date('Y-M-d H:i',strtotime($row["entrytime"])); ?></td>
-		<td><form method="POST" action="rawbag-edit.php"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
+		<td><?php echo Date('d-M-Y - h:i A',strtotime($row["entrytime"])); ?></td>
+		<td><form method="POST" action="rawbag-edit.php"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-info" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
 
@@ -341,6 +340,8 @@ function getHeatid(inObj)
             {
                Swal.fire({
 					icon: "error",
+					html:
+						'<img src="images/oops.png">',
 					title: "Raw Bag ID not Found",
 					showConfirmButton: true,
 				  	showCancelButton: false,

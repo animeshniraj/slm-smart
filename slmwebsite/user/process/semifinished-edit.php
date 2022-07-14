@@ -20,7 +20,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "Edit Semi Finished Batch | SLM SMART",
+        "Page Title" => "Edit Semi Finished | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-semifinished-view",
         "MainMenu"	 => "process_semifinished",
@@ -49,7 +49,18 @@
     	$currTab =$_POST["currtab"];
     }
    
-    
+      if(isset($_POST["reconciliation"]))
+    {
+
+    	$dval = $_POST['reconciliation_val'];
+
+
+    	runQuery("DELETE FROM processentryparams WHERE processid='$processid' AND step='PARENT' AND param='$processid'");
+
+    	runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','PARENT','$processid','$dval')");
+
+
+    }
 
      if(isset($_POST["updateprocess1"]))
     {
@@ -244,7 +255,18 @@
 	    		$dumval = $_POST["parentvalues"][$i];
 
 	    		runQuery("INSERT INTO processentryparams VALUES(NULL,'$processid','PARENT','$dumname','$dumval')");
-	    		runQuery("UPDATE processentry SET islocked='LOCKED' WHERE processid='$dumname'");
+
+	    		$result = runQuery("SELECT * FROM processentry WHERE processid='$dumname'");
+	    		if($result->num_rows==1)
+	    		{
+	    			$result = $result->fetch_assoc();
+	    			if($result['islocked']!="FAILED")
+	    			{
+	    				runQuery("UPDATE processentry SET islocked='LOCKED' WHERE processid='$dumname'");
+	    			}
+	    		}
+
+	    		
 
 	    	}
     	}
@@ -680,7 +702,7 @@ input[type=number] {
 				
 				<div class="d-inline">
 					<h3 style="margin-bottom:0;">Currently updating: <?php echo $processid; ?> (Bin No: <?php echo $binnumber; ?>)</h3>
-					<p class="created">(Created on: <?php echo $entrytime; ?>)</p>
+					<p class="created">(Created on: <?php echo fromServerTimeTo12hr($entrytime); ?>)</p>
 				</div>
 			</div>
 		</div>
@@ -1008,6 +1030,61 @@ input[type=number] {
 	</div>
 
 </form>
+
+
+<form method="POST">
+		<input type="hidden" name="processid" value="<?php echo $processid; ?>">
+	<input type="hidden" name="currtab" value="generic-tabdiv">
+		<?php 
+
+			if($QUANTITY)
+			{
+
+				$remaining = $QUANTITY - getChildProcessQuantity($processid);
+				$reconcil= 0;
+				$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='$processid' AND step='PARENT'");
+
+				if($row = $result->fetch_assoc())
+				{
+					$reconcil += $row['value'];
+				}
+
+		?>
+
+
+
+		<div class="form-group row">
+						<label class="col-sm-2">Remaining (kg)</label>
+						<div class="col-sm-10">
+							<div class="input-group input-group-button">
+							
+								<input readonly class="form-control form-control-uppercase" placeholder="" value="<?php echo $remaining; ?>">
+								
+							</div>
+						</div>
+		</div>
+		
+		<div class="form-group row">
+						<label class="col-sm-2">Reconciliation (To deduct)</label>
+						<div class="col-sm-10">
+							<div class="input-group input-group-button">
+							
+								<input name="reconciliation_val"  type="number" step="0.01" min="0" max ="<?php echo $remaining+$reconcil; ?>" class="form-control" placeholder="" value="<?php echo $reconcil; ?>">
+								
+							</div>
+						</div>
+					</div>
+
+
+					<div class="col-sm-12">
+				<button type="submit" name="reconciliation" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Reconciliation</button>
+				</div>
+
+		<?php 
+			}
+
+		?>
+	</form>
 
 </div>
 
@@ -1414,7 +1491,7 @@ if($testPermission)
 
 			echo "<td>".$k++."</td>";
 			echo "<td>".$row["testid"]."</td>";
-			echo "<td>".$row["entrytime"]."</td>";
+			echo "<td>" .fromServerTimeTo12hr($row["entrytime"])."</td>";
 			
 				echo "<td><div><button type=\"button\"  class=\"btn btn-primary m-b-0\" onclick=\"viewTest('".$row["testid"]."',".$dumParam.",".$dumValue.")\"><i class=\"fa fa-eye\"></i>View</button><button type=\"button\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"rejectTest('".$row["testid"]."')\"><i class=\"fa fa-trash\"></i>Delete</button></div></td><td>";
 			
@@ -1475,6 +1552,8 @@ if($testPermission)
 							}
 						}
 					?>
+
+					<option value="FAILED">Failed Final Blend</option>
 
 				</select>
 				

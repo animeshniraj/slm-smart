@@ -47,18 +47,43 @@
 
     }
 
+    $data = [];
+    $data['sign'] = [];
+    $data['sign']["id"] = $_GET["cid"];
+    $data['sign']['batch'] = $id;
 
     $result = runQuery("SELECT * FROM batch_coa_approval WHERE processid='$id'");
-    $flag1 = $result->num_rows==1;
-    $result = runQuery("SELECT * FROM premix_coa_approval WHERE premixid='$id'");
-    $flag2 = $result->num_rows==1;
-
-    if(!($flag1 || $flag2))
+    if($result->num_rows==1)
     {
-        $ERR_TITLE = "Error";
-        $ERR_MSG = "COA cannot be found.";
-        include("../../pages/error.php");
-        die();
+        $result = $result->fetch_assoc();
+        $user = $result['approvedby'];
+        $data['sign']["approved-by"] = strtoupper(getFullName($user));
+        $data['sign']["approved-by-inital"] = getInitial($user);
+        $data['sign']["approved-date"] = Date('d-M-Y',strtotime($result['approvaldate']));
+
+        
+        $data['sign']["hash"] = md5(serialize($data['sign']));
+    }
+    else
+    {
+        $result2 = runQuery("SELECT * FROM premix_coa_approval WHERE premixid='$id'");
+        if($result2->num_rows==1)
+        {   
+            $result2 = $result2->fetch_assoc();
+            $user = $result2['approvedby'];
+            $data['sign']["approved-by"] = strtoupper(getFullName($user));
+            $data['sign']["approved-by-inital"] = getInitial($user);
+            $data['sign']["approved-date"] = Date('d-M-Y',strtotime($result['approvaldate']));
+            
+            $data['sign']["hash"] = md5(serialize($data['sign']));
+        }
+        else
+        {
+            $ERR_TITLE = "Error";
+            $ERR_MSG = "COA cannot be found.";
+            include("../../pages/error.php");
+            die();
+        }
     }
 
 
@@ -66,7 +91,7 @@
 
    $isfinal = true;
 
-   $data = [];
+   
 
    $data['basic'] = [];
    $data['basic']['batch'] = $id;
@@ -208,7 +233,7 @@ if($isfinal)
         </style>
   </head>
   <body>
-  <div class="page" contenteditable="true">
+  <div class="page" contenteditable="false">
     <div id="ui-view" data-select2-id="ui-view">
         <div>
             <div class="card">
@@ -227,12 +252,31 @@ if($isfinal)
                       </div>
                   </div>
 
-                    <div class="row mb-4 mt-3">
-                        <div class="col-sm-3">
+                <div class="row mb-0 mt-3">
+                    <div class="col-sm-3">
                             <h6 class="mb-1">GRADE:</h6>
                             <h5>
                                 <strong><?php echo $data['grade']; ?></strong>
                             </h5>
+                    </div>
+                    <div class="col-sm-3">
+                    <h6>PROD. CODE:
+
+                        <?php
+                            $dum_prodcode ="";
+                            $did = $data['basic']['batch'];
+                            $result = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND step='CREATION' AND param='prodcode'");
+
+                            if($result->num_rows==1)
+                            {
+                                $dum_prodcode = $result->fetch_assoc()['value'];
+                            }
+                        ?>
+                        <div class="mb-1"><?php echo $dum_prodcode; ?></div></h6>                            
+                    </div>        
+                </div>
+                    <div class="row mb-4 mt-0">
+                        <div class="col-sm-3">
                             <h6>BATCH NO:<div class="mb-1"><?php echo $data['basic']['batch']; ?></div></h6>
 
                             <div><p style="font-size:14px;font-weight:bold;line-height:13px;"><?php echo $data['basic']['customer']; ?></p></div>
@@ -240,19 +284,6 @@ if($isfinal)
                             <div><p style="font-size:13px;"><?php echo $data['basic']['customercity']; ?>, <?php echo $data['basic']['customerstate']; ?> - <?php echo $data['basic']['customerpincode']; ?></p></div>
                         </div>
                         <div class="col-sm-3">
-                        <h6>PROD. CODE:
-
-                            <?php
-                                $dum_prodcode ="";
-                                $did = $data['basic']['batch'];
-                                $result = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND step='CREATION' AND param='prodcode'");
-
-                                if($result->num_rows==1)
-                                {
-                                    $dum_prodcode = $result->fetch_assoc()['value'];
-                                }
-                            ?>
-                        <div class="mb-1"><?php echo $dum_prodcode; ?></div></h6>                            
                         <h6>PROD. DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['productiondate'])); ?></div></h6>
                         <h6>DISPATCH DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['dispatchdate'])); ?></div></h6>
 
@@ -301,7 +332,7 @@ if($isfinal)
                             	?>
                                 <tr>
                                     <td class="left"><?php echo $prop ?></td>
-                                    <td class="center"><?php echo "MPIF ".$cdata['mpif'] ?></td>
+                                    <td class="center"><?php echo $cdata['mpif'] ?></td>
                                     <td class="center"><?php echo $cdata['min'] ?></td>
                                     <td class="center"><?php echo $cdata['max'] ?></td>
                                     <td class="center"><?php if($cdata['value']){echo $cdata['value'];} ?></td>
@@ -394,7 +425,7 @@ if($isfinal)
                             	?>
                                 <tr>
                                   	<td class="left" style="width:30%;"><?php echo $prop ?></td>
-                                    <td class="center" style="width:20%;"><?php echo "MPIF ".$cdata['mpif'] ?></td>
+                                    <td class="center" style="width:20%;"><?php echo $cdata['mpif'] ?></td>
                                     <td class="center" style="width:10%;"><?php echo $cdata['min'] ?></td>
                                     <td class="center" style="width:10%;"><?php echo $cdata['max'] ?></td>
                                     <td class="center" style="width:30%;"><?php echo $cdata['value'] ?></td>
@@ -418,24 +449,23 @@ if($isfinal)
                             <div><?php echo $data['packageweight']. "kg " . $data['package']; ?></div>
                                 
                         </div>-->
-                        <div class="col-sm-6">
-                            <h6>NET WEIGHT</h6>
-                            <h6><?php echo $data['dispatchqty'] ?> KG</h6>
-                        </div>
+                        
                         <!--<div class="col-sm-4">
                             <h6>GROSS WEIGHT</h6>
                             <h6><?php echo $data['dispatchqty']?> KG</h6>
                         </div> -->
-                        <div class="col-sm-6 lab-sign text-right">
-                          <img src="lab-sign.png">
+                        <div class="col-sm-12 lab-sign text-right">
+                          <img src='generate_sign.php?data=<?php echo serialize($data['sign']); ?>'>
                         </div>
                     </div>
 <!---- End of Packaging details -->
+                    <?php if($data['coanote']) {?>
                     <div class="row mb-4 mt-3">
                         <div class="col-sm-5" style="color:red">
                             NOTE: <?php echo $data['coanote']; ?>
                         </div>
                     </div>
+                    <?php } ?>
 <!---- Footer -->
                     <div class="row mb-2">
                       <div class="col-sm-9 footer">
@@ -448,7 +478,13 @@ if($isfinal)
                         
                       </div>
                     </div>
+
 <!---- End Footer -->
+<div class="row col-sm-12" style="text-align: right;">
+   <div class="col-sm-6"></div>
+   <div class="col-sm-6" style="font-size: 10px;">Generated on <?php echo Date('d-M-Y H:i',strtotime('now')) ?></div>
+
+</div>
                 </div>
             </div>
         </div>
@@ -631,23 +667,22 @@ else
                     
 
                     <div class="row mb-4 mt-3">
-                        <div class="col-sm-6">
-                            <h6>NET WEIGHT</h6>
-                            <h6><?php echo $data['dispatchqty'] ?> KG</h6>
-                        </div>
+                        
                         <!--<div class="col-sm-4">
                             <h6>GROSS WEIGHT</h6>
                             <h6><?php echo $data['dispatchqty']+$data['packageweight'] ?> KG</h6>
                         </div>-->
                         <div class="col-sm-6 lab-sign text-right">
-                          <img src="lab-sign.png">
+                          <img src='generate_sign.php?data=<?php echo serialize($data['sign']); ?>'>
                         </div>
                     </div>
 
                     <div class="row mb-4 mt-3">
+                        <?php if($data['coanote']) {?>
                         <div class="col-sm-5" style="color:red">
                             NOTE: <?php echo $data['coanote']; ?>
                         </div>
+                    <?php }?>
                     </div>
 
 <!---- Footer -->
@@ -662,6 +697,11 @@ else
                       </div>
                     </div>
 <!---- End Footer -->
+<div class="row col-sm-12" style="text-align: right;">
+   <div class="col-sm-6"></div>
+   <div class="col-sm-6" style="font-size: 10px;">Generated on <?php echo Date('d-M-Y H:i',strtotime('now')) ?></div>
+
+</div>
                 </div>
             </div>
         </div>

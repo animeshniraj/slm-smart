@@ -68,10 +68,12 @@
   		$tpkg = $_POST['tentative-pkg'];
 
 
-
+  		
 
   		runQuery("DELETE FROM purchaseorder_tentative WHERE orderid='$orderid'");
   		foreach ($tAllgrades as $currid => $currGrade) {
+
+  				
   				
   				for($i=0;$i<count($tDates[$currid]);$i++)
   				{
@@ -84,8 +86,13 @@
   				}
   		}
 
+  		
+
+  		
 
   	}
+
+
 
   	if(isset($_POST["editid"]))
   	{
@@ -154,6 +161,26 @@
 	    		//runQuery("INSERT INTO purchaseorder_params VALUES(NULL,'$orderid','DATA','$cid','$cpkg','package')");
 	    		
 	    	}
+
+	    	$allgrades = [];
+	    	$result = runQuery("SELECT * FROM purchaseorder_params WHERE orderid='$orderid' AND tag='batchid'");
+	  		while($row=$result->fetch_assoc())
+	  		{
+	  			array_push($allgrades,$row['param']);
+	  		}
+
+	  		$added = [];
+	    	$result = runQuery("SELECT * FROM purchaseorder_tentative WHERE orderid='$orderid'");
+	  		while($row=$result->fetch_assoc())
+	  		{
+	  			array_push($added,$row['grade']);
+	  		}
+
+	  		$array3 = array_diff($added, $allgrades);
+
+	  		foreach ($array3 as $value) {
+	  			runQuery("DELETE FROM purchaseorder_tentative WHERE orderid='$orderid' AND grade='$value' ");
+	  		}
 
     	}
 
@@ -894,7 +921,7 @@ else
 ?>
 <?php
 	
-	if($currStatus=="UNFULFILLED") {
+	if($currStatus!="FULFILLED") {
 ?>
 	<div class="form-group row">
 			<input type="hidden" name="addTentative" value="">

@@ -493,12 +493,12 @@ input[type=number] {
 			<input type="hidden" name="cid" value="<?php echo $cid; ?>">
 			<input type="hidden" name="currtab" value="invoices-tabdiv">
 
-			<div class="col-sm-10">
+			<div class="col-sm-5">
 				<input type="text" class="form-control" name="coa_notes" placeholder="COA Note" value="<?php echo $dumcoanote; ?>">
 			</div>
 			<input type="hidden" name="batch" value="<?php echo $row["batch"]; ?>">
 			<div class="col-sm-2">
-				<button type="submit" class="btn btn-primary pull-right" name="addcoanotes"><i class="fa fa-plus"></i>Add notes</button>
+				<button type="submit" class="btn btn-primary pull-left" name="addcoanotes"><i class="fa fa-sticky-note"></i>Add notes</button>
 			</div>
 	</div>
 	</form>
@@ -506,7 +506,9 @@ input[type=number] {
 	<div class="form-group row">
 
 			<div class="col-sm-12">
-			<button type="button"  class="btn btn-primary pull-right" onclick="window.open('generatecoa.php?id=<?php echo $row["batch"];?>&cid=<?php echo $cid;?>', '_blank').focus();"><i class="fa fa-cline"></i>Generate COA</button>
+			<button type="button"  class="btn btn-primary pull-right" onclick="window.open('generatecoa.php?id=<?php echo $row["batch"];?>&cid=<?php echo $cid;?>', '_blank').focus();"><i class="fa fa-flag"></i>Generate COA</button>
+
+			
 			<span class="messages"></span>
 			</div>
 	</div>

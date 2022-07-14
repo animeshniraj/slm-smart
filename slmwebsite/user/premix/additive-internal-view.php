@@ -207,10 +207,11 @@
 	<tbody>
 
 		<?php 
+		$k=1;
 			foreach($data[$additive[0]] as $entry)
 			{
 
-				$k=1;
+				
 		?>
 
 

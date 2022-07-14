@@ -297,7 +297,7 @@
 <div class="card-block">
 
 
-<table class="table table-responsive table-bordered table-striped table-xs">
+<table class="table table-bordered table-striped table-xs">
 	<thead>
 		<tr>
 		<th>PO No</th>
@@ -334,7 +334,7 @@
 			<td><?php echo $value[4];?></td>
 			<td><?php echo $value[5];?></td>
 			<td><?php echo $value[6];?></td>
-			<td><form method="POST" action="purchase-edit.php"><input type="hidden" name="orderid" value="<?php echo $value[0]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
+			<td><form method="POST" action="purchase-edit.php"><input type="hidden" name="orderid" value="<?php echo $value[0]; ?>"><button class="btn btn-info" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 			<?php
 
 

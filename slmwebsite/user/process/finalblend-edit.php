@@ -699,7 +699,7 @@ input[type=number] {
 				
 				<div class="d-inline">
 					<h3 style="margin-bottom:0;">Currently updating: <?php echo $processid; ?> (Blend No: <?php echo $blendnumber; ?>)</h3>
-					<p class="created">(Created on: <?php echo $entrytime; ?>)</p>
+					<p class="created">(Created on: <?php echo fromServerTimeTo12hr($entrytime); ?>)</p>
 				</div>
 			</div>
 		</div>
@@ -1404,10 +1404,20 @@ if($operationalPermission)
 <tbody id="blendmasterparenttbody">
 	
 	<?php 
+    $olddum ="";
 
 			for($i=1;$i<count($blendmasterData);$i++)
 			{
-				echo "<tr>";
+        if($olddum!=$blendmasterData[$i][4])
+        {
+          echo "<tr style='border-top: 2px solid;'>";
+          $olddum=$blendmasterData[$i][4];
+        }
+        else
+        {
+          echo "<tr>";
+        }
+				
 
 				?>
 				<td>

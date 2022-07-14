@@ -15,6 +15,8 @@
 
 	$BACKUP_LOCATION = "/home/ubuntu/slmBackupApp/data/";
 
+	$_CRYPT_SIGN_KEY = "SLMmetaltechsmart";
+
 
 
 ?>

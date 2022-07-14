@@ -63,16 +63,16 @@
     
 
 
-    	$creationDate = $_POST["creation-date"];
+    	$creationDate = toServerTime($_POST["creation-date"]);
     	
     	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
 
     	$month = explode("-",explode(" ",$creationDate)[0])[1];
-    	$prefix = "PR".$year." ".$month."/";
-    	$sqlprefix = "PR".$year." ".$month."/%";
+    	$prefix = $year."/PR-";
+    	$sqlprefix = $year."/PR-%";
 
 
-    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(premixid, '/', -1) AS SIGNED)) max_val FROM premix_batch WHERE premixid LIKE '$sqlprefix'");
+    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(premixid, '-', -1) AS SIGNED)) max_val FROM premix_batch WHERE premixid LIKE '$sqlprefix'");
 
     	if($result->num_rows==0)
     	{	
@@ -347,11 +347,10 @@ p {
 					  $('input[name="creation-date"]').daterangepicker({
 					    singleDatePicker: true,
 					    timePicker: true,
-					    timePicker24Hour: true,
 					    showDropdowns: true,
 					    locale: 
 					    {    
-					    	format: 'YYYY-MM-DD HH:mm',
+					    	format: 'YYYY-MM-DD hh:mm A',
 					    },
 					  	
 					    minYear: 1901,

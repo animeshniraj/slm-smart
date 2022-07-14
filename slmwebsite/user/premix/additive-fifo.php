@@ -53,6 +53,7 @@
 
 
     $result = runQuery("SELECT * FROM premix_additives WHERE additive<>'Iron'");
+    $olddate = "";
 
     while($row=$result->fetch_assoc())
     {	
@@ -61,7 +62,7 @@
     	$daily[$curr] = [];
     	$allrecon[$curr] =[];
 
-    	$isfirst = true;
+    	$isfirst = false;
     	
     	foreach ($period as $dt) {
     		
@@ -71,77 +72,176 @@
 
     		
 
+
+    		$olddate = clone $dt;
+    		$olddate->modify("-1 day");
+    				
+    		
+
     		$result2 = runQuery("SELECT * FROM additive_internal WHERE status='NOTOVER' AND additive='$curr' AND DATE(entrydate) <='$dumdt' ORDER BY entrydate");
     		
 	    	if($result2->num_rows>0)
 	    	{
-	    		$result2 = $result2->fetch_assoc();
-	    		$openingStock =0;
-    			$currStock =0;
-
-    			$currintid = $result2["internalid"];
-
-    			$result3 = runQuery("SELECT additive,mass as qty FROM additive_internal WHERE status='NOTOVER' AND additive='$curr' AND internalid ='$currintid'");
-    			$daily[$curr][$currintid][strval($dt->format('d'))]["current"] = $currStock;
-		    	$daily[$curr][$currintid][strval($dt->format('d'))]["opening"] = $openingStock;
-		    	$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "As it is";
-
-		    	if($dumdt == $dt->format('Y-m-01'))
-	    		{
-	    				$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "Carry Forward";
-	    				$daily[$curr][$currintid][strval($dt->format('d'))]["current"] = "-";
-	    				$k++;
-	    		}
-	    		if($isfirst)
-	    		{
-	    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "New Addition";
-	    			$isfirst = false;
-	    		}
-
-		    	if($result3->num_rows>0)
+	    		$result_new = $result2;
+	    		while($result2 = $result_new->fetch_assoc())
 		    	{
-		    		$result3 = $result3->fetch_assoc();
-		    		$openingStock = $result3["qty"];
-		    		$currStock = $result3["qty"];
-		    		$daily[$curr][$currintid][strval($dt->format('d'))]["opening"] = $openingStock;
-		    		$daily[$curr][$currintid][strval($dt->format('d'))]["current"] = $currStock;
+		    		$openingStock =0;
+	    			$currStock =0;
 
+	    			$currintid = $result2["internalid"];
 
-		    		$result4 = runQuery("SELECT sum(value)as qty FROM premix_batch_params WHERE step='BATCH SELECTION' AND param='$currintid' AND premixid in (SELECT premixid FROM premix_batch WHERE DATE(entrydate) <= '$dumdt') GROUP BY param");
+	    			$result3 = runQuery("SELECT additive,entrydate,mass as qty FROM additive_internal WHERE status='NOTOVER' AND additive='$curr' AND internalid ='$currintid'");
+	    			$daily[$curr][$currintid][strval($dt->format('d'))]["current"] = $currStock;
+			    	$daily[$curr][$currintid][strval($dt->format('d'))]["opening"] = $openingStock;
+			    	$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "";
 
-		    	
-		    		if($result4->num_rows>0)
+			    	if($dumdt == $dt->format('Y-m-01'))
+		    		{
+		    				$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "Carry Forward";
+		    				$daily[$curr][$currintid][strval($dt->format('d'))]["current"] = "-";
+		    				//$k++;
+		    		}
+		    		
+
+			    	if($result3->num_rows>0)
 			    	{
-			    		$dumqty = $result4->fetch_assoc()["qty"];
-			    		$currStock = $currStock - $dumqty;
-			    		$daily[$curr][$currintid][strval($dt->format('d'))]["current"] = $currStock;
+			    		$result3 = $result3->fetch_assoc();
+			    		//$openingStock = $result3["qty"];
 
-			    		
-			    		if($currStock<$openingStock)
+			    		if($dumdt == $dt->format('Y-m-01'))
 			    		{
-			    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "Consumed";
+			    				$openingStock = $result3["qty"];
+			    				
 			    		}
 			    		else
 			    		{
-			    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "As it is";
+			    				if(is_null($daily[$curr][$currintid][strval($olddate->format('d'))]))
+			    				{
+			    					$openingStock = "";
+			    				}
+			    				else
+			    				{
+			    					$openingStock = $daily[$curr][$currintid][strval($olddate->format('d'))]["current"];
+			    				}	
+			    			 	
+			    			 
+			    			 
+			    			 	
+			    			 
+			    			 
+			    			 //$openingStock = $olddate->format('d');
+
+			    			 
 			    		}
+			    		$currStock = $result3["qty"];
+			    		$daily[$curr][$currintid][strval($dt->format('d'))]["opening"] = $openingStock;
+			    		$daily[$curr][$currintid][strval($dt->format('d'))]["current"] = $currStock;
 
 			    		
+			    		if($dumdt==Date('Y-m-d',strtotime($result3['entrydate'])))
+			    		{
+			    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "New Addition";
+			    		}
+
+
+			    		$dumtime = $dt->format('Y-m-d');
+				    	$result5 = runQuery("SELECT internalid,SUM(adjustment) as qty FROM stock_reconciliation WHERE internalid='$currintid' AND DATE(entrytime) <= '$dumdt'  GROUP BY internalid");
+
+				    	$rFlag = false;
+			    		while($row5=$result5->fetch_assoc())
+			    		{
+			    			$currStock += $row5["qty"];
+			    			$rFlag = true;
+			    			//$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "Reconciled";
+
+			    		}
+
+
+			    		$result5 = runQuery("SELECT internalid,SUM(adjustment) as qty FROM stock_reconciliation WHERE internalid='$currintid' AND DATE(entrytime) = '$dumdt'  GROUP BY internalid");
+
+				    	$rFlag = false;
+			    		while($row5=$result5->fetch_assoc())
+			    		{
+			    			
+			    			$rFlag = true;
+			    			//$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "Reconciled";
+
+			    		}
+
+
+			    		$result4 = runQuery("SELECT sum(value)as qty FROM premix_batch_params WHERE step='BATCH SELECTION' AND param='$currintid' AND premixid in (SELECT premixid FROM premix_batch WHERE DATE(entrydate) <= '$dumdt') GROUP BY param");
+
+			    	
+			    		if($result4->num_rows>0)
+				    	{
+				    		$dumqty = $result4->fetch_assoc()["qty"];
+				    		$currStock = $currStock - $dumqty;
+				    		
+
+				    		
+
+				    		$daily[$curr][$currintid][strval($dt->format('d'))]["current"] = $currStock;
+
+				    		if($dumdt==Date('Y-m-d',strtotime($result3['entrydate'])))
+				    		{
+				    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "New Addition";
+				    		}
+				    		elseif($rFlag)
+				    		{
+				    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "Reconciled";
+				    		}
+				    		elseif($currStock<$openingStock)
+				    		{
+				    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "Consumed";
+				    		}
+				    		else
+				    		{
+				    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "As it is";
+				    		}
+
+				    		
+				    		
+				    	}
+				    	else
+				    	{
+				 
+				    		$daily[$curr][$currintid][strval($dt->format('d'))]["current"] = $currStock;
+				    		if($dumdt==Date('Y-m-d',strtotime($result3['entrydate'])))
+				    		{
+				    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "New Addition";
+				    		}
+				    		elseif($rFlag)
+				    		{
+				    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "Reconciled";
+				    		}
+				    		elseif($currStock<$openingStock)
+				    		{
+				    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "Consumed";
+				    		}
+				    		else
+				    		{
+				    			$daily[$curr][$currintid][strval($dt->format('d'))]["msg"] = "As it is";
+				    		}
+				    		
+				    		
+				    	}
+
+
+
+
+
 			    	}
 
 
 
-		    	}
-
-
-
-
+			    }
 
 	    	}
 
 
 
     		$result2 = runQuery("SELECT * FROM premix_additives WHERE additive<>'Iron'");
+    		$olddate = clone $dt;
 
     	}
 
@@ -156,9 +256,55 @@
 
 
     }
+
+     $fifo_data = [];
+
+    foreach ($period as $dt) {
+    	$fifo_data[$dt->format('d')] =[];
+    	$fifo_data[$dt->format('d')]['max_row'] =0;
+    	foreach ($allAdditive as $additive) {
+
+    		$fifo_data[$dt->format('d')][$additive[0]] = [];
+
+    	}
+    }
+
+    foreach ($allAdditive as $additive) {
+
+    	$curr = $daily[$additive[0]];
+		foreach ($curr as $curradditive => $additivedata) {
+
+
+			
+			foreach ($additivedata as $key => $value) {
+				
+
+				$fifo_data[$key][$additive[0]][$curradditive] = $daily[$additive[0]][$curradditive][$key];
+			}
+
+
+		}
+
+	}
+
+	foreach ($period as $dt) {
+    	foreach ($allAdditive as $additive) {
+
+    		
+    		$dumCount = count($fifo_data[$dt->format('d')][$additive[0]]);
+
+    		if($fifo_data[$dt->format('d')]['max_row']< $dumCount)
+    		{
+    			$fifo_data[$dt->format('d')]['max_row']= $dumCount;
+    		}
+    		
+    		
+
+    	}
+    }
     
 
-
+    
 
 
     $deletePermission = false;
@@ -239,7 +385,7 @@
 		</tr>
 			
 		</tr>
-		<tr>
+		<tr style='border: 2px solid'>
 		<th>Date</th>
 
 
@@ -252,7 +398,7 @@
 
 		<th> Activity</th>
 		<th> Quantity</th>
-		<th>Openign Stock</th>
+		<th>Opening Stock</th>
 		<?php 
 			}
 		?>
@@ -267,116 +413,83 @@
 	<tbody>
 
 		<?php 
+			$olddt = "";
+			$currdt = "";
+			foreach ($period as $dt) {
 
-		foreach ($period as $dt) {
+				$currdt = $dt->format('d');
+			
+		?>
+		
 
-    			$dumdt = $dt->format('d');
+
+		
+		<?php 
+			for($i=0;$i<$fifo_data[$currdt]['max_row'];$i++)
+			{
+				
+				if($currdt==$olddt)
+				{
+					echo "<tr>";
+				}
+				else
+				{
+					echo "<tr style='border-top: 2px solid'>";
+				}
 
 
+			if($currdt!=$olddt)
+			{
+				$olddt =$currdt;
+				echo "<th rowspan='".$fifo_data[$currdt]['max_row']."'>".$currdt."</th>";
+			}
+
+
+			foreach ($fifo_data[$currdt] as $key => $value) {
+				if($key=="max_row"){continue;}
+
+				$dumKey = array_key_first($value);
+				if(!$dumKey)
+				{
+					echo "<td></td><td></td><td></td><td></td>";
+					continue;
+				}
+				
+		?>
+			
+
+
+			
+
+			<td><?php echo $dumKey ?></td>
+			<td><?php echo $value[$dumKey]['msg'] ?></td>
+			<td><?php echo $value[$dumKey]['current'] ?></td>
+
+			<?php if($dumKey=="01"){ ?>
+
+			<td><?php echo $value[$dumKey]['opening'] ?></td>
+
+			<?php } else{ ?>
+
+				<td><?php echo $value[$dumKey]['opening'] ?></td>
+			<?php } ?>
+			
+
+		<?php
+			unset($fifo_data[$currdt][$key][$dumKey]);
+			}
+			echo "</tr>";
+		}
 
 		?>
 
-		<tr>
-			<td ><?php echo intval($dumdt); ?></td>
-			<?php 
-			foreach ($allAdditive as $additive) {
-				
-			?>
+		
 
-			
-				
-
-				<?php 
-
-				
-					foreach($daily[$additive[0]] as $key => $currbatch)
-					{
-
-
-
-				?>
-
-				
-						
-						<?php 
-						if(isset($currbatch[strval($dt->format('d'))]["opening"] ))
-						{
-							?>
-
-
-							<td style="border-left: 2px solid;"><?php echo $key ?></td>
-						<?php
-						}
-						else
-						{
-							?>
-
-
-							<td style="border-left: 2px solid;">-</td>
-						<?php
-						}
-
-					?></td>
-
-						<td><?php 
-						if(isset($currbatch[strval($dt->format('d'))]["msg"] ))
-						{
-							echo $currbatch[strval($dt->format('d'))]["msg"] ;
-						}
-						else
-						{
-							echo "No Batch" ;
-						}
-
-					?></td>
-					<td><?php 
-						if(isset($currbatch[strval($dt->format('d'))]["current"] ))
-						{
-							echo $currbatch[strval($dt->format('d'))]["current"] ;
-						}
-						else
-						{
-							echo "-" ;
-						}
-
-					?></td>
-					<td><?php 
-						if(isset($currbatch[strval($dt->format('d'))]["opening"] ))
-						{
-							echo $currbatch[strval($dt->format('d'))]["opening"] ;
-						}
-						else
-						{
-							echo "-" ;
-						}
-
-					?></td>
-
-
-				
-				
-
-
-				<?php 
-
-					}
-
-				?>
-
-
-
-			</td>
-			<?php 
-				}
-			?>
-
-		</tr>
-
-
-		<?php 
+		<?php
 
 		}
 		?>
+		
 
 	</tbody>
 	</table>
@@ -401,7 +514,6 @@
 
 
 </form>
-
 
 
 

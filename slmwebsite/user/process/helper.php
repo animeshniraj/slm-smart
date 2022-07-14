@@ -27,7 +27,7 @@
         else if($disabled=="readonly required" || $disabled=="required")
         {
             
-                echo "<div class=\"form-group row\">\n<label class=\"col-sm-2 col-form-label\">".$parameter."</label>\n<div class=\"col-sm-10\">\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"text\" name=\"paramsvalue[]\" value=\"".$value."\" id=\"".$prop."\" ".$disabled." class=\"form-control\">\n<script>\n$(function() {\n$('#".$prop."').daterangepicker({\nsingleDatePicker: true,timePicker: true,timePicker24Hour: true,\nshowDropdowns: true,\nminYear: 1901,\nmaxYear: parseInt(moment().format('YYYY'),10),\nlocale: {\n    format: 'YYYY-MM-DD HH:mm'\n}\n\n    \n}, function(start, end, label) {\n\n});\n});\n $('#".$prop."').val('".$value."');</script>\n</div>\n</div>";
+                echo "<div class=\"form-group row\">\n<label class=\"col-sm-2 col-form-label\">".$parameter."</label>\n<div class=\"col-sm-10\">\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"text\" name=\"paramsvalue[]\" value=\"".$value."\" id=\"".$prop."\" ".$disabled." class=\"form-control\">\n<script>\n$(function() {\n$('#".$prop."').daterangepicker({\nsingleDatePicker: true,timePicker: true,\nshowDropdowns: true,\nminYear: 1901,\nmaxYear: parseInt(moment().format('YYYY'),10),\nlocale: {\n    format: 'YYYY-MM-DD hh:mm A'\n}\n\n    \n}, function(start, end, label) {\n\n});\n});\n $('#".$prop."').val('".$value."');</script>\n</div>\n</div>";
             
             
         }
@@ -35,7 +35,7 @@
         else
         {
 
-            echo "<div class=\"form-group row\">\n<label class=\"col-sm-2 col-form-label\">".$parameter."</label>\n<div class=\"col-sm-10\">\n\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"text\" name=\"paramsvalue[]\" id=\"".$prop."\" ".$disabled." class=\"form-control\" placeholder=\"\">\n<script>\n$(function() {\n$('#".$prop."').daterangepicker({\nsingleDatePicker: true,timePicker: true,timePicker24Hour: true,\nshowDropdowns: true,\nminYear: 1901,\nmaxYear: parseInt(moment().format('YYYY'),10),minDate: '".$dmin."',\nlocale: {\n    format: 'DD-MM-YYYY HH:mm'\n}\n\n    \n}, function(start, end, label) {\n\n});\n});\n $('#".$prop."').val('".$value."');</script>\n</div>\n</div>";
+            echo "<div class=\"form-group row\">\n<label class=\"col-sm-2 col-form-label\">".$parameter."</label>\n<div class=\"col-sm-10\">\n\n<input type=\"hidden\" name=\"allparams[]\" value=\"".$parameter."\"><input type=\"text\" name=\"paramsvalue[]\" id=\"".$prop."\" ".$disabled." class=\"form-control\" placeholder=\"\">\n<script>\n$(function() {\n$('#".$prop."').daterangepicker({\nsingleDatePicker: true,timePicker: true,\nshowDropdowns: true,\nminYear: 1901,\nmaxYear: parseInt(moment().format('YYYY'),10),minDate: '".$dmin."',\nlocale: {\n    format: 'DD-MM-YYYY hh:mm A'\n}\n\n    \n}, function(start, end, label) {\n\n});\n});\n $('#".$prop."').val('".$value."');</script>\n</div>\n</div>";
 
             if($value=="")
             {

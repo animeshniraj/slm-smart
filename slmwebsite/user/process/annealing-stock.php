@@ -271,7 +271,6 @@
     }
 
    
-
     
 
     $heading = array_unique($heading);
@@ -594,6 +593,7 @@ if($show == "yes")
 		<th scope="col">Sl.<br>No.</th>
 		<th>Annealing ID</th>
 		<th>Entry Time</th>
+		<th>Raw Blend ID</th>
 		<th>Grade</th>
 		<?php
 
@@ -630,6 +630,16 @@ if($show == "yes")
 	<td width="2%" style="text-align:center;"><?php echo $k++; ?>.</td>
 	<td width="5%"><a target="_blank" href="/user/report/basic-annealing.php?id=<?php echo $data["id"]; ?>"><?php echo $data["id"]; ?></a></td></td>
 	<td width="5%"><?php echo $data["entrydate"]; ?></td>
+	<?php 
+			$did = $data["id"];
+			$paramval ="";
+			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND step='PARENT'");
+			if($result2->num_rows!=0)
+			{
+				$paramval = $result2->fetch_assoc()['param'];
+			}
+		?>
+	<td width="5%"><?php echo $paramval; ?></td>
 	<td width="5%"><?php echo $data["grade"]; ?></td>
 <?php
 
@@ -727,7 +737,7 @@ if($show == "yes")
 
 
             <?php 
-            $startnumber = 4;
+            $startnumber = 5;
             $i=0;
             	foreach ($heading as $head) {
 

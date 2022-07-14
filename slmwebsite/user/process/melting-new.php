@@ -59,8 +59,10 @@
     	$furnaceid = $_POST["furnaceid"];
     	$furnacename = $_POST["furnacename"];
 
-    	$creationDate = $_POST["creation-date"];
-    	$heatofftime = $_POST["heatofftime"];
+    	$creationDate = toServerTime($_POST["creation-date"]);
+    	$heatofftime = toServerTime($_POST["heatofftime"]);
+
+    	
     	$heatno = $_POST["heatno"];
     	$fheatno = $_POST["fheatno"];
     	
@@ -88,7 +90,7 @@
     	$prefix = $prefix . str_pad($count, 3, '0', STR_PAD_LEFT);
     	
     	$result = runQuery("INSERT INTO processentry VALUES('$prefix','$processname','CREATION','$creationDate','UNLOCKED')");
-
+			
     	if($result)
     	{
     			$result = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','CREATION','Furnace','$furnacename')");
@@ -361,11 +363,10 @@ p {
 					  $('input[name="creation-date"]').daterangepicker({
 					    singleDatePicker: true,
 					    timePicker: true,
-					    timePicker24Hour: true,
 					    showDropdowns: true,
 					    locale: 
 					    {    
-					    	format: 'YYYY-MM-DD HH:mm',
+					    	format: 'YYYY-MM-DD hh:mm A',
 					    },
 					  	
 					    minYear: 1901,
@@ -381,11 +382,10 @@ p {
 					  $('input[name="heatofftime"]').daterangepicker({
 					    singleDatePicker: true,
 					    timePicker: true,
-					    timePicker24Hour: true,
 					    showDropdowns: true,
 					    locale: 
 					    {    
-					    	format: 'YYYY-MM-DD HH:mm',
+					    	format: 'YYYY-MM-DD hh:mm A',
 					    },
 					  	
 					    minYear: 1901,

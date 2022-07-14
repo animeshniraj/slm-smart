@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | All Melting Batches",
+        "Page Title" => "View Recent Melting Batches | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-melting-view",
         "MainMenu"	 => "process_melting",
@@ -132,6 +132,11 @@
 </div>
 </div>
 
+<div class="col-lg-6">
+	<img src="images/melting.png">
+</div>
+
+
 <script>
 var input = document.getElementById("processid");
 input.addEventListener("keyup", function(event) {
@@ -156,7 +161,7 @@ input.addEventListener("keyup", function(event) {
 
 
 	<table class="table table-striped table-bordered table-xs">
-	<thead>
+	<thead style="text-align:center;font-size:13px;">
 		<tr>
 		<th>#</th>
 		<th>Heat ID</th>
@@ -164,11 +169,11 @@ input.addEventListener("keyup", function(event) {
 		<th>Day Heat No.</th>
 		<th>Heat On Time</th>
 		<th>Heat Off Time</th>
-		<th style="text-align:center;">Edit Batch</th>
+		<th>Edit<br>Batch</th>
 		<?php 
 			if($deletePermission)
 			{
-				echo "<th>Remove Batch</th>";
+				echo "<th>Remove<br>Batch</th>";
 			}
 		?>
 		</tr>
@@ -183,7 +188,7 @@ input.addEventListener("keyup", function(event) {
 					while($row=$result->fetch_assoc())
 					{
 		?>
-	<tr>
+	<tr style="text-align:center;">
 		<th scope="row"><?php echo ++$k; ?></th>
 		<td><?php echo $row["processid"]; ?></td>
 		<td><?php echo $row["value"]; ?></td>
@@ -194,26 +199,27 @@ input.addEventListener("keyup", function(event) {
 		?>
 		<td><?php echo $dval; ?></td>
 		<?php
-		
-		
-			$dval = runQuery("SELECT * FROM processentryparams WHERE processid='$ccid' AND param='Heat On Time'")->fetch_assoc()['value'];
+		$dval = runQuery("SELECT * FROM processentryparams WHERE processid='$ccid' AND param='Heat On Time'")->fetch_assoc()['value'];
 		?>
-		<td><?php echo $dval; ?></td>
+	<!--	<td><?php echo fromServerTimeTo12hr($dval); ?></td> -->
+	
+		<td><?php echo Date('d-M-Y - h:i A',strtotime($dval)); ?></td>
+
 		<?php
 		
 			$dval = runQuery("SELECT * FROM processentryparams WHERE processid='$ccid' AND param='Heat Off Time'")->fetch_assoc()['value'];
 		?>
-		<td><?php echo $dval; ?></td>
+		<td><?php echo fromServerTimeTo12hr($dval); ?></td>
 
-		<td><form method="POST" action="melting-edit.php"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
+		<td><form method="POST" action="melting-edit.php"><input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>"><button class="btn btn-info" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
 
 			if($deletePermission)
 			{
-				echo "<td><button class=\"btn btn-danger\" name=\"deleteProcess\" onclick=\"removeProcess('".$row["processid"]."')\" type=\"button\"><i class=\"feather icon-trash\"></i>Remove</button></td>";
-			}
-		
+				echo "<td><button class=\"btn btn-danger\" name=\"deleteProcess\" onclick=\"removeProcess('".$row["processid"]."')\" type=\"button\"><i class=\"icon feather icon-trash-2 f-w-600 f-16\"></i>Remove</button></td>";			}
+
+			
 
 
 		?>
@@ -345,6 +351,8 @@ function getHeatid(inObj)
             {
                Swal.fire({
 					icon: "error",
+					html:
+						'<img src="images/oops.png">',
 					title: "Heat ID not Found",
 					showConfirmButton: true,
 				  	showCancelButton: false,

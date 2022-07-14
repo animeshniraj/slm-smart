@@ -67,8 +67,8 @@
 	
     	runQuery("INSERT INTO final_coa_grade_settings VALUES(NULL,'$gradename','$propname','$propname',1,'$count','$propclass')");
     	addprocesslog('GRADE',$gradename,$session->user->getUserid(),'New property '.$propname.' added.');
-    	$show_alert = true;
-		$alert = showAlert("info","COA Settings","Please reconfigure COA settings.");
+    	$show_alert = false;
+	$alert = showAlert("info","COA Settings","Please reconfigure COA settings.");
 
     	
 
@@ -90,8 +90,8 @@
     	runQuery("INSERT INTO gradeproperties VALUES(NULL,'$processname','$gradename','$propname','$min','$max','$quarantine','$count')");
     	runQuery("INSERT INTO final_coa_grade_settings VALUES(NULL,'$gradename','$propname','$propname',1,'$count','Sieve')");
 
-    	$show_alert = true;
-		$alert = showAlert("info","COA Settings","Please reconfigure COA settings.");
+    	$show_alert = false;
+	$alert = showAlert("info","COA Settings","Please reconfigure COA settings.");
     	addprocesslog('GRADE',$gradename,$session->user->getUserid(),'New Sieve property '.$propname.' added.');
 
     }

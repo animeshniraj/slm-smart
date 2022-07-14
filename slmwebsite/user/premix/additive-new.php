@@ -60,7 +60,7 @@
     	$externalid = $_POST["external-id"];
     	$supplier = $_POST["supplier"];
     	$additive = $_POST["additive"];
-    	$date = $_POST["creation-date"];
+    	$date = toServerTime($_POST["creation-date"]);
 
 
     	$result = runQuery("INSERT INTO additive_external VALUES('$externalid','$additive','$supplier','$date','0','PENDING')");
@@ -318,11 +318,10 @@ p {
 					  $('input[name="creation-date"]').daterangepicker({
 					    singleDatePicker: true,
 					    timePicker: true,
-					    timePicker24Hour: true,
 					    showDropdowns: true,
 					    locale: 
 					    {    
-					    	format: 'YYYY-MM-DD HH:mm',
+					    	format: 'YYYY-MM-DD hh:mm A',
 					    },
 					  	
 					    minYear: 1901,

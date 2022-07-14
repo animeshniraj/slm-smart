@@ -633,6 +633,8 @@ input[type=number] {
 						<button onclick="duplicaterow(document.getElementById('batchrow-<?php echo $k;?>'),this.closest('tbody'))" class="btn btn-primary" type="button"><i class="fa fa-copy"></i>Duplicate</button>
 
 						<button onclick="this.closest('tr').remove()" class="btn btn-danger" type="button"><i class="fa fa-trash"></i>Delete</button>
+
+						<button type="button"  class="btn btn-primary" onclick="opentag(document.getElementById('batch-select-<?php echo $k;?>'))"><i class="fa fa-tag"></i>Dispatch Tag</button>
 					</td>
 
 						<script type="text/javascript">
@@ -641,6 +643,11 @@ input[type=number] {
 							    document.getElementById('pkg-select-<?php echo $k;?>').value='<?php echo $row["package"];?>';
 								document.getElementById('batch-select-<?php echo $k;?>').value='<?php echo $row["batch"];?>';
 							});
+
+							function opentag(batch)
+							{
+								window.open('dispatch-print.php?id='+batch.value+'&cid=<?php echo $laid;?>', '_blank').focus();
+							}
 
 
 							function duplicaterow(trrow,tbody)

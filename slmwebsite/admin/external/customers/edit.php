@@ -27,6 +27,22 @@
     }
 
     $externalid = $_POST["externalid"];
+
+
+    function getRequired($req)
+    {
+    	$required_list = ["Address","City","Pincode","State","Country"];
+
+    	if(in_array($req, $required_list))
+    	{
+    		return "required";
+    	}
+    	else
+    	{
+    		return "";
+    	}
+    }
+    
 	
 
 
@@ -194,7 +210,7 @@
 	<div class="form-group row">
 			<label class="col-sm-2 col-form-label"><?php echo $value[0] ?></label>
 			<div class="col-sm-10">
-			<input type="text" required class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_<?php echo $value[0] ?>" placeholder="" value="<?php echo $value[1]; ?>">
+			<input type="text" <?php echo getRequired($value[0]) ?> class="form-control" name="<?php echo $external_type;?>_val[]" id="<?php echo $external_type;?>_<?php echo $value[0] ?>" placeholder="" value="<?php echo $value[1]; ?>">
 
 			<input type="hidden"name="<?php echo $external_type;?>_paramorder[]" value="<?php echo $value[2]; ?>">
 			<input type="hidden"name="<?php echo $external_type;?>_param[]" value="<?php echo $value[0]; ?>">

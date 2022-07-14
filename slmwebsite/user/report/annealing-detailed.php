@@ -85,6 +85,8 @@
 
         $dum['feedhr'] = "";
         $dum['feedrate'] = "";
+        $dum['feedhrformated'] ="";
+        $dum['breaktime'] = 0;
 
 
 
@@ -119,22 +121,9 @@
 
 
 
-        $result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$currid' AND param='Hopper Discharge Time'");
-        {
-            if($result->num_rows==1)
-            {
-                $dum1 = $result2->fetch_assoc()['value'];
-                if($dum1)
-                {
-                    $dum['outtime'] = $dum1;
+        
 
-                    $dum['feedhr'] = (strtotime($dum['outtime']) - strtotime($dum['feedtime']))/3600;
-                    $dum['feedrate'] = $dum["mass"]/$dum['feedhr'];
-                }
-            }
-        }
 
-       
 
 
        
@@ -194,7 +183,30 @@
                 {
                     $dum2 = [$type,explode('::',explode('->',$row2['note'])[1])[0],explode('Total Time-> ',$row2['note'])[1]];
 
+                    $dstarttime = strtotime(explode(' - ',$dum2[2])[0]);
+                    $dstoptime = strtotime(explode(' - ',$dum2[2])[1]);
+                    $dum["breaktime"] += $dstoptime-$dstarttime;
+
                     array_push($notes,$dum2);
+                }
+            }
+        }
+
+
+
+
+        $result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$currid' AND param='Hopper Discharge Time'");
+        {
+            if($result->num_rows==1)
+            {
+                $dum1 = $result2->fetch_assoc()['value'];
+                if($dum1)
+                {
+                    $dum['outtime'] = $dum1;
+
+                    $dum['feedhr'] = ((strtotime($dum['outtime']) - strtotime($dum['feedtime']))-$dum['breaktime'])/3600;
+                    $dum['feedrate'] = $dum["mass"]/$dum['feedhr'];
+                    $dum['feedhrformated'] = sprintf('%02d:%02d', (int) $dum['feedhr'], fmod($dum['feedhr'], 1) * 60);;
                 }
             }
         }
@@ -215,7 +227,6 @@
 
 
 
-
 ?>
 
 <script type="text/javascript">
@@ -228,7 +239,7 @@
 
 </script>
 
-<div class="page" contenteditable="true">
+<div class="page" contenteditable="false">
     <div id="ui-view" data-select2-id="ui-view">
         <div>
             
@@ -245,13 +256,14 @@
 
 	<div class="card">
                 <div class="card-header">
-                    <a class="btn btn-sm btn-primary float-right mr-1 d-print-none" onclick="javascript:window.print();" data-abc="true">
+                    <a class="btn btn-sm btn-secondary float-right mr-1 d-print-none" onclick="javascript:window.print();" data-abc="true">
                         <i class="fa fa-print"></i> Print Report</a>
                 </div>
                 <div class="card-body" style="">
 
                   <div class="row">
                       <div class="col-sm-4 logo">
+                          <img src="logo.png" width="250px">
                       </div>
                       <div class="col-sm-8 certificate">
                         <h4>ANNEALING FURNACE INPUT MATERIAL RECORD</h4>
@@ -261,13 +273,13 @@
                     <div class="table-responsive-sm">
                         <table class="table table-striped table-bordered">
                             <tbody>
-                                <tr>
-                                    <td scope="col" colspan="1" class="center" style="width:20%;font-weight:bold;">DATE</td>
-                                    <td scope="col" colspan="1" class="center" style="width:15%;font-weight:bold;"><?php echo $creationDate; ?></td>
-                                    <td scope="col" colspan="2" class="center" style="width:20%;font-weight:bold;">GRADE</td>
-                                    <td scope="col" colspan="1" class="center" style="width:15%;font-weight:bold;"><?php echo $dum["grade"]; ?></td>
-                                    <td scope="col" colspan="1" class="center" style="width:18%;font-weight:bold;">FURNACE NO.</td>
-                                    <td scope="col" colspan="1" class="center" style="width:12%;font-weight:bold;"><?php echo $dum["furnace"]; ?></td>
+                                <tr style="font-size:14px;">
+                                    <td scope="col" colspan="1" class="center" style="width:10%;font-weight:bold;">DATE</td>
+                                    <td scope="col" colspan="1" class="center" style="width:15%;"><?php echo $creationDate; ?></td>
+                                    <td scope="col" colspan="2" class="center" style="width:10%;font-weight:bold;">GRADE</td>
+                                    <td scope="col" colspan="1" class="center" style="width:15%;"><?php echo $dum["grade"]; ?></td>
+                                    <td scope="col" colspan="1" class="center" style="width:15%;font-weight:bold;">FURNACE NO.</td>
+                                    <td scope="col" colspan="1" class="center" style="width:35%;"><?php echo $dum["furnace"]; ?></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -277,13 +289,13 @@
                     <div class="table-responsive-sm">
                         <table class="table table-striped table-bordered">
                             <tbody>
-                                <tr>
-                                    <td scope="col" colspan="1" class="center" style="width:20%;font-weight:bold;">BATCH NO.</td>
-                                    <td scope="col" colspan="1" class="center" style="width:15%;font-weight:bold;"><?php echo $rawblendid; ?></td>
-                                    <td scope="col" colspan="2" class="center" style="width:20%;font-weight:bold;">FEED TIME</td>
-                                    <td scope="col" colspan="1" class="center" style="width:15%;font-weight:bold;"><?php echo Date('H:i',strtotime($dum["feedtime"])); ?></td>
-                                    <td scope="col" colspan="1" class="center" style="width:18%;font-weight:bold;">OUTPUT TIME</td>
-                                    <td scope="col" colspan="1" class="center" style="width:12%;font-weight:bold;"><?php echo $dum["outtime"]; ?></td>
+                            <tr style="font-size:14px;">
+                                    <td scope="col" colspan="1" class="center" style="width:10%;font-weight:bold;">BATCH NO.</td>
+                                    <td scope="col" colspan="1" class="center" style="width:15%;"><?php echo $rawblendid; ?></td>
+                                    <td scope="col" colspan="2" class="center" style="width:10%;font-weight:bold;">FEED TIME</td>
+                                    <td scope="col" colspan="1" class="center" style="width:15%;"><?php echo Date('H:i',strtotime($dum["feedtime"])); ?></td>
+                                    <td scope="col" colspan="1" class="center" style="width:15%;font-weight:bold;">OUTPUT TIME</td>
+                                    <td scope="col" colspan="1" class="center" style="width:35%;"><?php echo $dum["outtime"]; ?></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -494,17 +506,19 @@
                                     <td scope="col" colspan="1" class="center" style="width:50%">GAS RATIO</td>
                                     <td scope="col" colspan="1" class="center" style="width:50%"><?php echo $dval; ?></td>
                                 </tr>
+
                                 <tr>
                                     <td scope="col" colspan="1" class="center" style="width:50%">TOTAL RUNNING HRS.</td>
-                                    <td scope="col" colspan="1" class="center" id = "total_running" style="width:50%"><?php echo round($dum["feedhr"],2); ?></td>
+                                    <td scope="col" colspan="1" class="center" id = "total_running" style="width:50%"><?php echo $dum["feedhrformated"]; ?></td>
                                 </tr>
                                 <tr>
                                     <td scope="col" colspan="1" class="center" style="width:50%">FEED RATE KG/HR</td>
-                                    <td scope="col" colspan="1" class="center" id = "feed_rate" style="width:50%"><?php echo $dum["mass"]; ?></td>
+                                    <td scope="col" colspan="1" class="center" id = "feed_rate" style="width:50%"><?php echo round($dum["feedrate"],2); ?></td>
                                 </tr>
                          </tbody>
                         </table>
                     </div>
+                
                 </div>
             </div>
 
@@ -648,15 +662,6 @@
                             <tfoot>
                                 
                             </tfoot>
-                            <script type="text/javascript">
-                                total_running = document.getElementById('total_running');
-                                feed_rate = document.getElementById('feed_rate');
-                                newtime  = parseFloat(total_running.innerHTML) - <?php echo round($totaldt,2);?>;
-                                
-                                total_running.innerHTML = newtime;
-
-                                feed_rate.innerHTML = Math.round((parseFloat(feed_rate.innerHTML)/newtime)*1000)/1000
-                            </script>
                         </table>
                     </div>
 

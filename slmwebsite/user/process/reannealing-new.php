@@ -59,7 +59,7 @@
     	$furnaceid = $_POST["furnaceid"];
     	$furnacename = $_POST["furnacename"];
 
-    	$creationDate = $_POST["creation-date"];
+    	$creationDate = toServerTime($_POST["creation-date"]);
 
     	$finalblendgrade = $_POST["finalblendgrade"];
 
@@ -321,11 +321,10 @@ p {
 					  $('input[name="creation-date"]').daterangepicker({
 					    singleDatePicker: true,
 					    timePicker: true,
-					    timePicker24Hour: true,
 					    showDropdowns: true,
 					    locale: 
 					    {    
-					    	format: 'YYYY-MM-DD HH:mm',
+					    	format: 'YYYY-MM-DD hh:mm A',
 					    },
 					  	
 					    minYear: 1901,

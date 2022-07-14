@@ -7,6 +7,30 @@
 	require_once("inventory.php");
 
 	
+	function toServerTime($date,$time=true,$seconds = true)
+	{
+		if($time)
+		{
+			if($seconds)
+			{
+				return Date('Y-m-d H:i:s',strtotime($date));
+			}
+			else
+			{
+				return Date('Y-m-d H:i',strtotime($date));
+			}
+		}
+		else
+		{
+			return Date('Y-M-d',strtotime($date));
+		}
+		
+	}
+
+	function fromServerTimeTo12hr($date)
+	{
+		return Date('Y-M-d h:i A',strtotime($date));
+	}
 
 	function showAlert($icon,$title,$msg)
 	{

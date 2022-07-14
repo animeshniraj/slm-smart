@@ -39,6 +39,7 @@
 
     	if(!in_array($drole,$UNMUTABLE))
     	{
+    		runQuery("DELETE FROM defaultpermissions WHERE role='$drole'");
     		runQuery("DELETE FROM rolepermissions WHERE roleid='$drole'");
     		runQuery("DELETE FROM roles WHERE roleid='$drole'");
     	}

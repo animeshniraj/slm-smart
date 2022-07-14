@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "SLM | Batch Stock Report",
+        "Page Title" => "Batch Stock Report | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "process-batch-stock",
         "MainMenu"	 => "process_batch",
@@ -175,11 +175,12 @@
 
     	$start= $row["entrytime"];
 
+    	
 
     	$result2 = runQuery("SELECT * FROM processentryparams WHERE param='$currid' AND step='PARENT' AND param <>'approved-by' AND processid in (SELECT processid from processentry WHERE (entrytime BETWEEN '$start' AND '$stoptime') )");
 
 
-
+    	/*
     	while($row2=$result2->fetch_assoc())
     	{
     		$dumRaw = [$row2["processid"],$row2["value"]];
@@ -190,8 +191,11 @@
 
     		$dum["remaining"] -= $row2["value"];
     	}
-
+		
+		*/
     	
+
+    	$dum["remaining"] = getfinalbatchqty($currid);
 
 
     	$avg = [];

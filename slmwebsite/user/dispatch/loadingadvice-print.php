@@ -145,7 +145,7 @@
   <!-- Set page size here: A5, A4 or A3 -->
   <!-- Set also "landscape" if you need -->
   <style type="text/css">
-  @page { size: A5 landscape }
+  @page { size: A4 portrait }
 .center {
   display: block;
   margin-left: auto;

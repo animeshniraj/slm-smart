@@ -356,7 +356,7 @@
 
    $allSequenceValues = [];
 
-   $result = runQuery("SELECT * FROM premix_batch_params WHERE premixid='$premixid' AND step='FEED SEQUENCE' ORDER BY tag");
+   $result = runQuery("SELECT * FROM premix_batch_params WHERE premixid='$premixid' AND step='FEED SEQUENCE' ORDER BY CAST(tag AS unsigned)");
 
    while($row=$result->fetch_assoc())
    {
@@ -2019,6 +2019,7 @@ $(document).ready(function() {
 	
 
 	var allSequence = <?php echo json_encode($allSequenceValues); ?>
+	//	console.log(allSequence)
 
 	var i=0
 	for(i=0;i<allSequence.length;i++)

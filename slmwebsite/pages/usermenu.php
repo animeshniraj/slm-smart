@@ -49,17 +49,6 @@
 		<span class="pcoded-mtext">View</span>
 		</a>
 		</li>
-
-
-		<li id="process-melting-stock" class="">
-		<a href="/user/process/melting-stock.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">Stock</span>
-		</a>
-		</li>
-
-
-
 		
 
 	</ul>
@@ -90,18 +79,6 @@
 		</a>
 		</li>
 
-
-		<li id="process-rawbag-stock" class="">
-		<a href="/user/process/rawbag-stock.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">Stock</span>
-		</a>
-		</li>
-
-
-
-
-
 		
 
 	</ul>
@@ -128,14 +105,6 @@
 		<a href="/user/process/rawblend-view.php" class="waves-effect waves-dark">
 
 		<span class="pcoded-mtext">View</span>
-		</a>
-		</li>
-
-
-		<li id="process-rawblend-stock" class="">
-		<a href="/user/process/rawblend-stock.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">Stock</span>
 		</a>
 		</li>
 
@@ -183,12 +152,6 @@
 		</li>
 
 
-		<li id="process-annealing-stock" class="">
-		<a href="/user/process/annealing-stock.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">Stock</span>
-		</a>
-		</li>
 
 
 	</ul>
@@ -222,13 +185,6 @@
 		</li>
 
 
-		<li id="process-semifinished-stock" class="">
-		<a href="/user/process/semifinished-stock.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">Stock</span>
-		</a>
-		</li>
-
 
 
 
@@ -256,13 +212,6 @@
 		<a href="/user/process/finalblend-view.php" class="waves-effect waves-dark">
 
 		<span class="pcoded-mtext">View</span>
-		</a>
-		</li>
-
-		<li id="process-finalblend-stock" class="">
-		<a href="/user/process/finalblend-stock.php" class="waves-effect waves-dark">
-
-		<span class="pcoded-mtext">Stock</span>
 		</a>
 		</li>
 
@@ -410,6 +359,26 @@
 		</li>
 
 	</ul>
+
+
+</li>
+
+
+
+<li id="stock_menu" class="pcoded-hasmenu" dropdown-icon="style1" subitem-icon="style1">
+<a href="javascript:void(0)" class="waves-effect waves-dark">
+<span class="pcoded-micon"><i class="fa fa-signal"></i></span>
+<span class="pcoded-mtext">Stock Report</span>
+</a>
+	<ul class="pcoded-submenu">
+		<li id="stock-process" class="">
+		<a href="/user/process/process-stock.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Process Stock</span>
+		</a>
+		</li>
+	</ul>
+
 
 
 </li>

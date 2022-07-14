@@ -73,12 +73,56 @@
 		echo json_encode($response);
 	}	
 
+	function getAllFailedAnnealing()
+	{
+		$response = [
+				"response" => false,
+				"msg" => "No Ids",
+				"ids" => [],
+		];
+
+		$allIds = [];
+
+		$result = runQuery("SELECT * FROM processentry WHERE processname='Final Blend' AND islocked='FAILED'");
+
+		while($row=$result->fetch_assoc())
+		{
+			$response["response"]= true;
+			$total = getTotalQuantity($row["processid"]);
+			$used = getChildProcessQuantity($row["processid"]);
+
+			if($total-$used<=0)
+			{
+				continue;
+			}
+
+			array_push($allIds,[$row["processid"],$row["entrytime"],"",$total,($total-$used)]);
+		}
+
+		$response["ids"] = $allIds;
+
+		
+		
+
+
+		return $response;
+	}
+
 
 	function getAllRemainingAnnealing($fid)
 	{
 		require_once('../../requiredlibs/includeall.php');
 		$prefix = "%".$fid."%";
-		$allIds = [];
+		
+		$allIds =[];
+
+		if($fid=="FAILED")
+		{
+			$response = getAllFailedAnnealing();
+			echo json_encode($response);
+			return 0;
+		}
+
 
 		$result = runQuery("SELECT * FROM processentry WHERE processname='Annealing' AND processid LIKE '$prefix' AND (islocked <> 'BLOCKED' OR islocked <> 'FAILED')");
 		if($result->num_rows>0)

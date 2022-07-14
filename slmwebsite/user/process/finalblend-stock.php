@@ -182,9 +182,10 @@
 
     		array_push($dum["child"],$dumRaw);
 
-
-
-    		$dum["remaining"] -= $row2["value"]	;
+    		if($row2["value"])
+    		{
+    			$dum["remaining"] -= $row2["value"]	;
+    		}
     	}
 
     	

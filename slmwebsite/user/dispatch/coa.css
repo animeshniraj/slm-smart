@@ -1,8 +1,8 @@
  body{ font-size:13px;
- line-height:13px; }
+ line-height:13px; 
+background-color: #fff;}
 
  .card {
-    margin-bottom: 1.5rem
 }
 
 .card {
@@ -15,7 +15,7 @@
     word-wrap: break-word;
     background-color: #fff;
     background-clip: border-box;
-    border: 1px solid #c8ced3;
+    border: 1px solid #ccc;
     border-radius: .25rem
 }
 

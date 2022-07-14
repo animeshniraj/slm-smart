@@ -18,7 +18,7 @@
 	
 
     $PAGE = [
-        "Page Title" => "View all Purchase Order | SLM SMART",
+        "Page Title" => "View all Loading Advices | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "loadingadvice-view",
         "MainMenu"	 => "dispatch_menu",
@@ -92,8 +92,8 @@
 			<div class="page-header-title">
 				<i class="fa fa-fire bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>View all Loading Advices</h5>
-					<span>Select order to edit</span>
+					<h3>View all Loading Advices</h3>
+					<span>Click on Edit button to view or edit the Loading Advice</span>
 				</div>
 			</div>
 		</div>
@@ -106,28 +106,27 @@
 
 <div class="page-body">
 <div class="row">
-<div class="col-lg-12">
+<div class="col-lg-6">
 
 
 
 <div class="card">
-<div class="card-header">
-
-<div class="card-header-right">
-</div>
-</div>
+	<div class="card-header">
+		<h5>Open by Loading Advice ID</h5>
+		<i class="fa fa-search"></i>
+	</div>
 <div class="card-block">
 
 
-<div class="form-group row">
-			<label class="col-sm-2 col-form-label"> Loading Advices</label>
+		<div class="form-group row">
+			<label class="col-sm-2 col-form-label">Loading Advices</label>
 			<div class="col-sm-10">
-			<div class="input-group input-group-button">
-				<input required id="data_externalid" name="externalid" type="text" class="form-control form-control-uppercase" placeholder="">
-				<div class="input-group-append">
-				<button class="btn btn-primary" type="button" onclick="getexternalid(this)"><i class="feather icon-arrow-up-right"></i>Open</button>
+				<div class="input-group input-group-button">
+					<input required id="data_externalid" name="externalid" type="text" class="form-control form-control-uppercase" placeholder="">
+					<div class="input-group-append">
+					<button class="btn btn-success" type="button" onclick="getexternalid(this)"><i class="feather icon-arrow-up-right"></i>Open</button>
+					</div>
 				</div>
-			</div>
 			
 			</div>
 
@@ -140,6 +139,13 @@
 </div>
 </div>
 
+</div>
+
+<div class="col-lg-6">
+	<img src="images/loading-advice.png">
+</div>
+
+
 
 <div class="card">
 <div class="card-header">
@@ -150,7 +156,7 @@
 <div class="card-block">
 
 
-<table class="table table-responsive table-bordered table-striped table-xs">
+<table class="table table-bordered table-striped table-xs">
 	<thead>
 		<tr>
 		<th>#</th>
@@ -185,8 +191,8 @@
 
 		<td><?php echo $result2["value"]."(".$row["customer"].")"; ?></td>
 
-		<td><?php echo Date('Y-M-d H:i',strtotime($row["entrydate"])); ?></td>
-		<td><form method="POST" action="loadingadvice-edit.php"><input type="hidden" name="laid" value="<?php echo $row["laid"]; ?>"><button class="btn btn-primary" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
+		<td><?php echo Date('d-M-Y - h:i A',strtotime($row["entrydate"])); ?></td>
+		<td><form method="POST" action="loadingadvice-edit.php"><input type="hidden" name="laid" value="<?php echo $row["laid"]; ?>"><button class="btn btn-info" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
 		<?php
 
 
