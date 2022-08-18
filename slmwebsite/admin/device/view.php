@@ -441,7 +441,7 @@ function testDeviceOnce(devicename,ip)
 	                
 	                if(data.Status=="ONLINE")
 	                {
-	                    
+	                 	data.Data = data.Data.trim()  
 	                	consoleobj.innerHTML += "Reading Received-><br>"+data.Data+"<br>End of Reading<br>"
 	                }
 	                else

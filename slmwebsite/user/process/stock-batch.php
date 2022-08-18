@@ -47,7 +47,7 @@
 <script type="text/javascript" src="/pages/js/jquery.min.js" ></script>
 <script type="text/javascript" src="/pages/js/stock-process.js" ></script>
 <script type="text/javascript" src="/pages/js/stock-process-table.js" ></script>
-<script type="text/javascript" src="/pages/js/aggrid/ag-grid-community.min.js" ></script>
+<script type="text/javascript" src="/pages/js/aggrid/ag-grid-enterprise.min.js" ></script>
 <link rel="stylesheet" type="text/css" href="/pages/css/stock-process.css">
 
 

@@ -51,6 +51,7 @@ let processnameElement = document.getElementById('processname');
 function load_data()
 {
 	setToloading();
+	hide_download()
 	start_loading_arrow();
 	prepareSearchQuery();
 
@@ -286,8 +287,15 @@ function prepareSearchQuery()
 	search_query_payload["start_date"] = document.getElementById('starttime').value;
 	search_query_payload["end_date"] = document.getElementById('stoptime').value;
 	search_query_payload["filter_data_by"] = document.getElementById('stoptime').value;
+	search_query_payload["show_only_balance"] = false;
 
+	if(document.getElementById('show_only_balance').checked)
+	{
+		search_query_payload["show_only_balance"] = document.getElementById('show_only_balance').checked;
+	}
+	
 
+show_only_balance
 
 
 	if(basic_properties.filter_date_from_entry)
@@ -503,6 +511,16 @@ function start_loading_arrow()
 function hide_loading_arrow()
 {
 	document.getElementById('loading_arrow').style.display = "none";
+}
+
+function show_download()
+{
+	document.getElementById('download_csv_btn').style.display = "block";
+}
+
+function hide_download()
+{
+	document.getElementById('download_csv_btn').style.display = "none";
 }
 
 

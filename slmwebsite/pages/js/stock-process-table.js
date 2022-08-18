@@ -44,7 +44,8 @@ DataModel.prototype.createTable = function(columnDefs,rowData)
   	rowData: rowData,
   	getRowId: (params) => params.data.process_id,
   	pagination: true,
-  	paginationPageSize: 100
+  	paginationPageSize: 100,
+
 	}
 
 	gridDiv = document.createElement('div');
@@ -145,6 +146,7 @@ DataModel.prototype.test_fetch_job =function()
 
 			});
 			hide_loading_arrow();
+			show_download()
 			return 1;
 		}
 
@@ -177,7 +179,14 @@ DataModel.prototype.test_fetch_job_callback = function(data)
 
 		  for (var i = 0; i < currData.length; i++) {
 		  	var curr = currData[i]
-		  	rowNode.setDataValue(curr[0], curr[2])
+		  	if(rowNode)
+		  	{
+		  		rowNode.setDataValue(curr[0], curr[2])
+		  	}
+		  	else
+		  	{
+		  		console.log('Error:: Cannot find row->'+key);
+		  	}
 		  }
 		  
 

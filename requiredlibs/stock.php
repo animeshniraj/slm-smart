@@ -100,7 +100,7 @@
                 array_push($columnDefs,$dumProp);
         }
 
-
+        $dumProp = [];
         $dumProp["field"] = "prod_qty";
         $dumProp["headerName"] = "Production Quantity (kg)";
         $dumProp["filter"] = 'agNumberColumnFilter';
@@ -108,10 +108,12 @@
         array_push($uid_map,["prod_qty","Production Quantity (kg)"]);
         array_push($columnDefs,$dumProp);
 
+        $dumProp = [];
         $dumProp["field"] = "bal_qty";
         $dumProp["headerName"] = "Balance Quantity (kg)";
         $dumProp["filter"] = 'agNumberColumnFilter';
         $dumProp["floatingFilter"] = true;
+
         array_push($uid_map,["prod_qty","Balance Quantity (kg)"]);
         array_push($columnDefs,$dumProp);
 
@@ -126,7 +128,8 @@
                                                 $payload_received["start_date"],
                                                 $payload_received["end_date"],
                                                 $basic_properties,$additional_properties,
-                                                $payload_received["filter"],$uid_map);
+                                                $payload_received["filter"],$uid_map,
+                                                $payload_received["show_only_balance"]);
 
 
         $payload["rowData"] = $result[0];
@@ -139,7 +142,8 @@
     }
 
 
-    function getAllProcessIds($process,$grades,$start_date,$end_date,$basic_properties,$additional_properties,$filter,$uid_map)
+    function getAllProcessIds($process,$grades,$start_date,$end_date,$basic_properties,$additional_properties,
+                              $filter,$uid_map,$show_only_balance)
     {
         global $GRADE_TITLE;
         $rowData = [];
@@ -179,30 +183,27 @@
             $dumData["date"] = Date('d-M-Y',strtotime($row["date"]));
 
             
-            $dum_prop_fetch = [];
+            $dum_prop_fetch1 = [];
             foreach ($additional_properties as  $prop) {
                 $dumData[$prop["uid"]] = '▮▮▮▯▯';
 
-                array_push($dum_prop_fetch,[$prop["uid"],$prop["Name"]]);
+                array_push($dum_prop_fetch1,[$prop["uid"],$prop["Name"]]);
 
             }
 
-            array_push($fetch_data_list,[$row["processid"],$dum_prop_fetch]);
+           
 
-            $dum_prop_fetch = [];
+            $dum_prop_fetch2 = [];
             foreach ($filter["test"] as  $prop) {
                 $dum = $prop["property"];
                 $key1 = map_search($uid_map,$dum);
                     
                 $dumData[$key1] = '▮▮▮▯▯';
 
-                array_push($dum_prop_fetch,[$key1,$dum]);
+                array_push($dum_prop_fetch2,[$key1,$dum]);
             }
 
-            if($dum_prop_fetch)
-            {
-                array_push($test_data_list,[$row["processid"],$dum_prop_fetch]);
-            }
+            
             
 
             $dumId = $row["processid"];
@@ -354,14 +355,37 @@
             }
 
             ## END
+
+            if($show_only_balance)
+            {
+                if($row["bal_qty"]>0)
+                {
+                    array_push($newRowData,$row);
+                    array_push($fetch_data_list,[$row["process_id"],$dum_prop_fetch1]);
+                    if($dum_prop_fetch2)
+                    {
+                        array_push($test_data_list,[$row["process_id"],$dum_prop_fetch2]);
+                    }
+                    
+                }
+            }
+            else
+            {
+                array_push($newRowData,$row);
+                array_push($fetch_data_list,[$row["process_id"],$dum_prop_fetch1]);
+                if($dum_prop_fetch2)
+                {
+                    array_push($test_data_list,[$row["process_id"],$dum_prop_fetch2]);
+                }
+            }
             
 
-            array_push($newRowData,$row);
+            
         }
 
-        $rowData = $newRowData;
+        
 
-        return [$rowData,$fetch_data_list,$test_data_list];
+        return [$newRowData,$fetch_data_list,$test_data_list];
     }
 
 
@@ -551,7 +575,7 @@
         }
 
 
-        $result = runQuery("SELECT * FROM sieve");
+        $result = runQuery("SELECT * FROM sieve WHERE mesh order by cast(mesh as unsigned)");
         while($row=$result->fetch_assoc())
         {
             if(in_array($row['name'],$filteredlist))
@@ -565,6 +589,8 @@
             }
             
         }
+
+
 
         echo json_encode($payload);
     }

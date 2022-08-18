@@ -379,6 +379,15 @@
 		</li>
 	</ul>
 
+	<ul class="pcoded-submenu">
+		<li id="stock-batch" class="">
+		<a href="/user/process/stock-batch.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Batch Stock</span>
+		</a>
+		</li>
+	</ul>
+
 
 
 </li>
