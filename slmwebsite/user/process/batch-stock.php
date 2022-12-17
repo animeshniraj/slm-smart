@@ -20,8 +20,8 @@
     $PAGE = [
         "Page Title" => "Batch Stock Report | SLM SMART",
         "Home Link"  => "/user/",
-        "Menu"		 => "process-batch-stock",
-        "MainMenu"	 => "process_batch",
+		"Menu"		 => "stock-batch",
+        "MainMenu"	 => "stock_menu",
 
     ];
 
@@ -34,8 +34,9 @@
     $showMonth =6;
     $stoptime =Date("Y-m-d 23:59:59",strtotime("now"));
     $starttime =Date("Y-m-d",strtotime("-6 months"));
-    $currgrade = "all";
+    $currgrade = ["all"];
     $show = "no";
+    $show_special = false;
 
 
     if(isset($_GET['starttime']))
@@ -56,6 +57,12 @@
     if(isset($_GET['show']))
     {
     	$show = "yes";
+
+    }
+
+    if(isset($_GET['show_special']))
+    {
+    	$show_special = true;
 
     }
 
@@ -90,20 +97,41 @@
     }
 
     $allowed_grade =[];
+ 
 
-    if($currgrade!="all" && substr($currgrade,0,3)=="all")
+    if(in_array("all",$currgrade) )
     {
-    	$dclass = explode("all",$currgrade)[1];
-    	
-    	$result = runQuery("SELECT * FROM gradeclass WHERE processname='Final Blend' AND class='$dclass'");
+    	$currgrade="all";
+    }
+    else
+    {
+    	foreach ($currgrade as $cgrade) {
+    		if(substr($cgrade,0,3)=="all")
+    		{
+    			$dclass = explode("all",$cgrade)[1];
+    			$result = runQuery("SELECT * FROM gradeclass WHERE processname='Final Blend' AND class='$dclass'");
+    			while($row=$result->fetch_assoc())
+		    	{
+		    		array_push($allowed_grade,$row['gradename']);
+		    		
+		    	}
+    		}
+    		else
+    		{
+    			array_push($allowed_grade,$cgrade);
+    			
+    		}
 
-    	while($row=$result->fetch_assoc())
-    	{
-    		array_push($allowed_grade,$row['gradename']);
+
     	}
     	$currgrade="all";
-    	
+
     }
+    
+   
+
+
+
 
 
 
@@ -111,6 +139,7 @@
     $allData = [];
 
     $asof = 0;
+    $total_prod_qty = 0;
 
     $heading = [];
 
@@ -126,175 +155,226 @@
     	$dumgradepattern = $currgrade."#%";
     	$result = runQuery("SELECT * FROM processentry WHERE processname='$processname' AND entrytime>= '$starttime' AND entrytime <= '$stoptime' AND processid IN (SELECT processid FROM processentryparams WHERE param='$GRADE_TITLE' AND (value='$currgrade' OR value LIKE '$dumgradepattern')) ORDER BY entrytime");
 
-    }
-    
-
-    while($row=$result->fetch_assoc())
-    {
-
-    	$dum = [];
-    	$dum["id"] = $row["processid"];
-    	$dum["mass"] = 0;
-    	$dum["remaining"] = 0;
-
-    	$dum["entrydate"] = $row["entrytime"];
-    	$dum["test"] = [];
-    	$dum["child"] = [];
-    	$dum["grade"] = $processname=="Melting"?"Default Grade":"No Grade Selected";
-    	$currid = $row["processid"];
-    	$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$currid' AND (param = '$MASS_TITLE' OR param='$GRADE_TITLE')");
-
-
-
-
-    	while($row2=$result2->fetch_assoc())
-    	{
-
-    		if($row2["param"]==$MASS_TITLE)
-    		{
-    			$dum["mass"] = $row2["value"];
-    			$dum["remaining"] = $row2["value"];
-    		}
-    		if($row2["param"]==$GRADE_TITLE)
-    			$dum["grade"] = $row2["value"];
-    	}
-
-
-    	if(count($allowed_grade)>0)
-    	{
-
-    		if(!in_array($dum["grade"],$allowed_grade))
-    		{
-    			continue;
-    		}
-    	}
 
 
 
 
 
-    	$start= $row["entrytime"];
-
-    	
-
-    	$result2 = runQuery("SELECT * FROM processentryparams WHERE param='$currid' AND step='PARENT' AND param <>'approved-by' AND processid in (SELECT processid from processentry WHERE (entrytime BETWEEN '$start' AND '$stoptime') )");
 
 
-    	/*
-    	while($row2=$result2->fetch_assoc())
-    	{
-    		$dumRaw = [$row2["processid"],$row2["value"]];
-
-    		array_push($dum["child"],$dumRaw);
-
-    		
-
-    		$dum["remaining"] -= $row2["value"];
-    	}
-		
-		*/
-    	
-
-    	$dum["remaining"] = getfinalbatchqty($currid);
-
-
-    	$avg = [];
-    	
-    	$result2 = runQuery("SELECT DISTINCT(param) FROM processtestparams WHERE processid = '$currid'");
-
-    	while($row2=$result2->fetch_assoc())
-    	{
-
-    		
-    		array_push($heading,getpropShortname($processname,$row2["param"]));
-    		$avg[getpropShortname($processname,$row2["param"])] = [0,0];
-
-
-    	}
-
-    	$result2 = runQuery("SELECT * FROM processtestparams WHERE processid='$currid'");
-    	while($row2=$result2->fetch_assoc())
-    	{
-
-    		if(is_numeric($row2["value"]))
-    		{
-    			$avg[getpropShortname($processname,$row2["param"])][0] +=  $row2["value"];
-    			$avg[getpropShortname($processname,$row2["param"])][1]++;
-    		}
-    		
-    	}
-
-
-    	foreach ($avg as $key => $value) {
-    		$dumSum = $value[0];
-    		$dumCount = $value[1];
-
-    		if($dumCount!=0)
-    		{
-    			$avg[$key][0] = round($dumSum/$dumCount,3);
-    		}
-    		else{
-    			$avg[$key][0] = "-";
-    		}
-    	}
-
-    	$dum["test"] = $avg;
-    	
-    	$flag = true;
-
-    	foreach ($avg as $key => $value) {
-    		
-
-    		if(isset($propmin["'$key'"]) && $propmin["'$key'"])
-    		{	
-    			if($value[0]<=$propmin["'$key'"])
-    			{
-    				
-    				$flag = false;
-    				//continue;
-    			}
-    		}
-
-    		if(isset($propmax["'$key'"]) && $propmax["'$key'"])
-    		{
-    			
-    			if($value[0]>=$propmax["'$key'"])
-    			{
-    				$flag = false;
-    				//continue;
-    			}
-    		}
-    	}
-
-    	
-
-
-    	$asof += $dum["remaining"];
-
-
-    	if($flag)
-    	{
-    		if($rtype=="bal" && $dum["remaining"]<=0)
-    		{
-    			continue;
-    		}
-    		array_push($allData,$dum);
-    	}
-
-    	if(!in_array($dum["grade"],$allgrade))
-    	{
-    		array_push($allgrade,$dum["grade"]);
-
-    		$allgradeqty[$dum["grade"]] = 0;
-    	}
-
-    	$allgradeqty[$dum["grade"]] += $dum["remaining"];
-
-    	
     }
 
+
+
+
+
+    	while($row=$result->fetch_assoc())
+	    {
+
+	    	$dum = [];
+	    	$dum["id"] = $row["processid"];
+	    	$dum["mass"] = 0;
+	    	$dum["remaining"] = 0;
+
+	    	$dum["entrydate"] = $row["entrytime"];
+	    	$dum["test"] = [];
+	    	$dum["child"] = [];
+	    	$dum["grade"] = $processname=="Melting"?"Default Grade":"No Grade Selected";
+	    	$currid = $row["processid"];
+	    	$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$currid' AND (param = '$MASS_TITLE' OR param='$GRADE_TITLE')");
+
+
+
+
+	    	while($row2=$result2->fetch_assoc())
+	    	{
+
+	    		if($row2["param"]==$MASS_TITLE)
+	    		{
+	    			$dum["mass"] = $row2["value"];
+	    			$total_prod_qty += $dum["mass"];
+	    			$dum["remaining"] = $row2["value"];
+	    		}
+	    		if($row2["param"]==$GRADE_TITLE)
+	    			$dum["grade"] = $row2["value"];
+	    	}
+
+
+	    	if(count($allowed_grade)>0)
+	    	{
+
+	    		if(!in_array($dum["grade"],$allowed_grade))
+	    		{
+	    			continue;
+	    		}
+	    	}
+
+
+
+
+
+	    	$start= $row["entrytime"];
+
+	    	
+
+	    	$result2 = runQuery("SELECT * FROM processentryparams WHERE param='$currid' AND step='PARENT' AND param <>'approved-by' AND processid in (SELECT processid from processentry WHERE (entrytime BETWEEN '$start' AND '$stoptime') )");
+
+
+	    	/*
+	    	while($row2=$result2->fetch_assoc())
+	    	{
+	    		$dumRaw = [$row2["processid"],$row2["value"]];
+
+	    		array_push($dum["child"],$dumRaw);
+
+	    		
+
+	    		$dum["remaining"] -= $row2["value"];
+	    	}
+			
+			*/
+	    	
+
+	    	$dum["remaining"] = getfinalbatchqty($currid);
+
+
+	    	$avg = [];
+	    	
+	    	$result2 = runQuery("SELECT DISTINCT(param) FROM processtestparams WHERE processid = '$currid'");
+
+	    	while($row2=$result2->fetch_assoc())
+	    	{
+
+	    		
+	    		array_push($heading,getpropShortname($processname,$row2["param"]));
+	    		$avg[getpropShortname($processname,$row2["param"])] = [0,0];
+
+
+	    	}
+
+	    	
+	    	if($show_special && $show=="yes")
+	    	{
+
+	    		$result2 = runQuery("SELECT DISTINCT(param) FROM processinternaltestparams WHERE processid = '$currid'");
+
+		    	while($row2=$result2->fetch_assoc())
+		    	{
+
+		    		
+		    		array_push($heading,$row2["param"]);
+		    		array_push($props,$row2["param"]);
+		    		$avg[$row2["param"]] = [0,0];
+		    		
+
+		    	}
+
+	    	}
+
+
+
+	    	$result2 = runQuery("SELECT * FROM processtestparams WHERE processid='$currid'");
+	    	while($row2=$result2->fetch_assoc())
+	    	{
+
+	    		if(is_numeric($row2["value"]))
+	    		{
+	    			$avg[getpropShortname($processname,$row2["param"])][0] +=  $row2["value"];
+	    			$avg[getpropShortname($processname,$row2["param"])][1]++;
+	    		}
+	    		
+	    	}
+
+	    	if($show_special && $show=="yes")
+	    	{
+		    	$result2 = runQuery("SELECT * FROM processinternaltestparams WHERE processid='$currid'");
+		    	while($row2=$result2->fetch_assoc())
+		    	{
+
+		    		if(is_numeric($row2["value"]))
+		    		{
+		    			$avg[$row2["param"]][0] +=  $row2["value"];
+		    			$avg[$row2["param"]][1]++;
+		    		}
+		    		
+		    	}
+		    }
+
+
+
+
+	    	foreach ($avg as $key => $value) {
+	    		$dumSum = $value[0];
+	    		$dumCount = $value[1];
+
+	    		if($dumCount!=0)
+	    		{
+	    			$avg[$key][0] = round($dumSum/$dumCount,3);
+	    		}
+	    		else{
+	    			$avg[$key][0] = "-";
+	    		}
+	    	}
+
+	    	$dum["test"] = $avg;
+	    	
+	    	$flag = true;
+
+	    	foreach ($avg as $key => $value) {
+	    		
+
+	    		if(isset($propmin["'$key'"]) && $propmin["'$key'"])
+	    		{	
+	    			if($value[0]<=$propmin["'$key'"])
+	    			{
+	    				
+	    				$flag = false;
+	    				//continue;
+	    			}
+	    		}
+
+	    		if(isset($propmax["'$key'"]) && $propmax["'$key'"])
+	    		{
+	    			
+	    			if($value[0]>=$propmax["'$key'"])
+	    			{
+	    				$flag = false;
+	    				//continue;
+	    			}
+	    		}
+	    	}
+
+	    	
+
+
+	    	$asof += $dum["remaining"];
+
+
+	    	if($flag)
+	    	{
+	    		if($rtype=="bal" && $dum["remaining"]<=0)
+	    		{
+	    			continue;
+	    		}
+	    		array_push($allData,$dum);
+	    	}
+
+	    	if(!in_array($dum["grade"],$allgrade))
+	    	{
+	    		array_push($allgrade,$dum["grade"]);
+
+	    		$allgradeqty[$dum["grade"]] = 0;
+	    	}
+
+	    	$allgradeqty[$dum["grade"]] += $dum["remaining"];
+
+	    	
+	    }
     
 
+    
+
+    
     
 
     $heading = array_unique($heading);
@@ -397,7 +477,7 @@ if($show != "yes")
 <div class="row">
 			<label class="col-sm-2 col-form-label ">Select Grade:</label>
 			<div class="col-sm-3">
-				<select class="form-control" required name="currgrade" id="currgrade">
+				<select  class="js-example-basic-multiple form-control" multiple="multiple" required name="currgrade[]" id="currgrade">
 					<option value="all">All Grades</option>
 					<option value="allsip">All SIP</option>
 					<option value="allaip">All AIP</option>
@@ -405,7 +485,7 @@ if($show != "yes")
 					<option value="allrsp">All RSP</option>
 					<?php  
 
-						$result = runQuery("SELECT * FROM processgrades WHERE processname='$processname' ORDER BY entrytime DESC");
+						$result = runQuery("SELECT * FROM processgrades WHERE processname='Final Blend' ORDER BY entrytime DESC");
 						$allgradelist = [];
 						while($row=$result->fetch_assoc())
 						{
@@ -430,8 +510,8 @@ if($show != "yes")
 				</script>
 			</div>
 
-			<label class="col-sm-2 col-form-label ">Type</label>
-			<div class="col-sm-3">
+			<label class="col-sm-1 col-form-label ">Type</label>
+			<div class="col-sm-2">
 				<select class="form-control" required name="rtype" id="rtype">
 					<option value="prod">Production Quantity</option>
 					<option value="bal">Balance Quantity</option>
@@ -443,6 +523,14 @@ if($show != "yes")
 				<script type="text/javascript">
 					document.getElementById('currgrade').value='<?php echo $currgrade; ?>';
 				</script>
+			</div>
+
+			<div class="col-sm-1">
+				<input type="checkbox" name="show_special" class="form-control pull-right">
+				
+			</div>
+			<div class="col-sm-2">
+				Show Special Test
 			</div>
 
 			
@@ -577,8 +665,68 @@ if($show == "yes")
 {
 ?>
 
+<div class="row">
+<div class="col-lg-12">
+
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+		<tr style="font-size:15px;font-weight:bold;color:#990000;text-align:center;padding:0.25em!important;">
+		<th style="text-align:right;">Total Production</th>
+		<th><?php echo $total_prod_qty; ?></th>
+		<th style="text-align:right;">Total Remaining</th>
+		<th><?php echo $asof; ?></th>
+		</tr>
+		</thead>
+
+	</table>
+	
+</div>	
+</div>
+</div>
+
+
+<div class="row">
+	<div class="table-responsive">
+
+		<table class="table table-striped">
+			<thead>
+			<tr>
+				<th>Grade</th>
+				<th>Remaining Qty. (kg) </th>
+
+			</tr>
+			
+			</thead>
+
+			<tbody>
+
+				<?php
+					foreach ($allgradeqty as $key => $value) {
+						
+
+				?>
+				<tr>
+					<td><?php echo $key; ?></td>
+					<td><?php echo $value; ?></td>
+				</tr>
+				<?php
+					}
+				?>
+			</tbody>
+		</table>
+	
+	</div>	
+</div>
+	
+
+
+
 <?php
 $outcounter=0;
+
+
+
 foreach ($allgrade as $dgrade) {
 	$outcounter++;
 
@@ -642,7 +790,16 @@ foreach ($allgrade as $dgrade) {
 	<td width="5%"><a target="_blank" href="/user/report/basic-batch.php?id=<?php echo $data["id"]; ?>"><?php echo $data["id"]; ?></a></td></td>
 	<?php 
 		$did = $data["id"];
-		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND step='PARENT'")->fetch_assoc()['param'];
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND step='PARENT'")->fetch_assoc();
+
+		if($result)
+		{
+			$result = $result["param"];
+		}
+		else
+		{
+			$result = "N/A";
+		}
 
 
 	?>

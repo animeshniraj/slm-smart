@@ -120,7 +120,9 @@
 
 
 
+    $result = runQuery("SELECT * FROM loading_advice WHERE laid IN (SELECT laid from dispatch WHERE cid='$cid')")->fetch_assoc();
 
+   	$purchase_order = $result['poid'];
 
 
 
@@ -330,6 +332,8 @@ input[type=number] {
 	
 	Customer Name: <?php echo $result2["value"] ?> <br>
 	Customer Id: <?php echo $dumC ?> 		<br>
+	Purchase Order No: <?php echo $purchase_order ?> 		<br>
+	
 
 
 	<br>

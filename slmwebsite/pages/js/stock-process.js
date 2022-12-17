@@ -1,55 +1,56 @@
-$(function() {
-  $('input[name="starttime"]').daterangepicker({
-    singleDatePicker: true,
-    timePicker: false,
-    showDropdowns: true,
-    locale: 
-    {    
-    	format: 'DD-MM-YYYY',
-    },
-  	
-    minYear: 1901,
-    maxYear: parseInt(moment().format('YYYY'),10)
-  }, function(start, end, label) {
-    
-  });
+$(function () {
+	$('input[name="starttime"]').daterangepicker({
+		singleDatePicker: true,
+		timePicker: false,
+		showDropdowns: true,
+		locale:
+		{
+			format: 'DD-MM-YYYY',
+		},
+
+		minYear: 1901,
+		maxYear: parseInt(moment().format('YYYY'), 10)
+	}, function (start, end, label) {
+
+	});
 
 });
 
-$(function() {
-  $('input[name="stoptime"]').daterangepicker({
-    singleDatePicker: true,
-    timePicker: false,
-    showDropdowns: true,
-    locale: 
-    {    
-    	format: 'DD-MM-YYYY',
-    },
-  	
-    minYear: 1901,
-    maxYear: parseInt(moment().format('YYYY'),10)
-  }, function(start, end, label) {
-    
-  });
+$(function () {
+	$('input[name="stoptime"]').daterangepicker({
+		singleDatePicker: true,
+		timePicker: false,
+		showDropdowns: true,
+		locale:
+		{
+			format: 'DD-MM-YYYY',
+		},
+
+		minYear: 1901,
+		maxYear: parseInt(moment().format('YYYY'), 10)
+	}, function (start, end, label) {
+
+	});
 
 });
 
-$(document).ready(function() {
-  	$(".js-example-basic-multiple").select2();
+$(document).ready(function () {
+	$(".js-example-basic-multiple").select2();
 
-  	load_grades()
+	load_grades()
 
- })
+})
 
 let gradenameElement = document.getElementById('gradename');
 let starttimeElement = document.getElementById('starttime');
 let stoptimeElement = document.getElementById('stoptime');
 let processnameElement = document.getElementById('processname');
 
+let current_process = ""
 
-
-function load_data()
-{
+function load_data() {
+	document.getElementById('qty_resultdiv').style.display = "block";
+	set_qty("-", "-");
 	setToloading();
 	hide_download()
 	start_loading_arrow();
@@ -60,24 +61,22 @@ function load_data()
 
 
 
-function load_grades()
-{
+function load_grades() {
 	processnameElement = document.getElementById('processname');
 	gradenameElement = document.getElementById('gradename');
 
 	gradenameElement.disabled = true;
-	
+
 
 	formdata = [
-		['process',processnameElement.value]
+		['process', processnameElement.value]
 	]
 
-	fetchData('get_process_grade',formdata,setGrades)
+	fetchData('get_process_grade', formdata, setGrades)
 
 }
 
-function load_properties()
-{
+function load_properties() {
 
 	resetProperties()
 
@@ -85,21 +84,20 @@ function load_properties()
 
 
 	formdata = [
-		['process',processnameElement.value]
+		['process', processnameElement.value]
 	]
 
 	dumGrades = $("#gradename").val();
-	
+
 	for (var i = 0; i < dumGrades.length; i++) {
-		formdata.push(['grade[]',dumGrades[i]])
+		formdata.push(['grade[]', dumGrades[i]])
 	}
 
-	fetchData('get_process_properties',formdata,setProperties)
+	fetchData('get_process_properties', formdata, setProperties)
 }
 
 
-function setProperties(data)
-{
+function setProperties(data) {
 	data = data.data;
 	selected_properties = [];
 
@@ -114,8 +112,7 @@ function setProperties(data)
 	processProperties()
 }
 
-function processProperties()
-{
+function processProperties() {
 
 	var tbody = document.getElementById('properties-modal-tbody');
 
@@ -123,14 +120,12 @@ function processProperties()
 		var curr = selected_properties[i];
 
 		var tr = document.createElement('tr');
-		tr.innerHTML = "<td>"+curr.property+"</td>"
+		tr.innerHTML = "<td>" + curr.property + "</td>"
 
-		if(curr.selected)
-		{
+		if (curr.selected) {
 			tr.innerHTML += "<td><input type='checkbox' name='properties-send' onchange='confirm_properties()' selected></td>";
 		}
-		else
-		{
+		else {
 			tr.innerHTML += "<td><input type='checkbox' name='properties-send' onchange='confirm_properties()'></td>";
 		}
 		tbody.appendChild(tr);
@@ -138,8 +133,7 @@ function processProperties()
 	}
 }
 
-function confirm_properties()
-{
+function confirm_properties() {
 	var tbody = document.getElementById('properties-modal-tbody');
 	properties_div = document.getElementById('properties-selected-div');
 
@@ -152,11 +146,10 @@ function confirm_properties()
 		dum["property"] = curr.children[0].innerHTML;
 		dum["selected"] = curr.children[1].children[0].checked;
 		dumSelected.push(dum)
-		if(dum["selected"])
-		{
+		if (dum["selected"]) {
 			dumSelected_prop.push(dum["property"])
 		}
-		
+
 
 	}
 
@@ -166,9 +159,8 @@ function confirm_properties()
 
 }
 
-function setGrades(data)
-{
-	
+function setGrades(data) {
+
 	resetgradenames()
 	resetProperties()
 
@@ -176,7 +168,7 @@ function setGrades(data)
 	gradenameElement = document.getElementById('gradename');
 	gradenameElement.disabled = false;
 	gradedata = data.data;
-	
+
 
 
 	for (var i = 0; i < gradedata.length; i++) {
@@ -187,72 +179,69 @@ function setGrades(data)
 	}
 
 
-	if(gradenameElement.children.length==1 && gradenameElement.value!="")
-	{
+	if (gradenameElement.children.length == 1 && gradenameElement.value != "") {
 		load_properties()
 	}
 
 }
 
-function setTable(columnData,rowData)
-{
+function setTable(columnData, rowData) {
 
 }
 
 
 
-function initSearchQuery(data)
-{
+function initSearchQuery(data) {
 	var basic = data.basic_properties
 	var additonal_prop = data.additional_properties
 	var tbody = document.getElementById('additional-filter-modal-tbody');
 
 	tbody.innerHTML = "";
-	selected_filters =[];
+	selected_filters = [];
 
 	additional_filters = data.additional_filters
 	additional_properties = data.additional_properties
 	basic_properties = data.basic_properties
-	
+
 	for (var key in additional_filters) {
-	    if (additional_filters.hasOwnProperty(key)) {
+		if (additional_filters.hasOwnProperty(key)) {
 
-	        selected_filters.push([key,[]])
+			selected_filters.push([key, []])
 
-					var tr = document.createElement('tr');
+			var tr = document.createElement('tr');
 
-					var th = document.createElement('th');
-					th.innerHTML = key;
-					tr.appendChild(th)
+			var th = document.createElement('th');
+			th.innerHTML = key;
+			tr.appendChild(th)
 
 
-					var td = document.createElement('td');
-					var select = document.createElement('select');
+			var td = document.createElement('td');
+			var select = document.createElement('select');
 
-					select.classList.add('form-control')
-					select.classList.add('js-example-basic-multiple');
-					select.classList.add('additional-filter');
-					select.multiple = "multiple";
-					select.onchange = function(){confirm_filters()}
+			select.classList.add('form-control')
+			select.classList.add('js-example-basic-multiple');
+			select.classList.add('additional-filter');
+			select.multiple = "multiple";
+			select.onchange = function () { confirm_filters() }
 
-					for (var i = 0; i < additional_filters[key].Options.length; i++) {
-						var curr = additional_filters[key].Options[i];
-						var option = document.createElement('option');
-						option.value = curr;
-						option.innerHTML = curr;
-						
-						select.options.add(option);
+			for (var i = 0; i < additional_filters[key].Options.length; i++) {
+				var curr = additional_filters[key].Options[i];
+				var option = document.createElement('option');
+				option.value = curr;
+				option.innerHTML = curr;
 
-					}
+				select.options.add(option);
 
-					td.appendChild(select)
+			}
 
-					tr.appendChild(td)
+			td.appendChild(select)
 
-					tbody.appendChild(tr);
-	    }
+			tr.appendChild(td)
 
-	    
+			tbody.appendChild(tr);
+		}
+
+
 	}
 
 	$(".additional-filter").select2();
@@ -260,27 +249,25 @@ function initSearchQuery(data)
 }
 
 
-function confirm_filters()
-{
-		var tbody = document.getElementById('additional-filter-modal-tbody');
+function confirm_filters() {
+	var tbody = document.getElementById('additional-filter-modal-tbody');
 
-		var dumSelected = []
+	var dumSelected = []
 
-		for (var i = 0; i < tbody.children.length; i++) {
-			curr = tbody.children[i];
+	for (var i = 0; i < tbody.children.length; i++) {
+		curr = tbody.children[i];
 
-			dum = [curr.children[0].innerHTML,$(curr.children[1].children[0]).val()]
+		dum = [curr.children[0].innerHTML, $(curr.children[1].children[0]).val()]
 
 
-			dumSelected.push(dum)			
-		}
+		dumSelected.push(dum)
+	}
 
-		selected_filters = dumSelected;
+	selected_filters = dumSelected;
 }
 
 
-function prepareSearchQuery()
-{
+function prepareSearchQuery() {
 	search_query_payload = {};
 
 	search_query_payload["process"] = document.getElementById('processname').value;
@@ -289,22 +276,19 @@ function prepareSearchQuery()
 	search_query_payload["filter_data_by"] = document.getElementById('stoptime').value;
 	search_query_payload["show_only_balance"] = false;
 
-	if(document.getElementById('show_only_balance').checked)
-	{
+	if (document.getElementById('show_only_balance').checked) {
 		search_query_payload["show_only_balance"] = document.getElementById('show_only_balance').checked;
 	}
-	
-
-show_only_balance
 
 
-	if(basic_properties.filter_date_from_entry)
-	{
+	show_only_balance
+
+
+	if (basic_properties.filter_date_from_entry) {
 		search_query_payload["filter_data_by"] = "BACKEND_CREATE"
 	}
-	else
-	{
-		search_query_payload["filter_data_by"] =  basic_properties.filter_date_from_property;
+	else {
+		search_query_payload["filter_data_by"] = basic_properties.filter_date_from_property;
 	}
 
 	search_query_payload["grades"] = $("#gradename").val()
@@ -316,8 +300,7 @@ show_only_balance
 
 	for (var i = 0; i < selected_properties.length; i++) {
 		curr = selected_properties[i];
-		if(curr.selected)
-		{
+		if (curr.selected) {
 			var dum = {};
 			dum.property = curr.property
 			dum.selected = curr.selected
@@ -331,81 +314,84 @@ show_only_balance
 	search_query_payload['model_id'] = data_model.model_id;
 
 
-	fetchData('initDataHandshake',[["payload",JSON.stringify(search_query_payload)]],handshake,false)
+	fetchData('initDataHandshake', [["payload", JSON.stringify(search_query_payload)]], handshake, false)
 
 
 }
 
 
+function set_qty(production_qty, balance_qty) {
+	document.getElementById('total_production_qty').innerHTML = production_qty + " kg";
+	document.getElementById('total_balance_qty').innerHTML = balance_qty + " kg";
+
+}
 
 
 
-function handshake(data)
-{
-	if(data_model.confirmid(data.model_id))
-	{
-			
-			data_model.createTable(data.columnDef,data.rowData)
-			data_model.uid_map = data.uid_map;
+function handshake(data) {
+	if (data_model.confirmid(data.model_id)) {
 
-			var payload ={}
-			payload["model_id"] =  data.model_id
-			payload["uid_map"] = data.uid_map;
-			payload["process"] = data.process;
+		data_model.createTable(data.columnDef, data.rowData)
+		data_model.uid_map = data.uid_map;
 
-			data_model.job_queue_data = data.fetch_data_list;
-			data_model.job_queue_test = data.test_data_list;
-			data_model.pre_payload = payload;
+		var payload = {}
+		payload["model_id"] = data.model_id
+		payload["uid_map"] = data.uid_map;
+		payload["process"] = data.process;
 
-			data_model.data_fetch_job();
+		current_process = payload["process"]
+
+		data_model.job_queue_data = data.fetch_data_list;
+		data_model.job_queue_test = data.test_data_list;
+		data_model.pre_payload = payload;
+
+		set_qty(data.total_production_qty, data.total_balance_qty)
+
+		data_model.data_fetch_job();
 
 	}
 
 
-	
+
 }
 
 
-function fetchData(action,formdata,callback,print=false)
-{
+function fetchData(action, formdata, callback, print = false) {
 
 	var postData = new FormData();
-       
-    postData.append("action",action);
 
-    for (var i = 0; i < formdata.length; i++) {
-    	 postData.append(formdata[i][0],formdata[i][1]);
-    }
+	postData.append("action", action);
 
-
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        
-        if(print)
-        {
-        	console.log(this.responseText)
-        }
+	for (var i = 0; i < formdata.length; i++) {
+		postData.append(formdata[i][0], formdata[i][1]);
+	}
 
 
-       	var data = JSON.parse(this.responseText);
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function () {
+		if (this.readyState == 4 && this.status == 200) {
 
-       	if(data.response)
-       	{
-       		callback(data)
-       	}
-       	else
-       	{
-       		setError(data.msg);
-			return;
-       	}
-       
-       	
-    
-      }
-    };
-    xmlhttp.open("POST", "/query/stock.php", true);
-    xmlhttp.send(postData);
+			if (print) {
+				console.log(this.responseText)
+			}
+
+
+			var data = JSON.parse(this.responseText);
+
+			if (data.response) {
+				callback(data)
+			}
+			else {
+				setError(data.msg);
+				return;
+			}
+
+
+
+		}
+	};
+	xmlhttp.open("POST", "/query/stock.php", true);
+	xmlhttp.send(postData);
 }
 
 
@@ -424,43 +410,37 @@ function fetchData(action,formdata,callback,print=false)
 
 
 
-function titleicontoRefresh()
-{
+function titleicontoRefresh() {
 	var titleicon = document.getElementById('titleicon');
 	titleicon.classList.remove("fa-signal");
 	titleicon.classList.add("fa-refresh");
 
 }
-function titleicontonormal()
-{
+function titleicontonormal() {
 	var titleicon = document.getElementById('titleicon');
 	titleicon.classList.remove("fa-refresh");
 	titleicon.classList.add("fa-signal");
-	
+
 }
-function reloadCurrPage()
-{
+function reloadCurrPage() {
 	window.location = window.location.href.split("?")[0];
 }
 
-function resetgradenames()
-{
+function resetgradenames() {
 	gradenameElement = document.getElementById('gradename');
 	gradenameElement.length = 0;
 }
 
-function resetProperties()
-{
+function resetProperties() {
 	properties_div = document.getElementById('properties-selected-div');
-	properties_table= document.getElementById('properties-modal-tbody');
-	properties_div.innerHTML="No Properties Selected";
+	properties_table = document.getElementById('properties-modal-tbody');
+	properties_div.innerHTML = "No Properties Selected";
 	properties_table.innerHTML = '';
 	selected_properties = {}
 	selected_filters = {};
 }
 
-function setToloading()
-{
+function setToloading() {
 	resultdiv = document.getElementById('resultdiv');
 
 	resultdiv.innerHTML = "<div class='container'>\n  <div class='loader'>\n    <div class='loader--dot'></div>\n    <div class='loader--dot'></div>\n    <div class='loader--dot'></div>\n    <div class='loader--dot'></div>\n    <div class='loader--dot'></div>\n    <div class='loader--dot'></div>\n    <div class='loader--text'></div>\n  </div>\n</div>";
@@ -468,59 +448,77 @@ function setToloading()
 }
 
 
-function setError(message="Unknown Error has occured!")
-{
+function setError(message = "Unknown Error has occured!") {
 	resultdiv = document.getElementById('resultdiv');
 
-	resultdiv.innerHTML = "<div class=\"alert alert-danger icons-alert\">\n<p><strong>Error::</strong>"+message+"</p>\n</div>"
+	resultdiv.innerHTML = "<div class=\"alert alert-danger icons-alert\">\n<p><strong>Error::</strong>" + message + "</p>\n</div>"
 }
 
 
-function showPropertyModal()
-{
+function showPropertyModal() {
 	$("#properties-modal").modal('show')
 }
 
-function showAdditionalFilterModal()
-{
+function showAdditionalFilterModal() {
 	$("#additional-filter-modal").modal('show')
 }
 
 
-function select_all_grade()
-{
+function select_all_grade() {
 	$("#gradename > option").prop("selected", true);
-  	$("#gradename").trigger("change"); 
+	$("#gradename").trigger("change");
 }
 
-function select_all_property(obj)
-{
-		
-		checkboxes = document.getElementsByName('properties-send');
-    for (var i = 0, n = checkboxes.length; i < n; i++) {
-      checkboxes[i].checked = obj.checked;
-    }
-    confirm_properties();
+function reset_all_grade() {
+	$("#gradename > option").prop("selected", false);
+	$("#gradename").trigger("change");
 }
 
-function start_loading_arrow()
-{
+function select_all_property(obj) {
+
+	checkboxes = document.getElementsByName('properties-send');
+	for (var i = 0, n = checkboxes.length; i < n; i++) {
+		checkboxes[i].checked = obj.checked;
+	}
+	confirm_properties();
+}
+
+function start_loading_arrow() {
 	document.getElementById('loading_arrow').style.display = "block";
 }
 
-function hide_loading_arrow()
-{
+function hide_loading_arrow() {
 	document.getElementById('loading_arrow').style.display = "none";
 }
 
-function show_download()
-{
+function show_download() {
 	document.getElementById('download_csv_btn').style.display = "block";
 }
 
-function hide_download()
-{
+function hide_download() {
 	document.getElementById('download_csv_btn').style.display = "none";
 }
 
 
+function open_report(process_id, event) {
+
+	if (event.column.colId != "process_id") {
+		return;
+	}
+	url = "/user/report/"
+
+	switch (current_process) {
+		case "Melting": url = "/user/report/basic-melting.php?id="; break;
+		case "Raw Bag": url = "/user/report/basic-rawbag.php?id="; break;
+		case "Raw Blend": url = "/user/report/basic-rawblend.php?id="; break;
+		case "Annealing": url = "/user/report/basic-annealing.php?id="; break;
+		case "Semi Finished": url = "/user/report/basic-semifinished.php?id="; break;
+		case "Final Blend": url = "/user/report/basic-finalblend.php?id="; break;
+
+		default: return;
+	}
+
+	url = url + process_id
+	window.open(url, '_blank').focus();
+
+}

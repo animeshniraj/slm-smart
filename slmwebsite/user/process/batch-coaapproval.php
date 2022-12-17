@@ -59,6 +59,11 @@
    		
    	}
 
+   	$showlimit = 100;
+
+   	$coa_result  = runQuery("SELECT  * FROM batch_coa_approval ORDER BY approvaldate DESC  LIMIT $showlimit");
+
+   
 
 
 
@@ -114,7 +119,7 @@
 <div class="card-block">
 
 
-<table class="table table-striped">
+<table class="table table-striped table-bordered table-xs">
 	<thead>
 		<tr>
 			<th>Batch Id</th>
@@ -124,7 +129,7 @@
 	<tbody>
 		<?php 
 
-			$result = runQuery("SELECT * FROM processentry WHERE processname='Batch' AND processid NOT IN (SELECT processid FROM batch_coa_approval)");
+			$result = runQuery("SELECT * FROM processentry WHERE processname='Batch' AND islocked='BATCHED' AND processid NOT IN (SELECT processid FROM batch_coa_approval)");
 
 			while($row = $result->fetch_assoc())
 			{
@@ -186,6 +191,66 @@
 		</div>
 
 </form>
+	
+
+
+
+</div>
+</div>
+
+
+
+
+<div class="card">
+<div class="card-header">
+<h4>Approved COAs</h4>
+<div class="card-header-right">
+
+</div>
+</div>
+<div class="card-block">
+
+
+<table class="table table-striped table-bordered table-xs">
+	<thead>
+		<th>Process Id</th>
+		<th>Approval Date</th>
+		<th>Approved By</th>
+		<th></th>
+	</thead>
+
+	<tbody>
+		<?php 
+			while($row=$coa_result->fetch_assoc())
+			{				
+		?>
+
+		<tr>
+			<td><?php echo $row["processid"]; ?></td>
+
+			<td><?php echo $row["approvaldate"]; ?></td>
+			<td><?php echo $row["approvedby"]; ?></td>
+			<td>
+				<form method="POST" action="batch-coaapproval-edit.php">
+				<input type="hidden" name="processid" value="<?php echo $row["processid"]; ?>">
+				<button type="submit" class="btn btn-primary">Go To</button>
+				</form>
+
+			</td>
+
+		</tr>
+
+		<?php 
+
+			}
+
+		?>
+
+
+
+	</tbody>
+	
+</table>
 	
 
 

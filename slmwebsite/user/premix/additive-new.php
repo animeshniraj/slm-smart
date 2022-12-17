@@ -19,7 +19,7 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Create new Raw Bag",
+        "Page Title" => "Add New Additive | SLM SMART",
         "Home Link"  => "/user/",
         "Menu"		 => "premix-additivesnew",
         "MainMenu"	 => "premix_menu",
@@ -27,30 +27,9 @@
     ];
 
 
-    $processname = "Raw Bag";
+    $processname = "Premix";
 
-    $result = runQuery("SELECT * FROM processpermission WHERE processname='$processname' AND step='CREATION' AND role ='$myrole'");
-
-		if($result->num_rows>0)
-		{
-			$dumPermission = $result->fetch_assoc()["permission"];
-			if($dumPermission!="ALLOW")
-			{
-				$ERR_TITLE = "Error";
-	    	$ERR_MSG = "You are not authorized to view this page.";
-	    	include("../../pages/error.php");
-	    	die();
-			}
-
-		}
-		else
-		{
-			$ERR_TITLE = "Error";
-	    	$ERR_MSG = "You are not authorized to view this page.";
-	    	include("../../pages/error.php");
-	    	die();
-		}
-
+   
     
 
     if(isset($_POST["updateprocess1"]))
@@ -263,7 +242,7 @@ p {
 					</div>
 
 					<div class="form-group" style="display:flex; justify-content: center">
-						<input type="text" required name="external-id" id="external-id" class="form-control col-sm-2" style="display: inline; text-align: center;" placeholder="External Id">
+						<input type="text" required name="external-id" id="external-id" class="form-control col-sm-2" style="display: inline; text-align: center;" placeholder="External ID">
 					</div>
 
 					<div class="form-group" style="display:flex; justify-content: center">

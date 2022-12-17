@@ -19,77 +19,83 @@
 	$myrole = $session->user->getRoleid();
 
     $PAGE = [
-        "Page Title" => "SLM | Create new Premix",
+        "Page Title" => "SLM | Create a new Batch",
         "Home Link"  => "/user/",
-        "Menu"		 => "premix-createnew",
-        "MainMenu"	 => "premix_menu",
+        "Menu"		 => "process-batch-newnofinal",
+        "MainMenu"	 => "process_batch",
 
     ];
 
 
-    
+    $processname = "Batch";
 
+   
     
 
     if(isset($_POST["updateprocess1"]))
     {
 
     	
-    	$quantity = $_POST["quantity"];
-    	$grade = $_POST["gradename"];
- 			$type = $_POST["premixtype"];
-    
-
-
-    	$creationDate = toServerTime($_POST["creation-date"]);
     	
-    	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
+    	$creationDate = toServerTime($_POST["creation-date"]);
 
-    	$month = explode("-",explode(" ",$creationDate)[0])[1];
-    	$prefix = $year."/PR-";
-    	$sqlprefix = $year."/PR-%";
+    	
+    	$prefix = $_POST['processid'];
+
+    	$overridegrade =  $_POST['overridegrade'];
 
 
-    	$result = runQuery("SELECT MAX(CAST(SUBSTRING_INDEX(premixid, '-', -1) AS SIGNED)) max_val FROM premix_batch WHERE premixid LIKE '$sqlprefix'");
+
+
+
+
+
+
+    	$result = runQuery("SELECT * FROM processentry WHERE processid = '$prefix'");
 
     	if($result->num_rows==0)
     	{	
-    		$count = 1;
-    	}
-    	else
-    	{
-    		$lastID = $result->fetch_assoc()["max_val"];
+    		
+    	
+    	
 	    	
-	    	$count = intval($lastID)+1;
-    	}
-    	
-    
-
-    	$prefix = $prefix . str_pad($count, 3, '0', STR_PAD_LEFT);
-
-   
-
-    	$result = runQuery("INSERT INTO premix_batch VALUES('$prefix','$grade','$quantity','$creationDate','$type')");
+	    	$result = runQuery("INSERT INTO processentry VALUES('$prefix','$processname','CREATION','$creationDate','UNLOCKED')");
 
 
-    	if($result)
-    			{
-    				
-    				?>
-    					<form id="redirectform" method="POST" action="premix-edit.php">
-    						<input type="hidden" name="premixid" value="<?php  echo $prefix;?>">
-    					</form>
-    					<script type="text/javascript">
-    						document.getElementById("redirectform").submit();
-    					</script>
-    				<?php
+	    	
 
-    			
-    			}
 
-    	die();
 
-    	
+	    	$grade = $overridegrade;
+	    	
+	    	$result2 = runQuery("INSERT INTO processentryparams VALUES(NULL,'$prefix','OPERATIONAL','$GRADE_TITLE','$grade')");
+
+
+	    	
+	    	if($result && $result2)
+	    	{
+	    			
+	    			addprocesslog('PROCESS',$prefix,$session->user->getUserid(),'New Final Batch ('.$prefix.') created');
+	    				?>
+	    					<form id="redirectform" method="POST" action="batch-edit.php">
+	    						<input type="hidden" name="processid" value="<?php  echo $prefix;?>">
+	    					</form>
+	    					<script type="text/javascript">
+	    						document.getElementById("redirectform").submit();
+	    					</script>
+	    				<?php
+
+	    			
+	    			
+	    	}
+
+	   }
+	   else
+	   {
+	   		$show_alert = true;
+				$alert = showAlert("error","ID already exists","");
+	   }
+
     	
 
     }
@@ -97,14 +103,17 @@
    
 
 
- 
+ 	
 
 
     include("../../pages/userhead.php");
     include("../../pages/usermenu.php");
 
 
-
+    if($show_alert)
+    {
+    	echo $alert;
+    }
 
 
 ?>
@@ -211,8 +220,8 @@ p {
 			<div class="page-header-title">
 				<i class="fa fa-shopping-bag bg-c-blue"></i>
 				<div class="d-inline">
-					<h5>Add Premix</h5>
-					<span>Add new premix batch</span>
+					<h3>Create a New Batch</h3>
+					<span>Enter the Batch details</span>
 				</div>
 			</div>
 		</div>
@@ -243,7 +252,7 @@ p {
 
 <ul class="nav nav-tabs md-tabs " role="tablist">
 <li class="nav-item">
-<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link active" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i> Batch Creation</a>
 <div class="slide"></div>
 </li>
 
@@ -258,33 +267,46 @@ p {
 
 <div class="tab-pane active" id="creation-tabdiv" role="tabpanel">
 
-<form method="POST" id="newstock">
+<form method="POST">
 
 
-<p style="display:block;text-align:center;color:#212121;">Last Created Id: <?php echo get_last_premixid() ?></p>		
-<p style="display:block;text-align:center;color:#212121;">Enter the Date</p>
-					<div class="form-group" style="display:flex; justify-content: center;">
+<p style="display:block;text-align:center;color:#212121;">Last Created Id: <?php echo get_last_id($processname) ?></p>		
+<p style="display:block;text-align:center;color:#212121;">Enter the Batch Creation Date</p>
+
+<div class="form-group" style="display:flex; justify-content: center;">
 						
 						<input type="text" required name="creation-date" id="creation-date" class="form-control" style="display: inline; text-align: center;" placeholder="Date">
-						
+
+					</div>
+
+
+					<p style="display:block;text-align:center;color:#212121;font-size:13px;font-weight:normal;">Sample Batch No.: T21IP05123(Technology), M21IP05123(Metal) </p>
+
+					<div class="form-group" style="display:flex; justify-content: center;" >
+							<div class="input-group input-group-button col-sm-3">
+								<input type="text" required name="processid" id="processid" class="form-control" style="display: inline; text-align: center;text-transform:uppercase;" placeholder="Batch Number" pattern="[T,M][0-9]{2}IP[0-9]{5}">						
+							</div>
+						</div>
+
+						<div class="form-group" style="display:flex; justify-content: center">
+
 					</div>
 
 					<div class="form-group" style="display:flex; justify-content: center">
-						<input type="text" required name="quantity"  class="form-control col-sm-3" style="display: inline; text-align: center;" placeholder="Quantity (in Kg)">
-					</div>
 
-					<div class="form-group" style="display:flex; justify-content: center">
-						<select required class="form-control col-sm-3" name="gradename" >
-							<option selected disabled value=""> Choose a premix grade</option>
+						<select required class="form-control col-sm-3" name="overridegrade" >
 
 							<?php 
 
-								$result = runQuery("SELECT * FROM premix_grades");
+								$result = runQuery("SELECT * FROM processgrades WHERE processname='Final Blend'");
 
 								if($result->num_rows>0)
 								{
 									while($row = $result->fetch_assoc())
 									{
+
+										
+
 										echo "<option value=\"".$row["gradename"]."\">".$row["gradename"]."</option>";
 									}
 								}
@@ -293,32 +315,6 @@ p {
 
 						</select>
 					</div>
-
-					<br><br>
-
-<section>
-<div>
-  <input required type="radio" id="control_1" name="premixtype" value="simple">
-  <label for="control_1">
-    <h2>Normal</h2>
-    <p></p>
-  </label>
-</div>
-
-<div>
-  <input required disabled type="radio" id="control_2" name="premixtype" value="complex">
-  <label for="control_2">
-    <h2>TBD</h2>
-    <p></p>
-  </label>
-</div>
-
-</section>
-
-
-						
-					</div>
-
 
 					<script>
 					$(function() {
@@ -343,13 +339,13 @@ p {
 
 					</script>
 
-					<input type="hidden" name="updateprocess1" value="">
+
 	
 
 	<div class="form-group row">
 		
 		<div class="col-sm-12">
-		<button type="submit" class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Create New Entry</button>
+		<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary btn-block"><i class="feather icon-plus"></i>Create New Batch</button>
 		</div>
 	</div>
 
@@ -358,58 +354,7 @@ p {
 
 </div>
 
-<script type="text/javascript">
-	
-	function checkSupplier()
-	{
-			var externalid = document.getElementById("external-id").value;
-			var supplier = document.getElementById("premix_supplier").value;
-			var additive = document.getElementById("premix_additive").value;
 
-
-			var postData = new FormData();
-       
-        postData.append("action","checkSupplier");
-        postData.append("externalid",externalid);
-        postData.append("supplier",supplier);
-        postData.append("additive",additive);
-
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            
-           console.log(this.responseText)
-            var data = JSON.parse(this.responseText);
-
-            
-            if(data.response =="yes")
-            {
-                
-            	document.getElementById("newstock").submit();
-            }
-            else
-            {
-               Swal.fire({
-									icon: "error",
-									title: "Error",
-									html: data.msg ,
-									showConfirmButton: true,
-								  	showCancelButton: false,
-								  	confirmButtonText: 'OK',
-								  	
-								})
-            }
-            
-
-        
-        
-          }
-        };
-        xmlhttp.open("POST", "/query/premix.php", true);
-        xmlhttp.send(postData);
-	}
-
-</script>
 
 
 

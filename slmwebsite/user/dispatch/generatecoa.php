@@ -225,12 +225,20 @@ if($isfinal)
     <meta charset="utf-8">
     <title>SLM SMART - COA</title>
     <link rel="stylesheet" href="coa.css" media="all" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="sheets-of-paper-a4.css">
+    <link rel="stylesheet" href="/../../pages/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="coa-a4.css">
     <style>
-        .lab-sign{width:230px!important;height:auto;float:right;}
-        h6{font-size:15px;}
-        </style>
+       .page .lab-sign{width:230px!important;height:auto;float:right;}
+       h5{font-size:20px;}
+        h6{font-size:13px;}
+
+        @media print {
+            .table{font-size:14px;}
+            .table .table-borderless{border:#fff solid !important;}
+            
+            .table-bordered td {border: 2px solid #000 !important;}
+        }
+    </style>
   </head>
   <body>
   <div class="page" contenteditable="false">
@@ -243,24 +251,21 @@ if($isfinal)
                 </div>
                 <div class="card-body">
 
-                  <div class="row">
-                  <div class="col-sm-4 logo">
-                        <img src="logo.png">
+                  <!-- <div class="row">
+                        <div class="col-sm-4 logo">
+                        <img src="logo.png"> 
                       </div>
                       <div class="col-sm-8 certificate">
                         <h2>CERTIFICATE OF ANALYSIS</h2>
                       </div>
-                  </div>
+                  </div>-->
 
                 <div class="row mb-0 mt-3">
-                    <div class="col-sm-3">
-                            <h6 class="mb-1">GRADE:</h6>
-                            <h5>
-                                <strong><?php echo $data['grade']; ?></strong>
-                            </h5>
+                    <div class="col-sm-6">
+                            <h5 class="mb-1">GRADE:<strong><?php echo $data['grade']; ?></strong></h5>
                     </div>
                     <div class="col-sm-3">
-                    <h6>PROD. CODE:
+                   <!-- <h6>PROD. CODE:
 
                         <?php
                             $dum_prodcode ="";
@@ -272,45 +277,67 @@ if($isfinal)
                                 $dum_prodcode = $result->fetch_assoc()['value'];
                             }
                         ?>
-                        <div class="mb-1"><?php echo $dum_prodcode; ?></div></h6>                            
+                        <div class="mb-1"><?php echo $dum_prodcode; ?></div></h6>      -->                      
                     </div>        
                 </div>
-                    <div class="row mb-4 mt-0">
+               <!--     <div class="row mb-4 mt-0">
                         <div class="col-sm-3">
                             <h6>BATCH NO:<div class="mb-1"><?php echo $data['basic']['batch']; ?></div></h6>
 
-                            <div><p style="font-size:14px;font-weight:bold;line-height:13px;"><?php echo $data['basic']['customer']; ?></p></div>
-                            <div><p style="font-size:13px;line-height:13px;"><?php echo $data['basic']['customeraddress']; ?></p></div>
-                            <div><p style="font-size:13px;"><?php echo $data['basic']['customercity']; ?>, <?php echo $data['basic']['customerstate']; ?> - <?php echo $data['basic']['customerpincode']; ?></p></div>
+                            <div>Customer:<p class="word"><?php echo $data['basic']['customer']; ?></p></div>
+                            <div><p class="word"><?php echo $data['basic']['customeraddress']; ?></p></div>
+                            <div><p class="word"><?php echo $data['basic']['customercity']; ?>, <?php echo $data['basic']['customerstate']; ?> - <?php echo $data['basic']['customerpincode']; ?></p></div>
                         </div>
                         <div class="col-sm-3">
-                        <h6>PROD. DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['productiondate'])); ?></div></h6>
-                        <h6>DISPATCH DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['dispatchdate'])); ?></div></h6>
-
+                            <h6>PROD. DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['productiondate'])); ?></div></h6>
+                            <h6>DISPATCH DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['dispatchdate'])); ?></div></h6>
                         </div>
                         <div class="col-sm-3">
                             <h6>PROD. QTY.: <div class="mb-3"><?php echo $data['batchqty']; ?> KG</div></h6>
                             <h6>DISPATCH QTY.: <div class="mb-3"><?php echo $data['dispatchqty']; ?> KG</div></h6>
                         </div>
                         <div class="col-sm-3">
-                        <h6>P.O. DETAILS:<div><?php echo $data['ponumber']; ?></div></h6>
-                        <h6>P.O. DATE:<div><?php echo Date('d-M-Y',strtotime($data['podate'])); ?></div></h6>
-
+                            <h6>P.O. DETAILS:<div><?php echo $data['ponumber']; ?></div></h6>
+                            <h6>P.O. DATE:<div><?php echo Date('d-M-Y',strtotime($data['podate'])); ?></div></h6>
                         </div>
 
-                    </div>
+                    </div> -->
+
 
                     <div class="table-responsive-sm">
-                        <table class="table table-bordered">
-                            <thead>
+                        <table class="table table-borderless" style="border:#fff solid !important; margin-top:15px;">
                                 <tr>
-                                    <th scope="col" colspan="1" class="center" style="width:30%">PROPERTY</th>
-                                    <th scope="col" colspan="1" class="center" style="width:20%">STANDARD</th>
-                                    <th scope="col" colspan="2" class="center" style="width:20%">SPECIFICATION</th>
-                                    <th scope="col" colspan="1" class="center" style="width:30%">OBSERVATION</th>
+                                    <td scope="col" colspan="1" style="width:35%"><h6>BATCH NO:<div class="mb-1"><?php echo $data['basic']['batch']; ?></div></h6></td>
+                                    <td scope="col" colspan="1" style="width:20%"><h6>PROD. DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['productiondate'])); ?></div></h6></td>
+                                    <td scope="col" colspan="1" style="width:20%"><h6>PROD. QTY.: <div class="mb-3"><?php echo $data['batchqty']; ?> KG</div></h6></td>
+                                    <td scope="col" colspan="1" style="width:25%;vertical-align:top;"><h6>P.O. DETAILS:<div><?php echo $data['ponumber']; ?></div></h6></td>
                                 </tr>
-                                <tr>
+                                <tr style="border:#fff solid !important;">
+                                    <td scope="col" colspan="1" style="width:35%">
+                                        <h6 class="word"><div>CUSTOMER:<br><?php echo $data['basic']['customer']; ?></div>
+                                       
+                                        <div style="text-transform: uppercase"><?php echo $data['basic']['customercity']; ?>, <?php echo $data['basic']['customerstate']; ?></div></h6>
+                                    </td>
+                                    <td scope="col" colspan="1" style="width:20%;vertical-align:top;"><h6>DISPATCH DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['dispatchdate'])); ?></div></h6></td>
+                                    <td scope="col" colspan="1" style="width:20%;vertical-align:top;"><h6>DISPATCH QTY.: <div class="mb-3"><?php echo $data['dispatchqty']; ?> KG</div></h6></td>
+                                    <td scope="col" colspan="1" style="width:25%;vertical-align:top;"><h6>P.O. DATE:<div><?php echo Date('d-M-Y',strtotime($data['podate'])); ?></div></h6></td>
+                                </tr>
+                        </table>
+                    </div>
+
+                    <div class="table-responsive-sm" style="margin-top:-1rem;">
+                        <table class="table table-bordered" style="text-align:center;font-size:14px;">
+                            <thead>
+                                <tr style="font-size:15px;font-weight:bold;border:2px solid #000!important;line-height:19px;vertical-align:middle;">
+                                    <th scope="col" colspan="1" class="center" style="min-width:180px;border:2px solid #000!important;">PROPERTY</th>
+                                    <th scope="col" colspan="1" class="center" style="min-width:90px;border:2px solid #000!important;">UNITS</th>
+                                    <th scope="col" colspan="1" class="center" style="min-width:100px;border:2px solid #000!important;">STANDARD</th>
+                                    <th scope="col" colspan="2" class="center" style="min-width:160px;border:2px solid #000!important;">SPECIFICATION</th>
+                                    <th scope="col" colspan="1" class="center" style="min-width:96px;border:2px solid #000!important;">OBSERVATION</th>
+                                </tr>
+                                <tr style="font-size:15px;font-weight:bold;border:2px solid #000!important;line-height:19px;">
                                   <th scope="row">&nbsp;</th>
+                                  <td>&nbsp;</td>
                                   <td>&nbsp;</td>
                                   <td class="center">MIN</td>
                                   <td class="center">MAX</td>
@@ -330,12 +357,30 @@ if($isfinal)
                             		
 
                             	?>
-                                <tr>
+                                <tr style="font-size:15px;border:2px solid #000!important;line-height:19px;">
                                     <td class="left"><?php echo $prop ?></td>
+                                    <td class="center"><?php echo $cdata['units'] ?></td>
                                     <td class="center"><?php echo $cdata['mpif'] ?></td>
                                     <td class="center"><?php echo $cdata['min'] ?></td>
                                     <td class="center"><?php echo $cdata['max'] ?></td>
-                                    <td class="center"><?php if($cdata['value']){echo $cdata['value'];} ?></td>
+
+                                    <?php
+                                        if($cdata['value'])
+                                        {
+
+                                        
+                                    ?>
+                                    <td class="center" style="min-width:106px;"><?php echo number_format($cdata['value'],2) ?></td>
+                                    <?php
+                                        }
+                                        else
+                                        {
+                                    ?>
+                                    <td class="center" style="min-width:106px;"><?php echo $cdata['value'] ?></td>
+                                    <?php
+                                        }
+                                    ?>
+
                                 </tr>
 
 
@@ -348,19 +393,20 @@ if($isfinal)
                         </table>
                     </div>
 
-                    <div class="table-responsive-sm">
-                        <table class="table table-bordered">
+                    <div class="table-responsive-sm" style="margin-top:-0.5rem;">
+                        <table class="table table-bordered" style="text-align:center;font-size:15px;line-height:19px;vertical-align:middle;">
                             <thead>
                                 <tr>
-                                    <th scope="col" colspan="6" class="center">SIEVE ANALYSIS</th>
+                                    <th scope="col" colspan="7" class="center"  style="border:2px solid #000!important;">SIEVE ANALYSIS</th>
                                 </tr>
-                                <tr>
-                                  <th scope="row" class="center" style="width:15%">MESH (%)</th>
-                                  <th class="center" style="width:15%">MICRON (%)</th>
-                                  <td class="center" style="width:20%">&nbsp;</td>
-                                  <td class="center" style="width:10%">&nbsp;</td>
-                                  <td class="center" style="width:10%">&nbsp;</td>
-                                  <td style="width:30%">&nbsp;</td>
+                                <tr style="font-size:15px;font-weight:bold;">
+                                  <td scope="col" colspan="1" class="center" style="min-width:85px">MESH</th>
+                                  <td scope="col" colspan="1" class="center" style="min-width:85px">MICRON</th>
+                                  <td scope="col" colspan="1" class="center" style="min-width:88px">&nbsp;</td>
+                                  <td scope="col" colspan="1" class="center" style="min-width:96px">&nbsp;</td>
+                                  <td scope="col" colspan="1" class="center" style="min-width:78px">&nbsp;</td>
+                                  <td scope="col" colspan="1" class="center" style="min-width:78px">&nbsp;</td>
+                                  <td scope="col" colspan="1" class="center" style="min-width:106px">&nbsp;</td>
                                 </tr>
                             </thead>
                             <tbody>
@@ -376,7 +422,9 @@ if($isfinal)
                             	?>
                                 <tr>
                                     <td class="left"><?php echo $cdata['showname'] ?></td>
-                                    <td class="center"><?php echo $cdata['micron'] ?></td>
+                                   
+                                    <td class="center"><?php echo $cdata['shownameMicron'] ?></td>
+                                    <td class="center">%</td>
                                     <?php 
                                         if($count==1)
                                         {
@@ -388,7 +436,25 @@ if($isfinal)
                                     <td class="center"><?php echo $cdata['min'] ?></td>
                                     
                                     <td class="center"><?php echo $cdata['max'] ?></td>
-                                    <td class="center"><?php echo $cdata['value'] ?></td>
+
+
+                                    <?php
+                                        if($cdata['value'])
+                                        {
+
+                                        
+                                    ?>
+                                    <td class="center" style="min-width:106px;"><?php echo number_format($cdata['value'],2) ?></td>
+                                    <?php
+                                        }
+                                        else
+                                        {
+                                    ?>
+                                    <td class="center" style="min-width:106px;"><?php echo $cdata['value'] ?></td>
+                                    <?php
+                                        }
+                                    ?>
+
                                 </tr>
 
 
@@ -401,11 +467,11 @@ if($isfinal)
                         </table>
                     </div>
 
-                    <div class="table-responsive-sm">
-                        <table class="table table-bordered">
+                    <div class="table-responsive-sm" style="margin-top:-0.5rem;">
+                        <table class="table table-bordered" style="text-align:center;font-size:15px;line-height:19px;vertical-align:middle;">
                             <thead>
                                 <tr>
-                                    <th scope="col" colspan="5" class="center">CHEMICAL ANALYSIS</th>
+                                    <th scope="col" colspan="6" class="center" style="border:2px solid #000!important;">CHEMICAL ANALYSIS</th>
                                 </tr>
 
                                 </thead>
@@ -424,11 +490,29 @@ if($isfinal)
 
                             	?>
                                 <tr>
-                                  	<td class="left" style="width:30%;"><?php echo $prop ?></td>
-                                    <td class="center" style="width:20%;"><?php echo $cdata['mpif'] ?></td>
-                                    <td class="center" style="width:10%;"><?php echo $cdata['min'] ?></td>
-                                    <td class="center" style="width:10%;"><?php echo $cdata['max'] ?></td>
-                                    <td class="center" style="width:30%;"><?php echo $cdata['value'] ?></td>
+                                  	<td class="left" style="min-width:175px;"><?php echo $prop ?></td>
+                                    <td class="center" style="min-width:88px;"><?php echo $cdata['units'] ?></td>
+                                    <td class="center" style="min-width:98px;"><?php echo $cdata['mpif'] ?></td>
+                                    <td class="center" style="min-width:78px;"><?php echo $cdata['min'] ?></td>
+                                    <td class="center" style="min-width:78px;"><?php echo $cdata['max'] ?></td>
+
+                                    <?php
+                                        if($cdata['value'] && $cdata['value']=="BASE")
+                                        {
+
+                                        
+                                    ?>
+                                    <td class="center" style="min-width:106px;"><?php echo number_format($cdata['value'],3) ?></td>
+                                    <?php
+                                        }
+                                        else
+                                        {
+                                    ?>
+                                    <td class="center" style="min-width:106px;"><?php echo $cdata['value'] ?></td>
+                                    <?php
+                                        }
+                                    ?>
+
                                 </tr>
                             
                             
@@ -441,7 +525,7 @@ if($isfinal)
                     </div>
 <!---- Packaging Details -->
 
-                    <div class="row mb-4 mt-3">
+                    <div class="row mb-4 mt-1 justify-content-end">
                           <!--  <div class="col-sm-5">
                         <h6 class="mb-1">PACKAGING DETAILS</h6>
                             <h5><?php echo $data['package']; ?></h5>
@@ -454,7 +538,9 @@ if($isfinal)
                             <h6>GROSS WEIGHT</h6>
                             <h6><?php echo $data['dispatchqty']?> KG</h6>
                         </div> -->
-                        <div class="col-sm-12 lab-sign text-right">
+                        <div class="col-sm-9">
+                        </div>
+                        <div class="col-sm-3 lab-sign text-right">
                           <img src='generate_sign.php?data=<?php echo serialize($data['sign']); ?>'>
                         </div>
                     </div>
@@ -466,7 +552,7 @@ if($isfinal)
                         </div>
                     </div>
                     <?php } ?>
-<!---- Footer -->
+<!---- Footer 
                     <div class="row mb-2">
                       <div class="col-sm-9 footer">
                         <p><strong><?php echo $data['basic']['company'] ; ?></strong></p>
@@ -479,10 +565,10 @@ if($isfinal)
                       </div>
                     </div>
 
-<!---- End Footer -->
-<div class="row col-sm-12" style="text-align: right;">
+ End Footer -->
+<div class="row justify-content-end col-sm-12" style="text-align: right;">
    <div class="col-sm-6"></div>
-   <div class="col-sm-6" style="font-size: 10px;">Generated on <?php echo Date('d-M-Y H:i',strtotime('now')) ?></div>
+   <div class="col-sm-6" style="font-size: 10px; text-align:right;">Generated on <?php echo Date('d-M-Y H:i',strtotime('now')) ?></div>
 
 </div>
                 </div>
@@ -491,8 +577,6 @@ if($isfinal)
     </div>
 </div>
 
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
   </body>
   </html>
@@ -510,7 +594,7 @@ else
     <meta charset="utf-8">
     <title>SLM SMART - PREMIX COA</title>
     <link rel="stylesheet" href="coa.css" media="all" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/../../pages/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="sheets-of-paper-a4.css">
   </head>
   <body>
@@ -873,7 +957,7 @@ function getDataPremix($id,$grade)
 		$allSieve = [];
 
         $dumcumulative = runQuery("SELECT * FROM processgrades WHERE gradename='$cgrade'")->fetch_assoc()['cumulative'];
-		$isSievecum =  $dumcumulative=="YES";
+		$isSievecum =  $dumcumulative!="YES";
 
 
 		while($row=$result->fetch_assoc())
@@ -898,6 +982,7 @@ function getDataPremix($id,$grade)
 				$allSieve[$row['properties']]['micron'] = $result2['micron'];
                 $allSieve[$row['properties']]["max"] = $row['max'];
                 $allSieve[$row['properties']]["min"] = $row['min'];
+                $allSieve[$row['properties']]["units"] = "%";
 			}
 			else
 			{
@@ -914,9 +999,19 @@ function getDataPremix($id,$grade)
 				$result2 = $result2->fetch_assoc();
 				$allproperties[$row['properties']]['mpif'] = $result2['mpif'];
 				$allproperties[$row['properties']]['class'] = $result2['class'];
-				$allproperties[$row['properties']]["value"] = [];
+				$allproperties[$row['properties']]["value"] = "";
 				$allproperties[$row['properties']]["min"] = $row['min'];
 				$allproperties[$row['properties']]["max"] = $row['max'];
+
+                $result3 = runQuery("SELECT * FROM units WHERE id1='Final Blend' AND id2='$dumprop1'");
+                if($result3->num_rows==1)
+                {
+                    $allproperties[$row['properties']]["units"] = $result3->fetch_assoc()["unit"];
+                }
+                else
+                {
+                    $allproperties[$row['properties']]["units"] = "";
+                }
 			}
 		}
 
@@ -949,25 +1044,56 @@ function getDataPremix($id,$grade)
 
 		$carryover = 0;
         $carryWord = "";
+        $carryWord2 = "";
 
-       
+        $oldMesh = "";
+        $oldMicron = "";
 
 		foreach ($allSieve as $key => $property) {
 
             $allSieve[$key]["showname"] =  $property['mesh'];
+            $allSieve[$key]["shownameMicron"] =  $property['micron'];
+                
 			if($carryWord == "" && $isSievecum)
             {
-                $allSieve[$key]["showname"] =  $property['mesh'];
+                $allSieve[$key]["showname"] =  "+".$property['mesh'];
+                $allSieve[$key]["shownameMicron"] =  "+".$property['micron'];
                 $carryWord = $property['mesh'];
+                $carryWord2 = $property['micron'];
             }
             elseif($property['printed'] && $isSievecum)
             {
-                $allSieve[$key]["showname"] = "-".$carryWord . "+".$property['mesh'];
+                if($property['mesh']==0)
+                {
+                     $allSieve[$key]["showname"] = "-".$carryWord ;
+                    $allSieve[$key]["shownameMicron"] = "-".$carryWord2 ;
+                }
+                else
+                {
+                     $allSieve[$key]["showname"] = "-".$carryWord . "+".$property['mesh'];
+                        $allSieve[$key]["shownameMicron"] = "-".$carryWord2 . "+".$property['micron'];
+                }
+               
+                $carryWord2 = $property['micron'];
                 $carryWord = $property['mesh'];
+            }
+            elseif(!$isSievecum)
+            {
+                if($property['mesh']==0)
+                {
+                    $allSieve[$key]["showname"] =  "-".$oldMesh;
+                $allSieve[$key]["shownameMicron"] =  "-".$oldMicron;
+                }
+                else
+                {
+                    $allSieve[$key]["showname"] =  "+".$property['mesh'];
+                    $allSieve[$key]["shownameMicron"] =  "+".$property['micron'];
+                }
+                
             }
             
 
-           
+            
 
 
 			if(!$property['printed'])
@@ -982,6 +1108,11 @@ function getDataPremix($id,$grade)
 				$allSieve[$key]['value'] += $carryover;
 				$carryover = 0;
 			}
+
+
+
+            $oldMesh = $property['mesh'];
+            $oldMicron = $property['micron'];
 
 		}
 

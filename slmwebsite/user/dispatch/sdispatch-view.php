@@ -339,8 +339,8 @@ function removeProcess(externalid)
 {
 	Swal.fire({
 		  icon: 'error',
-		  title: 'Delete Purshace Order',
-		  html: 'Are you sure you want to delete Purshace Order '+externalid,
+		  title: 'Delete Purchase Order',
+		  html: 'Are you sure you want to delete Purchase Order '+externalid,
 		  confirmButtonText: 'Yes',
 		  cancelButtonText: 'No',
 		  showCancelButton: true,

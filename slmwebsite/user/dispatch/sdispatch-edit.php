@@ -137,7 +137,7 @@
 
     $allSamples = [];
 
-    $processes = ['Melting','Raw Bag','Raw Blend','Annealing','Semi Finished','Batch','Premix'];
+    $processes = ['Batch','Premix'];
 
 
     foreach ($processes as $process) {

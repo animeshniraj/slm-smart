@@ -838,33 +838,33 @@ input[type=number] {
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i>Creation</a>
+<a class="nav-link" data-toggle="tab" href="#creation-tabdiv" role="tab"><i class="icofont icofont-home"></i> Creation</a>
 <div class="slide"></div>
 </li>
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i>Generic</a>
-<div class="slide"></div>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#parent-tabdiv" role="tab"><i class="icofont icofont-link"></i>Link Process</a>
-<div class="slide"></div>
-</li>
-
-
-<li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i>Operational Parameter</a>
+<a class="nav-link" data-toggle="tab" href="#generic-tabdiv" role="tab"><i class="icofont icofont-ui-file "></i> Generic</a>
 <div class="slide"></div>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i>Test Properties</a>
+<a class="nav-link" data-toggle="tab" href="#parent-tabdiv" role="tab"><i class="icofont icofont-link"></i> Link Process</a>
 <div class="slide"></div>
 </li>
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#testselection-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i>Test Selection</a>
+<a class="nav-link" data-toggle="tab" href="#operational-tabdiv" role="tab"><i class="icofont icofont-speed-meter"></i> Operational Parameter</a>
+<div class="slide"></div>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Test Reports</a>
+<div class="slide"></div>
+</li>
+
+
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#testselection-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Test Selection</a>
 <div class="slide"></div>
 </li>
 
@@ -873,7 +873,7 @@ input[type=number] {
 
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i>Notes</a>
+<a class="nav-link" data-toggle="tab" href="#notes-tabdiv" role="tab"><i class="icofont icofont-edit"></i> Notes</a>
 <div class="slide"></div>
 </li>
 
@@ -920,7 +920,6 @@ input[type=number] {
 			{
 				?>
 				<div class="col-sm-12">
-				<button type="button" class="btn btn-primary m-b-0 ml-1 pull-left" onclick="window.open('/user/report/basic-annealing.php?id=<?php echo $processid; ?>')"><i class="icofont icofont-page"></i>Generate Report</button>
 				<button type="submit" name="updateprocess1" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Process</button>
 				</div>
 
@@ -935,6 +934,7 @@ input[type=number] {
 	?>
 
 
+				<button type="button" class="btn btn-primary m-b-0 ml-1 pull-left" onclick="window.open('/user/report/basic-annealing.php?id=<?php echo $processid; ?>')"><i class="icofont icofont-page"></i>Generate Report</button>
 
 
 
@@ -1618,7 +1618,7 @@ if($testPermission)
 
 
 					?>
-	<div class="form-group row">
+<!--	<div class="form-group row">
 			<label class="col-sm-2">Paste Result</label>
 			<div class="col-sm-10">
 				<div class="input-group input-group-button">
@@ -1647,24 +1647,127 @@ if($testPermission)
 								}
 						}
 				}
-		</script>
+		</script>	-->
 
 		<?php
 }
 
 					?>
+
+
+
+
+
+<?php
 	
+	$result = runQuery("SELECT * FROM processtest WHERE processid='$processid'");
+	$k=1;
+	if($result->num_rows>0)
+	{
+
+		?>
+<h5 style="text-align:center; background-color:#546679;padding:10px;color:#fff;">All Test Results</h5>
+<table class="table table-striped table-bordered table-xs" style="text-align:center;">
+<table class="table">
+	<th rowspan="1" colspan="1"  style="width: 84.578125px;">Sl No.</th>
+	<th rowspan="1" colspan="1" >Test Id</th>
+	<th rowspan="1" colspan="1" >Entry Time</th>
+
+
+
+	<th rowspan="1" colspan="1" >Options</th>
+	<th rowspan="1" colspan="1" ></th>
+
+
+	<?php 
+
+		while($row=$result->fetch_assoc())
+		{
+
+			$dumtestid = $row["testid"];
+			$result2 = runQuery("SELECT * FROM processtestparams WHERE testid='$dumtestid'");
+			$dumParam = "[";
+			$dumValue = "[";
+			$qstatus = "UNLOCKED";
+			if($result2->num_rows>0)
+			{
+				while($row2 = $result2->fetch_assoc())
+				{
+						$dumParam = $dumParam . "'" . $row2["param"]."',";
+						$dumValue = $dumValue . "'" . $row2["value"]."',";
+
+						if($row2["status"]=="BLOCKED")
+						{
+							$qstatus = "BLOCKED";
+						}
+				}
+			}
+
+			$dumParam = $dumParam. "]";
+			$dumValue = $dumValue. "]";
+			
+
+
+			if($k%2==0)
+			{
+				$type = "even";
+			}
+			else
+			{
+				$type = "odd";
+			}
+
+			if($qstatus=="UNLOCKED")
+			{
+				echo "<tr role=\"row\" class=\"".$type."\" >";
+			}
+			else
+			{
+				echo "<tr style=\"color:red;\" role=\"row\" class=\"".$type."\" >";
+			}
+			
+				
+			
+
+			
+
+			echo "<td>".$k++."</td>";
+			echo "<td>".$row["testid"]."</td>";
+			echo "<td>".$row["entrytime"]."</td>";
+			
+				echo "<td><div><button type=\"button\"  class=\"btn btn-primary m-b-0\" onclick=\"viewTest('".$row["testid"]."',".$dumParam.",".$dumValue.")\"><i class=\"fa fa-eye\"></i>View</button><button type=\"button\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"rejectTest('".$row["testid"]."')\"><i class=\"fa fa-trash\"></i>Delete</button></div></td><td>";
+			
+			
+			
+
+			
+			echo "</tr>";
+
+			
+
+
+		}
+
+	?>
+</table>
+
+<?php 
+	}
+
+?>
+
+
+<br><br><br>
+
+
 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 	<input type="hidden" name="currtab" value="test-tabdiv">
 
 
 	<div class="form-group row">
 			<label class="col-sm-2">Test Time</label>
-			<div class="col-sm-10">
-				
-						<input type="text" required name="testtime" class="form-control">
-					
-				
+			<div class="col-sm-4">
+				<input type="text" required name="testtime" class="form-control">	
 			</div>
 		</div>
 
@@ -1693,9 +1796,9 @@ if($testPermission)
 
 
 <div class="form-group row">
-				<table class="table table-striped table-bordered" id="process4table">
+<table class="table table-striped table-bordered table-xs" id="process4table" style="text-align:center;">
 		<thead>
-		<tr>
+		<tr style="background-color:#990000;color:#fff;">
 
 		<th>Property</th>
 		<th>Min/Max</th>
@@ -1809,105 +1912,7 @@ if($testPermission)
 </form>
 
 
-<br><br><br>
 
-
-<?php
-	
-	$result = runQuery("SELECT * FROM processtest WHERE processid='$processid'");
-	$k=1;
-	if($result->num_rows>0)
-	{
-
-		?>
-<h5>All Tests</h5>
-<table class="table">
-	<th rowspan="1" colspan="1"  style="width: 84.578125px;">Sl No.</th>
-	<th rowspan="1" colspan="1" >Test Id</th>
-	<th rowspan="1" colspan="1" >Entry Time</th>
-
-
-
-	<th rowspan="1" colspan="1" >Options</th>
-	<th rowspan="1" colspan="1" ></th>
-
-
-	<?php 
-
-		while($row=$result->fetch_assoc())
-		{
-
-			$dumtestid = $row["testid"];
-			$result2 = runQuery("SELECT * FROM processtestparams WHERE testid='$dumtestid'");
-			$dumParam = "[";
-			$dumValue = "[";
-			$qstatus = "UNLOCKED";
-			if($result2->num_rows>0)
-			{
-				while($row2 = $result2->fetch_assoc())
-				{
-						$dumParam = $dumParam . "'" . $row2["param"]."',";
-						$dumValue = $dumValue . "'" . $row2["value"]."',";
-
-						if($row2["status"]=="BLOCKED")
-						{
-							$qstatus = "BLOCKED";
-						}
-				}
-			}
-
-			$dumParam = $dumParam. "]";
-			$dumValue = $dumValue. "]";
-			
-
-
-			if($k%2==0)
-			{
-				$type = "even";
-			}
-			else
-			{
-				$type = "odd";
-			}
-
-			if($qstatus=="UNLOCKED")
-			{
-				echo "<tr role=\"row\" class=\"".$type."\" >";
-			}
-			else
-			{
-				echo "<tr style=\"color:red;\" role=\"row\" class=\"".$type."\" >";
-			}
-			
-				
-			
-
-			
-
-			echo "<td>".$k++."</td>";
-			echo "<td>".$row["testid"]."</td>";
-			echo "<td>".$row["entrytime"]."</td>";
-			
-				echo "<td><div><button type=\"button\"  class=\"btn btn-primary m-b-0\" onclick=\"viewTest('".$row["testid"]."',".$dumParam.",".$dumValue.")\"><i class=\"fa fa-eye\"></i>View</button><button type=\"button\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"rejectTest('".$row["testid"]."')\"><i class=\"fa fa-trash\"></i>Delete</button></div></td><td>";
-			
-			
-			
-
-			
-			echo "</tr>";
-
-			
-
-
-		}
-
-	?>
-</table>
-
-<?php 
-	}
-
-?>
 
 </div>
 

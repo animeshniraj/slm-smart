@@ -86,7 +86,7 @@
 
     	$allParams = $_POST['allparams'];
     	$paramsvalue = $_POST['paramsvalue'];
-    	$qvalue = $_POST['quarantine'];
+    	#$qvalue = $_POST['quarantine'];
 
     		$sqlprefix = $externalid."/%";
     		$prefix = $externalid."/";
@@ -111,40 +111,12 @@
 	    	for($i=0;$i<count($allParams);$i++)
 	    	{
 	    		
-	    		if($qvalue[$i])
-	    		{
+	    		
 
 	    			runQuery("INSERT INTO additive_external_testparams VALUES(NULL,'$prefix','$externalid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
-	    		}
-	    		elseif($sym==">")
-	    		{
-	    			$sym = $qvalue[$i][0];
-	    			$currv = str_replace($sym,"",$qvalue[$i]);
-
-	    			if(floatval($paramsvalue[$i])>floatval($currv))
-	    			{
-	    				runQuery("UPDATE additive_external_testparams SET islocked ='BLOCKED' WHERE externalid='$externalid'");
-	    				runQuery("INSERT INTO additive_external_testparams VALUES(NULL,'$prefix','$externalid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
-	    			}
-	    			else
-	    			{
-	    				runQuery("INSERT INTO additive_external_testparams VALUES(NULL,'$prefix','$externalid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
-	    			}
-	    		}
-	    		else
-	    		{
-	    			$sym = $qvalue[$i][0];
-	    			$currv = str_replace($sym,"",$qvalue[$i]);
-	    			if(floatval($paramsvalue[$i])<floatval($currv))
-	    			{
-	    				
-	    				runQuery("INSERT INTO additive_external_testparams VALUES(NULL,'$prefix','$externalid','$allParams[$i]','$paramsvalue[$i]','BLOCKED')");
-	    			}
-	    			else
-	    			{
-	    				runQuery("INSERT INTO additive_external_testparams VALUES(NULL,'$prefix','$externalid','$allParams[$i]','$paramsvalue[$i]','UNLOCKED')");
-	    			}
-	    		}
+	    		
+	    		
+	    		
 	    		
 	    	}
 
@@ -216,6 +188,8 @@
    $STAT = $result["status"];
 	$approvedpermission = true;
 
+
+
 	if($result["status"]!="PENDING")
 	{
 		$approvedpermission = false;
@@ -237,10 +211,11 @@
 
    $testParams = [];
 
+
+  	$result  =runQuery("SELECT * FROM additive_test WHERE additive='$additivename'");
+  	while($row=$result->fetch_assoc())
    {
-   		array_push($testParams,["Test Param1","","","DECIMAL",0,10,">20"]);
-   		array_push($testParams,["Test Param2","","","DECIMAL",0,10,">20"]);
-   		array_push($testParams,["Test Param3","","","DECIMAL",0,10,">20"]);
+   		array_push($testParams,[$row["property"],"","","STRING",$row["min"],$row["max"],">20000"]);
    }
 
 
@@ -500,7 +475,7 @@ if($testPermission)
 
 					?>
 	<div class="form-group row">
-			<label class="col-sm-2">Paste Result</label>
+		<!--	<label class="col-sm-2">Paste Result</label>
 			<div class="col-sm-10">
 				<div class="input-group input-group-button">
 					<input  type="text"  class="form-control" id="test-pastevalue" placeholder="">
@@ -508,7 +483,7 @@ if($testPermission)
 					<button class="btn btn-primary" onclick="pastevalues('test')" type="button"><i class="feather icon-check"></i>Apply</button>
 					</div>
 				</div>
-			</div>
+			</div> -->
 		</div>
 
 		<script type="text/javascript">
@@ -570,7 +545,7 @@ if($testPermission)
 <td class="tabledit-view-mode"><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
 <td class="tabledit-view-mode"><div class="tabledit-span">Min: <?php echo $testParams[$i][4] ?></div>
 <div class="tabledit-span">Max: <?php echo $testParams[$i][5] ?></div>
-<div class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
+
 </td>
 
 
@@ -772,7 +747,7 @@ if($approvedpermission)
 
 
 	 		<div class="form-group row">
-						<label class="col-sm-2">Internal Id</label>
+						<label class="col-sm-2">Internal ID</label>
 						<div class="col-sm-10">
 							<div class="input-group input-group-button">
 							

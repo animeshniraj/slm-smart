@@ -773,7 +773,7 @@ input[type=number] {
 </li>
 
 <li class="nav-item">
-<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Test Properties</a>
+<a class="nav-link" data-toggle="tab" href="#test-tabdiv" role="tab"><i class="icofont icofont-laboratory"></i> Test Reports</a>
 <div class="slide"></div>
 </li>
 
@@ -1310,13 +1310,115 @@ if($testPermission)
 }
 
 					?>
+
+
+
+
+
+
+<?php
+	
+	$result = runQuery("SELECT * FROM processtest WHERE processid='$processid'");
+	$k=1;
+	if($result->num_rows>0)
+	{
+
+		?>
+<h5 style="text-align:center; background-color:#546679;padding:10px;color:#fff;">All Melting Test Results</h5>
+<table class="table table-striped table-bordered table-xs" style="text-align:center;">
+	<th rowspan="1" colspan="1"  style="width: 84.578125px;">Sl No.</th>
+	<th rowspan="1" colspan="1" >Test ID</th>
+	<th rowspan="1" colspan="1" >Entry Time</th>
+	<th rowspan="1" colspan="1" >Options</th>
+	<th rowspan="1" colspan="1" ></th>
+
+
+	<?php 
+
+		while($row=$result->fetch_assoc())
+		{
+
+			$dumtestid = $row["testid"];
+			$result2 = runQuery("SELECT * FROM processtestparams WHERE testid='$dumtestid'");
+			$dumParam = "[";
+			$dumValue = "[";
+			$qstatus = "UNLOCKED";
+			if($result2->num_rows>0)
+			{
+				while($row2 = $result2->fetch_assoc())
+				{
+						$dumParam = $dumParam . "'" . $row2["param"]."',";
+						$dumValue = $dumValue . "'" . $row2["value"]."',";
+
+						if($row2["status"]=="BLOCKED")
+						{
+							$qstatus = "BLOCKED";
+						}
+				}
+			}
+
+			$dumParam = $dumParam. "]";
+			$dumValue = $dumValue. "]";
+			
+
+
+			if($k%2==0)
+			{
+				$type = "even";
+			}
+			else
+			{
+				$type = "odd";
+			}
+
+			if($qstatus=="UNLOCKED")
+			{
+				echo "<tr role=\"row\" class=\"".$type."\" >";
+			}
+			else
+			{
+				echo "<tr style=\"color:red;\" role=\"row\" class=\"".$type."\" >";
+			}
+			
+				
+			
+
+			
+
+			echo "<td>".$k++."</td>";
+			echo "<td>".$row["testid"]."</td>";
+			echo "<td>".$row["entrytime"]."</td>";
+			
+				echo "<td><div><button type=\"button\"  class=\"btn btn-primary m-b-0\" onclick=\"viewTest('".$row["testid"]."',".$dumParam.",".$dumValue.")\"><i class=\"fa fa-eye\"></i>View</button><button type=\"button\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"rejectTest('".$row["testid"]."')\"><i class=\"fa fa-trash\"></i>Delete</button></div></td><td>";
+			
+			
+			
+
+			
+			echo "</tr>";
+
+			
+
+
+		}
+
+	?>
+</table>
+
+<?php 
+	}
+
+?>
+
+
+<br><br><br>
 	
 	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
 	<input type="hidden" name="currtab" value="test-tabdiv">
 <div class="form-group row">
-				<table class="table table-striped table-bordered table-xs" id="process4table">
+				<table class="table table-striped table-bordered table-xs" id="process4table" style="text-align:center;">
 		<thead>
-		<tr>
+		<tr style="background-color:#990000;color:#fff;">
 
 		<th>Property</th>
 		<th>Min/Max</th>
@@ -1427,105 +1529,10 @@ if($testPermission)
 </form>
 
 
-<br><br><br>
-
-
-<?php
-	
-	$result = runQuery("SELECT * FROM processtest WHERE processid='$processid'");
-	$k=1;
-	if($result->num_rows>0)
-	{
-
-		?>
-<h5>All Tests</h5>
-<table class="table">
-	<th rowspan="1" colspan="1"  style="width: 84.578125px;">Sl No.</th>
-	<th rowspan="1" colspan="1" >Test Id</th>
-	<th rowspan="1" colspan="1" >Entry Time</th>
 
 
 
-	<th rowspan="1" colspan="1" >Options</th>
-	<th rowspan="1" colspan="1" ></th>
 
-
-	<?php 
-
-		while($row=$result->fetch_assoc())
-		{
-
-			$dumtestid = $row["testid"];
-			$result2 = runQuery("SELECT * FROM processtestparams WHERE testid='$dumtestid'");
-			$dumParam = "[";
-			$dumValue = "[";
-			$qstatus = "UNLOCKED";
-			if($result2->num_rows>0)
-			{
-				while($row2 = $result2->fetch_assoc())
-				{
-						$dumParam = $dumParam . "'" . $row2["param"]."',";
-						$dumValue = $dumValue . "'" . $row2["value"]."',";
-
-						if($row2["status"]=="BLOCKED")
-						{
-							$qstatus = "BLOCKED";
-						}
-				}
-			}
-
-			$dumParam = $dumParam. "]";
-			$dumValue = $dumValue. "]";
-			
-
-
-			if($k%2==0)
-			{
-				$type = "even";
-			}
-			else
-			{
-				$type = "odd";
-			}
-
-			if($qstatus=="UNLOCKED")
-			{
-				echo "<tr role=\"row\" class=\"".$type."\" >";
-			}
-			else
-			{
-				echo "<tr style=\"color:red;\" role=\"row\" class=\"".$type."\" >";
-			}
-			
-				
-			
-
-			
-
-			echo "<td>".$k++."</td>";
-			echo "<td>".$row["testid"]."</td>";
-			echo "<td>".$row["entrytime"]."</td>";
-			
-				echo "<td><div><button type=\"button\"  class=\"btn btn-primary m-b-0\" onclick=\"viewTest('".$row["testid"]."',".$dumParam.",".$dumValue.")\"><i class=\"fa fa-eye\"></i>View</button><button type=\"button\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"rejectTest('".$row["testid"]."')\"><i class=\"fa fa-trash\"></i>Delete</button></div></td><td>";
-			
-			
-			
-
-			
-			echo "</tr>";
-
-			
-
-
-		}
-
-	?>
-</table>
-
-<?php 
-	}
-
-?>
 
 </div>
 
@@ -1975,7 +1982,7 @@ function acceptTest(testid)
 function rejectTest(testid)
 {
 	Swal.fire({
-		  icon: 'error',
+		  icon: 'warning',
 		  title: 'Delete test',
 		  html: 'Are you sure you want to delete Test -  '+testid,
 		  confirmButtonText: 'Yes',
@@ -2030,9 +2037,11 @@ function viewTest(testid,params,values)
 
 	
 	Swal.fire({
-		  icon: 'info',
+		  imageUrl: "images/flask.gif",
+		  imageHeight: 80,
+		  imageWidth: 80,
 		  title: testid,
-		  html: '<table class="table"><th>Property</th><th>Value</th>'+rows+'</table>',
+		  html: '<table class="table table-xs"><th>Property</th><th>Value</th>'+rows+'</table>',
 		  confirmButtonText: 'Ok',
 		  cancelButtonText: 'No',
 		  showCancelButton: false,

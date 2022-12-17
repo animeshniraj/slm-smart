@@ -32,6 +32,7 @@
 
 
 
+
   if($result->num_rows!=0)
   {
     $result =$result->fetch_assoc();
@@ -54,6 +55,19 @@
     }
 
   }
+
+  $result =runQuery("SELECT * FROM loading_advice WHERE laid='$cid'");
+
+    $result=$result->fetch_assoc();
+
+    if($result["company"]=="SLM Metal")
+    {
+      $company = "SLM Metal";
+    }
+    else
+    {
+      $company = "SLM Technology";
+    }
 
 
   $NEW_LINE = "%0A";
@@ -141,7 +155,7 @@ border: none;
         <tr>
         <th>
           <img src="/pages/png/slmlogo.png">
-          <h2 style="margin-bottom:0;">SLM TECHNOLOGY PVT. LTD.</h2><p style="margin-top: 0;">PLOT NO. 185/A, IDCO PLOT, KALUNGA-770031, ODISHA</p>
+          <h2 style="margin-bottom:0;"><?php echo $company; ?> PVT. LTD.</h2><p style="margin-top: 0;">PLOT NO. 185/A, IDCO PLOT, KALUNGA-770031, ODISHA</p>
         </th>
         <th width="30%">
           <img src="get_qr.php?data=<?php echo $qrdata;?>" width="150px;">

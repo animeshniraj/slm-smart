@@ -129,13 +129,13 @@
 
         foreach($options as $value)
         {
-            if($value && $parameter==$GRADE_TITLE)
-            {
-                $dumval = $dumval ."<option value=\"".$value."\">".explode('#',$value)[0]."</option>";
-            }
-            elseif ($value ) {
+            //if($value && $parameter==$GRADE_TITLE)
+            //{
+            //    $dumval = $dumval ."<option value=\"".$value."\">".explode('#',$value)[0]."</option>";
+            //}
+            //elseif ($value ) {
                 $dumval = $dumval ."<option value=\"".$value."\">".$value."</option>";
-            }
+            //}
             
         }
 

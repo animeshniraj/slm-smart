@@ -194,12 +194,12 @@ while ($row=$result->fetch_assoc()) {
 
 
 
-                     <div class="row">
+                    <div class="row">
                       <div class="col-sm-8 my-5 address">
-                        <h6><strong>SLM TECHNOLOGY PRIVATE LIMITED</strong></h6>
+                       <!--  <h6><strong>SLM TECHNOLOGY PRIVATE LIMITED</strong></h6>
                         <h6>UDITNAGAR, ROURKELA-769012, ODISHA, INDIA</h6>
                         <h6>TEL: +91-90400-00519</h6>
-                        <h6>EMAIL: info@slmmetal.com, URL: www.slmmetal.com</h6>
+                        <h6>EMAIL: info@slmmetal.com, URL: www.slmmetal.com</h6>-->   
                       </div>
                       <div class="col-sm-4 my-2 foot">
                       <h6>Printed on:</h6>
@@ -207,7 +207,7 @@ while ($row=$result->fetch_assoc()) {
                         <textarea rows="3" style="border:0;" placeholder="Ver 1.1"></textarea>           
                       </div>
                     </div>
-
+                             
                     
                 </div>
             </div>

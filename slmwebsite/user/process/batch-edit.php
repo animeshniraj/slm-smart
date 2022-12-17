@@ -340,10 +340,29 @@
       if(isset($_POST["rejecttest"]))
     {
 
+    	
+    	
     	$testid = $_POST['testid'];
-    	runQuery("DELETE FROM processtestparams WHERE testid = '$testid'");
-    	runQuery("DELETE FROM processtest WHERE testid = '$testid'");
-    	$currTab = "test-tabdiv";
+
+		
+		
+    	if($_POST['internal']=="true")
+    	{
+
+    		runQuery("DELETE FROM processinternaltestparams WHERE testid = '$testid'");
+	    	runQuery("DELETE FROM processinternaltest WHERE testid = '$testid'");
+	    	$currTab = "testinternal-tabdiv";
+    	}
+    	else
+    	{
+
+    		runQuery("DELETE FROM processtestparams WHERE testid = '$testid'");
+	    	runQuery("DELETE FROM processtest WHERE testid = '$testid'");
+	    	$currTab = "test-tabdiv";
+    	}
+		
+
+    	
     	
     }
 
@@ -510,7 +529,6 @@
 
     			$print = "Printed";
     			$cum = "Cumulative";
-
 
 
 
@@ -941,10 +959,16 @@ input[type=number] {
 <?php 
 	
 	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='PARENT'");
-	$result  = $result->fetch_assoc();
+	
+	$finalblendid = "";
+	$finalblendqty ="";
+	if($result->num_rows==1)
+	{
+		$result  = $result->fetch_assoc();
 
-	$finalblendid = $result['param'];
-	$finalblendqty = $result['value'];
+		$finalblendid = $result['param'];
+		$finalblendqty = $result['value'];
+	}
 
 
 
@@ -974,10 +998,16 @@ input[type=number] {
 
 
 	$result = runQuery("SELECT * FROM processentry WHERE processid='$finalblendid'");
-	$result  = $result->fetch_assoc();
+	$finalblenddate = "";
+	if($result->num_rows==1)
+	{
+		$result  = $result->fetch_assoc();
+
+		$finalblenddate = $result['entrytime'];
+	}
 
 	
-	$finalblenddate = $result['entrytime'];
+	
 
 ?>
 
@@ -1025,283 +1055,6 @@ input[type=number] {
 
 <div class="tab-pane" id="test-tabdiv" role="tabpanel">
 
-<form method="POST">
-<?php
-if($testPermission)
-				{
-
-
-					?>
-	<div class="form-group row">
-			<label class="col-sm-2">Paste Result</label>
-			<div class="col-sm-10">
-				<div class="input-group input-group-button">
-					<input  type="text"  class="form-control" id="test-pastevalue" placeholder="">
-					<div class="input-group-append">
-					<button class="btn btn-primary" onclick="pastevalues('test')" type="button"><i class="feather icon-check"></i>Apply</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<script type="text/javascript">
-			function pastevalues(step)
-{
-
-		divobj = document.getElementById(step+"-tablediv");
-		console.log(divobj);
-		if(step=="test")
-		{
-				var val = document.getElementById("test-pastevalue").value;
-
-				val = val.split("\t")
-				
-				for(var i=0;i<divobj.children.length;i++)
-				{
-					
-					divobj.children[i].children[2].children[0].children[0].children[2].value = val[i];
-				}
-		}
-}
-		</script>
-
-		<?php
-}
-
-					?>
-	
-	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
-	<input type="hidden" name="currtab" value="test-tabdiv">
-
-<script type="text/javascript">
-	function checkminmax(valuein,approvedby,min,max)
-	{
-
-		if(!valuein.value)
-		{
-			return;
-		}
-
-		if(min=="BAL" || max=="BAL")
-		{
-			approvedby.value = "";
-			return;
-		}
-
-		currval = valuein.value;
-		
-
-		flag = true;
-		if(min || min==0)
-		{
-			
-			if(parseFloat(currval)<parseFloat(min))
-			{
-				flag = false;
-				
-			}
-		}
-
-		if( max || max==0)
-		{
-			if(parseFloat(currval)>parseFloat(max))
-			{
-				flag = false;
-
-			}
-		}
-
-		if(!flag)
-		{
-			Swal.fire({
-			icon: 'error',
-		  title: 'Out of Bounds',
-		  input: 'text',
-		  inputLabel: 'Enter who approved.',
-		  showCancelButton: false,
-		  allowEscapeKey: false,
-       allowOutsideClick: false,
-
-		  inputValidator: (value) => {
-		    if (!value) {
-		      return 'Please enter who approved'
-		    }
-		  }
-		}).then((result) => {
-				approvedby.value = result.value;
-				console.log(result.value);
-		})
-
-			
-
-	}
-}
-</script>
-
-<div class="form-group row">
-				<table class="table table-striped table-bordered" id="process4table">
-		<thead>
-		<tr>
-
-		<th>Property</th>
-		<th>Min/Max</th>
-		<th>MPIF Number</th>
-		<th>Value</th>
-		<th>Tested By</th>
-
-		</tr>
-		</thead>
-		
-		
-		<tbody id="test-tablediv">
-
-
-
-			<?php
-		
-		for($i=0;$i<count($testParams);$i++)
-		{
-		
-			$round = 0.01;
-
-			if($testParams[$i][8]=="Chemical")
-			{
-				$round = 0.001;
-			}
-?>
-
-
-
-
-<tr>
-
-<td class="tabledit-view-mode"><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
-<td class="tabledit-view-mode"><div class="tabledit-span">Min: <?php echo $testParams[$i][4] ?></div>
-<div class="tabledit-span">Max: <?php echo $testParams[$i][5] ?></div>
-<div style="display: none;" class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
-</td>
-
-<td><?php echo $testParams[$i][7];?></td>
-
-
-
-<td>
-
-	<?php
-					if($testParams[$i][3] == "INTEGER")
-					{
-						?>
-
-						<div class="form-group row">
-						<div class="col-sm-12">
-
-							<input type="hidden" name="allparams[]" value="<?php echo $testParams[$i][0] ?>">
-							<input type="hidden" name="quarantine[]" value="<?php echo $testParams[$i][6] ?>">
-							<input type="hidden" id= "testapprovedby-<?php echo $i;?>" name="approved[]" value="">
-							<input type="number" onfocusout="checkminmax(this,document.getElementById('testapprovedby-<?php echo $i;?>'),<?php echo $testParams[$i][4]?>,<?php echo $testParams[$i][5]?>)"  step="1"  class="form-control" name="paramsvalue[]" value="">
-						</div>
-						</div>
-
-						<?php
-					}
-					else if($testParams[$i][3] == "DECIMAL")
-					{
-						?>
-
-						<div class="form-group row">
-						<div class="col-sm-12">
-
-							<input type="hidden" name="allparams[]" value="<?php echo $testParams[$i][0] ?>">
-							<input type="hidden" name="quarantine[]" value="<?php echo $testParams[$i][6] ?>">
-							<input type="hidden" id= "testapprovedby-<?php echo $i;?>" name="approved[]" value="">
-							<input type="number" onfocusout="checkminmax(this,document.getElementById('testapprovedby-<?php echo $i;?>'),<?php echo $testParams[$i][4]?>,<?php echo $testParams[$i][5]?>)"  <?php if($testParams[$i][8]=="Chemical"){echo "step=0.001";}else{echo "step=0.01";} ?>  class="form-control" name="paramsvalue[]" value="">
-						</div>
-						</div>
-
-						<?php
-					}
-					else if($testParams[$i][3] == "STRING")
-					{
-						stringTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required');
-					}
-					/*
-					else if($testParams[$i][3] == "DATE")
-					{
-						dateTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required');
-					}
-					
-					else if($testParams[$i][3] == "TIME")
-					{
-						timeTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required');
-					}
-					else if($testParams[$i][3] == "DATE TIME")
-					{
-						datetimeTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required');
-					}
-					*/
-
-?>
-
-</td>
-
-
-
-
-<td>
-
-
-<input required type="text" list="labtechlist"  name="testedby[]" placeholder="Tested By" class="form-control">
-
-
-			<datalist id="labtechlist">
-				<option value="Lab1">Lab1</option>
-				<option value="Lab2">Lab2</option>
-				<option value="Lab3">Lab3</option>
-			</datalist>
-</td>
-	
-
-</tr>
-
-<?php
-
-
-	}
-?>
-
-	</tbody>
-
-
-</table>
-
-<?php
-
-		
-
-			
-			if($testPermission)
-			{
-				?>
-				<div class="col-sm-12">
-				<button type="submit" name="updateprocess4" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i>Add test Result</button>
-				</div>
-
-				<?php
-			}
-
-			
-
-			
-
-		?>
-	</div>
-
-
-
-</form>
-
-
-<br><br><br>
 
 
 <?php
@@ -1312,18 +1065,20 @@ if($testPermission)
 	{
 
 		?>
-<h5>All Tests</h5>
-<table class="table">
-	<th rowspan="1" colspan="1"  style="width: 84.578125px;">Sl No.</th>
-	<th rowspan="1" colspan="1" >Test Id</th>
-	<th rowspan="1" colspan="1" >Entry Time</th>
+<h4>All Tests</h4>
+<table class="table table-responsive table-xs table-striped" style="border:solid 1px grey">
+<thead class="thead-dark" style="text-align:center;">
+	<tr>
+		<th rowspan="1" colspan="1"  style="width: 84.578125px;">Sl No.</th>
+		<th rowspan="1" colspan="1" >Test Id</th>
+		<th rowspan="1" colspan="1" >Entry Time</th>
 
 
 
-	<th rowspan="1" colspan="1" >Options</th>
-	<th rowspan="1" colspan="1" ></th>
-
-
+		<th rowspan="1" colspan="1" >Options</th>
+		<th rowspan="1" colspan="1" ></th>
+	<tr>
+</thead>
 	<?php 
 
 		while($row=$result->fetch_assoc())
@@ -1414,6 +1169,291 @@ if($testPermission)
 	}
 
 ?>
+
+
+
+
+<form method="POST">
+<?php
+if($testPermission)
+				{
+
+
+					?>
+	<div class="form-group row">
+			<!--<label class="col-sm-2">Paste Result</label>
+			<div class="col-sm-10">
+				<div class="input-group input-group-button">
+					<input  type="text"  class="form-control" id="test-pastevalue" placeholder="">
+					<div class="input-group-append">
+					<button class="btn btn-primary" onclick="pastevalues('test')" type="button"><i class="feather icon-check"></i>Apply</button>
+					</div>
+				</div>
+			</div>-->
+		</div>
+
+		<script type="text/javascript">
+			function pastevalues(step)
+{
+
+		divobj = document.getElementById(step+"-tablediv");
+		console.log(divobj);
+		if(step=="test")
+		{
+				var val = document.getElementById("test-pastevalue").value;
+
+				val = val.split("\t")
+				
+				for(var i=0;i<divobj.children.length;i++)
+				{
+					
+					divobj.children[i].children[2].children[0].children[0].children[2].value = val[i];
+				}
+		}
+}
+		</script>
+
+		<?php
+}
+
+					?>
+	
+	<input type="hidden" name="processid" value="<?php echo $processid; ?>">
+	<input type="hidden" name="currtab" value="test-tabdiv">
+
+<script type="text/javascript">
+	function checkminmax(valuein,approvedby,min,max)
+	{
+		if(!valuein.value)
+		{
+			return;
+		}
+
+		if(min=="BAL" || max=="BAL")
+		{
+			approvedby.value = "";
+			return;
+		}
+
+		currval = valuein.value;
+		
+
+		flag = true;
+		if(min || min==0)
+		{
+			
+			if(parseFloat(currval)<parseFloat(min))
+			{
+				flag = false;
+				
+			}
+		}
+
+		if( max || max==0)
+		{
+			
+			if(parseFloat(currval)>parseFloat(max))
+			{
+				flag = false;
+
+			}
+		}
+
+		if(!flag)
+		{
+			Swal.fire({
+			icon: 'error',
+		  title: 'Out of Bounds',
+		  input: 'text',
+		  inputLabel: 'Enter who approved.',
+		  showCancelButton: false,
+		  allowEscapeKey: false,
+       allowOutsideClick: false,
+
+		  inputValidator: (value) => {
+		    if (!value) {
+		      return 'Please enter who approved'
+		    }
+		  }
+		}).then((result) => {
+				approvedby.value = result.value;
+				console.log(result.value);
+		})
+
+			
+
+	}
+}
+</script>
+
+<h4>Add Test Results</h4>
+
+<div class="form-group row">
+	<table class="table table-striped table-responsive table-xs" id="process4table">
+		<thead>
+		<tr>
+
+		<th>Property</th>
+		<th>Min/Max</th>
+		<th>MPIF Number</th>
+		<th>Value</th>
+		<th>Tested By</th>
+
+		</tr>
+		</thead>
+		
+		
+		<tbody id="test-tablediv">
+
+
+
+			<?php
+		
+		for($i=0;$i<count($testParams);$i++)
+		{
+		
+			$round = 0.01;
+
+			if($testParams[$i][8]=="Chemical")
+			{
+				$round = 0.001;
+			}
+?>
+
+
+
+
+<tr>
+
+<td class="tabledit-view-mode"><span class="tabledit-span"><?php echo $testParams[$i][0] ?></span></td>
+<td class="tabledit-view-mode"><div class="tabledit-span">Min: <?php echo $testParams[$i][4]; ?></div>
+<div class="tabledit-span">Max: <?php echo $testParams[$i][5] ?></div>
+<div style="display: none;" class="tabledit-span">Quarantine: <?php echo $testParams[$i][6] ?></div>
+</td>
+
+<td><?php echo $testParams[$i][7];?></td>
+
+
+
+<td>
+
+	<?php
+					if($testParams[$i][3] == "INTEGER")
+					{
+						?>
+
+						<div class="form-group row">
+						<div class="col-sm-12">
+
+							<input type="hidden" name="allparams[]" value="<?php echo $testParams[$i][0] ?>">
+							<input type="hidden" name="quarantine[]" value="<?php echo $testParams[$i][6] ?>">
+							<input type="hidden" id= "testapprovedby-<?php echo $i;?>" name="approved[]" value="">
+							<input type="number" onfocusout="checkminmax(this,document.getElementById('testapprovedby-<?php echo $i;?>'),'<?php echo $testParams[$i][4]?>','<?php echo $testParams[$i][5]?>')"  step="1"  class="form-control" name="paramsvalue[]" value="">
+						</div>
+						</div>
+
+						<?php
+					}
+					else if($testParams[$i][3] == "DECIMAL")
+					{
+						?>
+
+						<div class="form-group row">
+						<div class="col-sm-12">
+
+							<input type="hidden" name="allparams[]" value="<?php echo $testParams[$i][0] ?>">
+							<input type="hidden" name="quarantine[]" value="<?php echo $testParams[$i][6] ?>">
+							<input type="hidden" id= "testapprovedby-<?php echo $i;?>" name="approved[]" value="">
+							<input type="number" onfocusout="checkminmax(this,document.getElementById('testapprovedby-<?php echo $i;?>'),'<?php echo $testParams[$i][4]?>','<?php echo $testParams[$i][5]?>')"  <?php if($testParams[$i][8]=="Chemical"){echo "step=0.001";}else{echo "step=0.01";} ?>  class="form-control" name="paramsvalue[]" value="">
+						</div>
+						</div>
+
+						<?php
+					}
+					else if($testParams[$i][3] == "STRING")
+					{
+						stringTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required');
+					}
+					/*
+					else if($testParams[$i][3] == "DATE")
+					{
+						dateTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required');
+					}
+					
+					else if($testParams[$i][3] == "TIME")
+					{
+						timeTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required');
+					}
+					else if($testParams[$i][3] == "DATE TIME")
+					{
+						datetimeTestInput($testParams[$i][0],"test-".$testParams[$i][0],$testParams[$i][1],'required');
+					}
+					*/
+
+?>
+
+</td>
+
+
+
+
+<td>
+
+
+<input  type="text" list="labtechlist"  name="testedby[]" placeholder="Tested By" class="form-control">
+
+
+			<datalist id="labtechlist">
+				<option value="Lab1">Lab1</option>
+				<option value="Lab2">Lab2</option>
+				<option value="Lab3">Lab3</option>
+			</datalist>
+</td>
+	
+
+</tr>
+
+<?php
+
+
+	}
+?>
+
+	</tbody>
+
+
+</table>
+
+<?php
+
+		
+
+			
+			if($testPermission)
+			{
+				?>
+				<div class="col-sm-12">
+				<button type="submit" name="updateprocess4" id="submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-plus"></i>Add test Result</button>
+				</div>
+
+				<?php
+			}
+
+			
+
+			
+
+		?>
+	</div>
+
+
+
+</form>
+
+
+<br><br><br>
+
+
 
 </div>
 
@@ -1554,7 +1594,7 @@ if($testPermission)
 				{
 						$currParam = $row2["param"];
 						
-						echo "<script>console.log('".$dapproved."')</script>";
+						
 						
 							$dumParam = $dumParam . "'" . $row2["param"] . " (Tested By: ".$row2["testedby"].")" ."',";
 						
@@ -1600,7 +1640,7 @@ if($testPermission)
 			echo "<td>".$row["testid"]."</td>";
 			echo "<td>".$row["entrytime"]."</td>";
 			
-				echo "<td><div><button type=\"button\"  class=\"btn btn-primary m-b-0\" onclick=\"viewTest('".$row["testid"]."',".$dumParam.",".$dumValue.")\"><i class=\"fa fa-eye\"></i>View</button><button type=\"button\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"rejectTest('".$row["testid"]."')\"><i class=\"fa fa-trash\"></i>Delete</button></div></td><td>";
+				echo "<td><div><button type=\"button\"  class=\"btn btn-primary m-b-0\" onclick=\"viewTest('".$row["testid"]."',".$dumParam.",".$dumValue.")\"><i class=\"fa fa-eye\"></i>View</button><button type=\"button\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"rejectTest('".$row["testid"]."',true)\"><i class=\"fa fa-trash\"></i>Delete</button></div></td><td>";
 			
 			
 			
@@ -1751,8 +1791,17 @@ else
 	<?php 
 
 	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='PARENT'");
+
+
 			$result  = $result->fetch_assoc();
-			$qty = $result["value"];
+			if($result)
+			{
+				$qty = $result["value"];
+			}
+			else{
+				$qty = "";
+			}
+			
 
 		if(!$approvedblend)
 		{
@@ -1966,7 +2015,7 @@ function acceptTest(testid)
 }
 
 
-function rejectTest(testid)
+function rejectTest(testid,internal=false)
 {
 	Swal.fire({
 		  icon: 'error',
@@ -2002,6 +2051,14 @@ function rejectTest(testid)
 						i.setAttribute('type',"hidden");
 						i.setAttribute('name',"rejecttest");
 						i.setAttribute('value',"");
+
+						form.appendChild(i);
+
+
+						var i = document.createElement("input"); //input element, text
+						i.setAttribute('type',"hidden");
+						i.setAttribute('name',"internal");
+						i.setAttribute('value',internal);
 
 						form.appendChild(i);
 

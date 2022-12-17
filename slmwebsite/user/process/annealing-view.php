@@ -218,7 +218,7 @@
 		<?php 
 			$did = $row["processid"];
 			$paramval ="";
-			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND step='PARENT'");
+			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$did' AND step='PARENT'  AND param<>'$did'");
 			if($result2->num_rows!=0)
 			{
 				$paramval = $result2->fetch_assoc()['param'];

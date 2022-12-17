@@ -138,7 +138,7 @@
 					</select>
 
 				</td>
-				<td><input required class="form-control" type="number" min="1" max="<?php echo $maxcount ?>"  name="ordering[]" value="<?php echo $row['ordering'] ?>"></td>
+				<td><input required class="form-control" type="number" min="1"   name="ordering[]" value="<?php echo $row['ordering'] ?>"></td>
 			</tr>
 
 
@@ -235,7 +235,7 @@
 					</select>
 
 				</td>
-				<td><input required class="form-control" type="number" min="<?php echo $maxcount+1 ?>" max="<?php echo $maxcount_sieve+$maxcount; ?>"  name="ordering[]" value="<?php echo $row['ordering'] ?>"></td>
+				<td><input required class="form-control" type="number" min="1"   name="ordering[]" value="<?php echo $row['ordering'] ?>"></td>
 			</tr>
 
 

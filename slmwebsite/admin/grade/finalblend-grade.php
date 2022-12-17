@@ -142,7 +142,7 @@
 
     	addprocesslog('GRADE',$gradename,$session->user->getUserid(),'Grade Properties updated.');
 
-    	$show_alert = true;
+    	$show_alert = false;
 		$alert = showAlert("info","COA Settings","COA Settings have been reset. Please reconfigure.");
 
     }

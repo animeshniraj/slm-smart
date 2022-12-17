@@ -67,8 +67,9 @@
     	$fheatno = $_POST["fheatno"];
     	
     	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
-    	$prefix = $year.'-I'.$furnaceid.'-';
-    	$sqlprefix = $year.'-I'.$furnaceid.'-%';
+    	$month = explode("-",explode(" ",$creationDate)[0])[1];
+    	$prefix = $year."/".$month.'-I'.$furnaceid.'-';
+    	$sqlprefix = $$year."/".$month.'-I'.$furnaceid.'-%';
 
     	
 

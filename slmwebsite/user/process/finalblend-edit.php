@@ -1378,7 +1378,7 @@ if($operationalPermission)
 	<br>
 
   <div class="table-responsive">
-	<table id="blendmasterparenttable" class="table table-striped table-bordered bms w-auto">
+	<table id="blendmasterparenttable" class="table table-striped table-bordered bms w-auto" style="text-align:center;">
 	<thead id="blendmasterparentthead">
 	<tr>
 
@@ -1388,13 +1388,13 @@ if($operationalPermission)
 			$blendmasterData = $blendmasterData[0];
 		for($i=1;$i<count($blendmasterData[0]);$i++)
 		{
-			echo "<th class='bm'>".$blendmasterData[0][$i]."</th>";
+			echo "<th class='bm'>". $blendmasterData[0][$i]."</th>";
 		}
 
 	?>
 
 
-	<th rowspan="1" class="bm" style="width:5%!important;">Blend Qty.</th>
+	<th rowspan="1" class="bm" style="width:5%!important;">Blend Qty</th>
 </tr></thead>
 	<form method="POST">
 
@@ -1429,7 +1429,7 @@ if($operationalPermission)
 						</label>
 					</div>
 				</td>
-				
+
 				<?php
 
 				for($j=3;$j<count($blendmasterData[$i]);$j++)
@@ -1471,7 +1471,7 @@ if($operationalPermission)
 </table>
 </div>
 <div class="table-responsive">
-<table id="blendmasterspectable" class="table table-striped table-bordered">
+<table id="blendmasterspectable" class="table table-striped table-bordered" style="text-align:center;">
 	<thead>
 	<tr>
 	<th rowspan="1" colspan="1" >Grade - <?php echo $currGradeName ?></th>
@@ -1550,7 +1550,7 @@ if($operationalPermission)
 					{
 					?>
 					<script type="text/javascript">
-						blendtest.push(["blendtest-<?php echo $i;?>","<?php echo $testParams[$i][0]; ?>","<?php echo $testParams[$i][4]?>","<?php echo $testParams[$i][5]?>"])
+						blendtest.push(["blendtest-<?php echo $i;?>","<?php echo $testParams[$i][0] ; ?>","<?php echo $testParams[$i][4]?>","<?php echo $testParams[$i][5]?>"])
 					</script>
 
 					<?php
@@ -1567,11 +1567,17 @@ if($operationalPermission)
 
 </table>
 </div>
+<?php 
+if(!$approvedblend)
+    {
+?>
 
 <div class="col-sm-12">
 		<button type="submit"  name="updateprocess5" id="process5-submitBtn" class="btn btn-primary m-b-0 pull-right"><i class="feather icon-edit"></i>Update Blend</button>
 		</div>
-
+<?php 
+}
+?>
 </form>
 <br><br>
 
@@ -1721,7 +1727,7 @@ if($operationalPermission)
 	function changecolor(testval,allhead)
 	{
 		
-
+		console.log(allhead)
 		var spectbody = document.getElementById('spec-tbody');
 
 		var lastrow = spectbody.children[spectbody.children.length-1];
@@ -2397,7 +2403,7 @@ else
 			<div class="input-group input-group-button">
             <textarea required rows="1" cols="500" class="form-control" placeholder="" name="note" ></textarea>
             <div class="input-group-append">
-                <button class="btn btn-primary" type="submit" name="addNotes"><i class="fa fa-commenting" aria-hidden="true"></i> Add Note</button>
+                <button class="btn btn-primary" type="submit" name="addNotes"><i class="fa fa-commenting" aria-hidden="true"></i> Add A Note</button>
             </div>
             </div>
 

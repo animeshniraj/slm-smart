@@ -109,20 +109,21 @@
   <head>
     <meta charset="utf-8">
     <title>SLM SMART - BLEND MASTER PRINT</title>
-    <link rel="stylesheet" href="anneal-rep.css" media="all" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="sheets-of-paper-a4-landscape.css">
-    <style>
-        .logo{width: 120px;height: auto;}
-        input {
-                background-color: white;
-                color: #000;
-                border: none;
-                }
-    </style>
+    <link rel="stylesheet" href="printbm.css" media="all" />
+    <link rel="stylesheet" href="/../../pages/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="print-bm-all.css">
   </head>
+<style>
+     @media print {
+      
+    .table-bordered th {border: 1px solid #000 !important;}
+     
+    .table-bordered td {border: 1px solid #000 !important;}
+     }
+</style>
   <body>
-    <div class="page" contenteditable="true">
+    <section class="sheet">
+    <div class="page" contenteditable="false">
     <div id="ui-view" data-select2-id="ui-view">
         <div>
             <div class="card">
@@ -138,17 +139,17 @@
                         <img src="logo.png">
                       </div>
                       <div class="col-sm-8 certificate">
-                        <h4><?php echo strtoupper($printname ) ?> Blend Master</h4>
+                        <h4><?php echo strtoupper($printname ) ?> MASTER</h4>
                       </div>
                   </div>
             
+           
             <hr>
-
 
              <div class="row">
                 <div class="col-sm-12">
                     <div class="table-responsive-sm">
-                        <table class="table table-bordered" style="text-align:center;">
+                        <table class="table table-striped table-bordered bms w-auto" style="text-align:center;">
                             <tr>
                                 <th>Blend ID</th>
                                 <th><?php echo $batchno ?></th>
@@ -156,20 +157,20 @@
                                 <th><?php echo $entrydate ?></th>
                                 <th>Grade</th>
                                 <th><?php echo $grade ?></th>
-                                <th>Batch No.</th>
-                                <th><input type="text" placeholder="Click to edit" style="text-align:right;"/></th>
+                                <th>Blend Number</th>
+                                <th><?php echo getBlendID($batchno) ?></th>
                             </tr>
                         </table>
                     </div>
                 </div>
 
 
-                </div>
+            </div>
 
             <div class="row">
                 <div class="col-sm-12">
                     <div class="table-responsive-sm" style="text-align:center;">
-                        <table id="datatable"  class="table table-bordered">
+                        <table id="datatable"  class="table table-striped table-bordered w-auto">
                             <?php 
 
                             echo $data;
@@ -186,7 +187,7 @@
                 <div class="row">
                 <div class="col-sm-12">
                     <div class="table-responsive-sm" style="text-align:center;">
-                        <table id="specdatatable"  class="table table-bordered">
+                        <table id="specdatatable"  class="table table-striped table-bordered w-auto">
                             <?php 
 
                             echo $specdata;
@@ -205,7 +206,7 @@
 
                 <div class="row">
                 <div class="col-sm-12">
-                    <div class="table-responsive-sm">
+                    <div class="table-responsive-sm" style="text-align:center;">
                         <?php
                         $alldata = [];
                         $result = runQuery("SELECT * FROM  gradeproperties LEFT JOIN  processgradesproperties ON processgradesproperties.gradeparam= gradeproperties.properties  WHERE gradeproperties.processname='$printname' AND gradeproperties.gradename='$grade' AND  processgradesproperties.processname='$printname' AND processgradesproperties.class='Chemical'");
@@ -216,7 +217,7 @@
                                             array_push($alldata,[$row['properties'],$row['min'],$row['max']]);
                                         }
                         ?>
-                        <table id="datatablechemical"  class="table table-bordered">
+                        <table id="datatablechemical"  class="table table-striped table-bordered w-auto table-xs">
                             <thead>
                                 <tr>
                                     <th>Chemical Properties</th>
@@ -258,12 +259,12 @@
 
                                 </tr>
                                 <tr>
-                                    <td>Specs</td>
+                                    <td>Actual Value</td>
                                     <?php 
                                         foreach ($alldata as $value) {
                                     ?>
                                         <td>
-                                        <input type="text" placeholder=""/></td>
+                                        <input type="text" placeholder="" style="width:80px;"></td>
                                     <?php
                                         }
 
@@ -279,8 +280,30 @@
                 </div>
 
 
+
+                </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="table-responsive-sm">
+                        <table class="table table-striped table-bordered w-auto" style="text-align:center;">
+                            <tr>
+                                <th>Blend Time</th>
+                                <th>Packaging</th>
+                                <th>Batch No.</th>
+                            </tr>
+                            <tr>
+                                <th><input type="text" placeholder="" style="width:100px;"></td></th>
+                                <th><input type="text" placeholder="" style="width:100px;"></td></th>
+                                <th><input type="text" placeholder="" style="width:100px;"></td></th>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
+
+            </div>
+
 
 
 
@@ -290,7 +313,7 @@
     </div>
 </div>
 
-
+</section>
 <script type="text/javascript">
 	
 
@@ -300,7 +323,7 @@
 </script>
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/../../pages/js/jquery.min.js"></script>
     <script type="text/javascript">
     	$('#datatable [style]').removeAttr('style');
     	$('#datatable [class]').removeAttr('class');
@@ -320,17 +343,19 @@
         $('#specdatatable [onchange]').removeAttr('onchange');
 
         
-
+        let send_list,heading_data;
+        send_list = [];
+        heading_data = [];                              
         
 
         $( document ).ready(function() {
             updatetable()
-
+            rename_header()
 
             noCols = document.getElementById('specdatatable').children[0].children[0].children.length;
         
         var tr = document.createElement('tr');
-        tr.innerHTML="<td>Manual Entry</td>";
+        tr.innerHTML="<td>Actual Value</td>";
         for(var i=0;i<noCols-1;i++)
         {
             //tr.innerHTML+="<td><input type=\"text\" placeholder=\"\" /></td>";
@@ -409,6 +434,64 @@
                 //console.log(1);
                 updatetable();
             }
+
+        }
+
+        
+        function rename_header()
+        {
+            var heads = document.getElementById('blendmasterparentthead').children[0];
+            omit_header = ["bag id","date","grade", "bal qty", "blend qty"]
+            
+            for(var i =0; i< heads.children.length;i++)
+            {
+                curr = heads.children[i]
+                
+                if(curr.localName !="th")
+                    continue
+                
+                if(omit_header.includes(curr.innerHTML.toLowerCase()))
+                    continue
+                
+                send_list.push(curr.innerHTML)
+                heading_data.push(curr)
+                
+            }
+
+
+            var postData = new FormData();
+       
+            postData.append("action","getShortnames");
+            postData.append("processname","<?php echo $printname?>");
+            postData.append("properties",send_list);
+            
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                
+                
+                var data = JSON.parse(this.responseText);
+            
+                if(data.response)
+                {
+                    
+                    
+
+                   for(var i=0;i<data.names.length;i++)
+                    {
+ 
+                        heading_data[i].innerHTML = data.names[i];
+                    }
+
+
+                }
+                
+            
+            }
+            };
+            xmlhttp.open("POST", "/query/report.php", true);
+            xmlhttp.send(postData);
+
 
         }
 

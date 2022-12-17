@@ -117,6 +117,18 @@
 
     $dataqty = $_POST["dataqty"];
 
+    $result =runQuery("SELECT * FROM loading_advice WHERE laid='$laid'");
+
+    $result=$result->fetch_assoc();
+
+    if($result["company"]=="SLM Metal")
+    {
+      $company = "SLM Metal";
+    }
+    else
+    {
+      $company = "SLM Technology";
+    }
 
 
 	require_once('../process/helper.php');
@@ -202,7 +214,7 @@ border: none;
   <table style="width:100%;font-size: 12px;">
     <tr>
       <th colspan="1"><img src="/pages/png/slmlogo.png" class="center"><p style="font-size:10px;">TAG ID - SLM/MKT/DOC-16</p></th>
-      <th colspan="3" style="text-align:right;"><h2 style="margin-bottom:0;">SLM TECHNOLOGY PVT. LTD.</h2><p style="margin-top: 0;">PLOT NO. 185/A, IDCO PLOT, KALUNGA-770031, ODISHA</p></th>
+      <th colspan="3" style="text-align:right;"><h2 style="margin-bottom:0;"><?php echo $company; ?> PVT. LTD.</h2><p style="margin-top: 0;">PLOT NO. 185/A, IDCO PLOT, KALUNGA-770031, ODISHA</p></th>
     </tr>
     <tr><td colspan="4" ><strong>Name of Supervisor: </strong><input type="text" placeholder="Click to edit" /> </td></tr>
     <tr>

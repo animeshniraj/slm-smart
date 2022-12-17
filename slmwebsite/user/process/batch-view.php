@@ -43,8 +43,12 @@
     	$processid = $_POST['processid'];
 
     	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND step='PARENT'");
-    	$parentid = $result->fetch_assoc()['param'];
-    	runQuery("UPDATE processentry SET islocked='LOCKED' WHERE processid='$parentid'"); 
+		$result = $result->fetch_assoc();
+		if($result)
+		{	
+			$parentid = $result['param'];
+			runQuery("UPDATE processentry SET islocked='LOCKED' WHERE processid='$parentid'"); 
+		}
     	runQuery("call delete_process('$processid')");
     }
 

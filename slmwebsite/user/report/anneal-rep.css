@@ -15,7 +15,6 @@
     word-wrap: break-word;
     background-color: #fff;
     background-clip: border-box;
-    border: 1px solid #c8ced3;
     border-radius: .25rem
 }
 
@@ -26,8 +25,7 @@
 .card-header {
     padding: .75rem 1.25rem;
     margin-bottom: 0;
-    background-color: #f0f3f5;
-    border-bottom: 1px solid #c8ced3
+
 }
 .logo img{width: 200px;}
 

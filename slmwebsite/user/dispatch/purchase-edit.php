@@ -757,7 +757,7 @@ input[type=number] {
 
 <?php
 	
-	if($currStatus=="UNFULFILLED") {
+	if($currStatus!="FULFILLED") {
 ?>
 
 	<div class="form-group row">

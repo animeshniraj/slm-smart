@@ -121,8 +121,8 @@ table {
 	html, body {
 		/* Reset the document's background color */
 		background-color: #ccc;
-		font-size: 15pt!important;
-		line-height:20pt!important;
+		font-size: 15pt;
+		line-height:15pt;
 	}
 	.footer{font-size:12px;line-height:13px;color:#eaeaea;}
 	.page {

@@ -181,15 +181,23 @@ $cid = $_GET["cid"];
     <meta charset="utf-8">
     <title>SLM SMART - COA</title>
     <link rel="stylesheet" href="coa.css" media="all" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="sheets-of-paper-a4.css">
+    <link rel="stylesheet" href="/../../pages/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="coa-a4.css">
     <style>
-        .lab-sign{width:230px!important;height:auto;float:right;}
-        h6{font-size:15px;}
+        .page .lab-sign{width:230px!important;height:auto;float:right;}
+       h5{font-size:20px;}
+        h6{font-size:13px;}
+
+        @media print {
+            .table{font-size:14px;}
+            .table .table-borderless{border:#fff solid !important;}
+            
+            .table-bordered td {border: 2px solid #000 !important;}
+        }
     </style>
   </head>
   <body>
-  <div class="page" contenteditable="true">
+  <div class="page" contenteditable="false">
     <div id="ui-view" data-select2-id="ui-view">
         <div>
             <div class="card">
@@ -200,22 +208,23 @@ $cid = $_GET["cid"];
                 </div>
                 <div class="card-body">
 
-                  <div class="row">
+                 <!-- <div class="row">
                   <div class="col-sm-4 logo">
                         <img src="logo.png">
                       </div>
                       <div class="col-sm-8 certificate">
                         <h2>CERTIFICATE OF ANALYSIS</h2>
                       </div>
-                  </div>
+                  </div> -->
 
                     <div class="row mb-4 mt-3">
-                        <div class="col-sm-3">
-                            <h6 class="mb-1">GRADE:</h6>
-                            <h3>
-                                <strong><?php echo $data['grade']; ?></strong>
-                            </h3>
-                            <div><p style="font-size:14px;font-weight:bold;line-height:13px;"><?php echo $data['basic']['customer']; ?></p></div>
+                        <div class="col-sm-6">
+                            <h5 class="mb-1">GRADE:<strong><?php echo $data['grade']; ?></strong></h5>
+                        </div>
+                    </div>  
+
+                    <!--
+                        <div><p style="font-size:14px;font-weight:bold;line-height:13px;"><?php echo $data['basic']['customer']; ?></p></div>
                             <div><p style="font-size:13px;line-height:13px;"><?php echo $data['basic']['customeraddress']; ?></p></div>
                             <div><p style="font-size:13px;"><?php echo $data['basic']['customercity']; ?>, <?php echo $data['basic']['customerstate']; ?> - <?php echo $data['basic']['customerpincode']; ?></p></div>
                         </div>
@@ -239,7 +248,27 @@ $cid = $_GET["cid"];
         
                         </div>
                          
+                    </div>-->
+
+                    <div class="table-responsive-sm">
+                        <table class="table table-borderless" style="border:#fff solid !important; margin-top:15px;">
+                                <tr>
+                                    <td scope="col" colspan="1" style="width:20%"><h6>PROD. DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime(getEntryTime($id))); ?></div></h6></td>
+                                    <td scope="col" colspan="1" style="width:25%;vertical-align:top;"><h6>P.O. DETAILS:<div><?php echo $id; ?></div></h6></td>
+                                </tr>
+                                <tr style="border:#fff solid !important;">
+                                    <td scope="col" colspan="1" style="width:35%">
+                                        <h6 class="word"><div>CUSTOMER:<br><?php echo $data['basic']['customer']; ?></div>
+                                       
+                                        <div style="text-transform: uppercase"><?php echo $data['basic']['customercity']; ?>, <?php echo $data['basic']['customerstate']; ?></div></h6>
+                                    </td>
+                                    <td scope="col" colspan="1" style="width:20%;vertical-align:top;"><h6>DISPATCH DATE: <div class="mb-3"><?php echo Date('d-M-Y',strtotime($data['dispatchdate'])); ?></div></h6></td>
+                                    <td scope="col" colspan="1" style="width:20%;vertical-align:top;"><h6>DISPATCH QTY.: <div class="mb-3"><?php echo getTotalQuantity($id) ; ?> KG</div></h6></td>
+                                    <td scope="col" colspan="1" style="width:25%;vertical-align:top;"><h6>P.O. DATE:<div><?php echo Date('d-M-Y',strtotime(getEntryTime($id))); ?></div></h6></td>
+                                </tr>
+                        </table>
                     </div>
+
 
                     <div class="table-responsive-sm">
                         <table class="table table-bordered">
@@ -356,7 +385,7 @@ $cid = $_GET["cid"];
                         </div>
                     </div>
                 <?php } ?>
-<!---- Footer -->
+<!---- Footer 
                     <div class="row mb-2">
                       <div class="col-sm-9 footer">
                         <p><strong><?php echo $data['basic']['company'] ; ?></strong></p>
@@ -368,7 +397,7 @@ $cid = $_GET["cid"];
                         
                       </div>
                     </div>
-<!---- End Footer -->
+ End Footer -->
                 </div>
             </div>
         </div>

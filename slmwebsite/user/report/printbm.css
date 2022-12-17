@@ -1,8 +1,8 @@
  body{ font-size:13px;
- line-height:13px; 
-background-color: #fff;}
+ line-height:13px; }
 
  .card {
+    margin-bottom: 1.5rem
 }
 
 .card {
@@ -15,7 +15,6 @@ background-color: #fff;}
     word-wrap: break-word;
     background-color: #fff;
     background-clip: border-box;
-    border: 1px solid #fff!important;
     border-radius: .25rem
 }
 
@@ -26,16 +25,16 @@ background-color: #fff;}
 .card-header {
     padding: .75rem 1.25rem;
     margin-bottom: 0;
-    background-color: #f0f3f5;
-    border-bottom: 1px solid #fff!important;
+
 }
 .logo img{width: 200px;}
 
 .lab-sign img{width: 150px;}
 
 .certificate h2{
-    text-align: center;
+    text-align: right;
     color:#5a5a5a;
+    background: url(dimension.png);
     padding:1.5%;
 }
 
@@ -52,27 +51,51 @@ background-color: #fff;}
     border: 2px solid #5a5a5a!important;
 }
 
-.table-borderless tr{border-color: #fff!important;}
-
 .table th, .table td{padding:0 5px!important;}
 .foot img{width:120px;text-align: left;}
 
 .property th{width: 200px;}
+.remarks {padding:1rem;border-style:solid;border-color: black;}
 
-h6 .word {
-            width: 150px;
-            overflow-wrap: break-word;
-            word-wrap: break-word;
-            word-break: break-word;
-            font-size:14px;line-height:13px;
+        .table{font-size:13px;}
+        .logo{width: 120px;height: auto;}
+        input {
+                background-color: white;
+                color: #000;
+                border: none;
+                }
+
+        input[type=checkbox], input[type=radio] 
+        {
+        display: none;
         }
 
-        .page .lab-sign{width:230px!important;height:auto;float:right;}
-        h6{font-size:15px;}
+        .table th, .table td {
+    padding: 0 2px!important;
+}
+
+.page{margin: 0cm auto!important;}
+
+.bms{font-size:16px; font-weight: bold;}
 
 
-@media print 
-{    
-    .table-bordered td {border: 1px solid #000 !important;}
-    .word{font-size: 13px;text-transform: uppercase;}
+@media print {
+
+body{  font-size:15px;
+    line-height: 15px; }
+
+ .card {border-color: #fff;}   
+ .bms{font-size:16px; font-weight: bold;}
+table tr {
+    font-size: 14px;
+    border-collapse: collapse;
+    border:solid #000 !important;
+    border-width:2px !important;
+}
+
+table td + td {
+  border-left: 5px solid black;
+}
+
+
 }

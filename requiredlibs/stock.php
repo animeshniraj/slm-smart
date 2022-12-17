@@ -58,6 +58,7 @@
             $dumProp["headerName"] = "Raw Blend Id";
             $dumProp["filter"] = 'agTextColumnFilter';
             $dumProp["floatingFilter"] = true;
+            $dumProp["sortable"] = true;
 
             array_push($columnDefs,$dumProp);
             array_push($uid_map,["raw_blend_id",'Raw Blend Id']);
@@ -135,6 +136,8 @@
         $payload["rowData"] = $result[0];
         $payload["fetch_data_list"] = $result[1];
         $payload["test_data_list"] = $result[2];
+        $payload["total_production_qty"] = $result[3];
+        $payload["total_balance_qty"] = $result[4];
         $payload["process"] = $payload_received["process"];
 
         echo json_encode($payload);
@@ -150,9 +153,11 @@
 
         $fetch_data_list = [];
         $test_data_list = [];
+        $total_production_qty = 0;
+        $total_balance_qty = 0;
 
         $startdate = Date("Y-m-d 00:00:00",strtotime($start_date));
-        $enddate = Date("Y-m-d 11:59:59",strtotime($end_date));
+        $enddate = Date("Y-m-d 23:59:59",strtotime($end_date));
 
         if($basic_properties["filter_date_from_entry"])
         {
@@ -280,6 +285,7 @@
         
 
             $prod_qty[$row["processid"]] =  $row["value"];
+            $total_production_qty += $row["value"]; 
 
         }
 
@@ -314,6 +320,9 @@
 
         }
 
+
+            
+
         $newRowData = [];
 
 
@@ -333,11 +342,14 @@
             {
                 $row["bal_qty"] = round($row["prod_qty"]-$bal_qty[$row["process_id"]],2);
                 
+                
             }
             else
             {
                 $row["bal_qty"] = $row["prod_qty"];
+                
             }
+
 
 
             ## EXCEPTION FOR ANNEALING
@@ -355,6 +367,14 @@
             }
 
             ## END
+            
+            
+
+            if(is_numeric($row["bal_qty"]))
+            {
+                $total_balance_qty +=$row["bal_qty"];
+            }
+          
 
             if($show_only_balance)
             {
@@ -381,11 +401,12 @@
             
 
             
+            
         }
 
         
 
-        return [$newRowData,$fetch_data_list,$test_data_list];
+        return [$newRowData,$fetch_data_list,$test_data_list,round($total_production_qty,2),round($total_balance_qty,2)];
     }
 
 

@@ -64,6 +64,10 @@
    	}
 
 
+   	$showlimit = 20;
+
+   	$coa_result  = runQuery("SELECT  * FROM premix_coa_approval  LIMIT $showlimit");
+
 
 
     include("../../pages/userhead.php");
@@ -194,6 +198,64 @@
 		</div>
 
 </form>
+	
+
+
+
+</div>
+</div>
+
+
+<div class="card">
+<div class="card-header">
+<h4>Approved COAs</h4>
+<div class="card-header-right">
+
+</div>
+</div>
+<div class="card-block">
+
+
+<table class="table table-striped">
+
+	<thead>
+		<th>Process Id</th>
+		<th>Approval Date</th>
+		<th>Approved By</th>
+		<th></th>
+	</thead>
+
+	<tbody>
+		<?php 
+			while($row=$coa_result->fetch_assoc())
+			{				
+		?>
+
+		<tr>
+			<td><?php echo $row["premixid"]; ?></td>
+
+			<td><?php echo $row["approvaldate"]; ?></td>
+			<td><?php echo $row["approvedby"]; ?></td>
+			<td>
+				
+				<form method="POST" action="coaapproval-edit.php">
+				<input type="hidden" name="premixid" value="<?php echo $premixid; ?>">
+					<button type="submit" class="btn btn-primary">Go To</button>
+				</form>
+			</td>
+		</tr>
+
+		<?php 
+
+			}
+
+		?>
+
+
+
+	</tbody>
+	
+</table>
 	
 
 

@@ -59,7 +59,7 @@
 
 	}
  
-
+	$deletePermission = true;
 
     include("../../pages/userhead.php");
     include("../../pages/usermenu.php");

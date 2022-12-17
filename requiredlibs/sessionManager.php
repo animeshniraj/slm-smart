@@ -135,6 +135,7 @@
 		{
 			runQuery("DELETE FROM rolepermission WHERE roleid='$crole' AND page='$url'");
 			runQuery("INSERT INTO rolepermission VALUES(NULL,'$crole','$url','ALLOW')");
+
 			return true;
 		}
 

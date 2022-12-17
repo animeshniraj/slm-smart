@@ -141,6 +141,10 @@
   <div class="card table-card">
     <div class="card-header">
       <h5>Recent Raw Bag</h5>
+      <div class="row">
+          <a class="col-md-5 mr-1 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/rawbag-new.php">New Raw Bag</a>
+          <a class="col-md-5 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/rawbag-view.php">View Raw Bags</a>
+      </div>
 	  	<div class="card-header-right">
 			<ul class="list-unstyled card-option">
 			<li class="first-opt"><i class="feather icon-chevron-left open-card-option"></i></li>
@@ -162,27 +166,30 @@
               </tr>
             </thead>
             <tbody>
+
+
+              <?php
+              $cprocess = "Raw Bag";
+              $result = runQuery("SELECT * FROM processentry WHERE processname='$cprocess' ORDER BY entrytime DESC LIMIT 3");
+              while($row=$result->fetch_assoc())
+              {
+
+                $cprocessid = $row["processid"];
+
+              ?>
+
               <tr>
-                <td>22/06-R-010</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>04</td>
-                <td>RAW AIP-100</td>
-				<td>2000kg</td>
+                <td><?php echo $cprocessid; ?></td>
+                <td><?php echo Date('Y-M-d h:i A',strtotime($row["entrytime"])) ?></td>
+                <td><?php echo getRawBagNo($cprocessid); ?></td>
+                <td><?php echo getProcessGrade($cprocessid) ?></td>
+				        <td><?php echo getTotalQuantity($cprocessid); ?></td>
               </tr>
-              <tr>
-				<td>22/06-R-009</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>04</td>
-                <td>RAW AIP-100</td>
-				<td>2000kg</td>
-              </tr>
-              <tr>
-				<td>22/06-R-004</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>04</td>
-                <td>RAW AIP-100</td>
-				<td>2000kg</td>
-              </tr>
+
+              <?php
+                }
+              ?>
+              
             </tbody>
           </table>
         </div>
@@ -195,6 +202,10 @@
   <div class="card table-card">
     <div class="card-header">
       <h5>Recent Raw Blend</h5>
+      <div class="row">
+          <a class="col-md-5 mr-1 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/rawblend-new.php">New Raw Blend</a>
+          <a class="col-md-5 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/rawblend-view.php">View Raw Blends</a>
+      </div>
 	  	<div class="card-header-right">
 			<ul class="list-unstyled card-option">
 			<li class="first-opt"><i class="feather icon-chevron-left open-card-option"></i></li>
@@ -216,27 +227,29 @@
               </tr>
             </thead>
             <tbody>
+              
+               <?php
+              $cprocess = "Raw Blend";
+              $result = runQuery("SELECT * FROM processentry WHERE processname='$cprocess' ORDER BY entrytime DESC LIMIT 3");
+              while($row=$result->fetch_assoc())
+              {
+
+                $cprocessid = $row["processid"];
+
+              ?>
+
               <tr>
-                <td>22/06-BS-070</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>02</td>
-                <td>RAW SIP-100</td>
-				<td>2000kg</td>
+                <td><?php echo $cprocessid; ?></td>
+                <td><?php echo Date('Y-M-d h:i A',strtotime($row["entrytime"])) ?></td>
+                <td><?php echo getBlendID($cprocessid); ?></td>
+                <td><?php echo getProcessGrade($cprocessid) ?></td>
+                <td><?php echo getTotalQuantity($cprocessid); ?></td>
               </tr>
-              <tr>
-                <td>22/06-BA-002</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>02</td>
-                <td>RAW SIP-100</td>
-				<td>2000kg</td>
-              </tr>
-              <tr>
-                <td>22/06-BS-069</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>02</td>
-                <td>RAW SIP-60</td>
-				<td>2000kg</td>
-              </tr>
+
+              <?php
+                }
+              ?>
+
             </tbody>
           </table>
         </div>
@@ -251,6 +264,10 @@
   <div class="card table-card">
     <div class="card-header">
       <h5>Recent Annealing</h5>
+      <div class="row">
+          <a class="col-md-5 mr-1 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/annealing-new.php">New Annealing</a>
+          <a class="col-md-5 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/annealing-view.php">View Annealing</a>
+      </div>
 	  	<div class="card-header-right">
 			<ul class="list-unstyled card-option">
 			<li class="first-opt"><i class="feather icon-chevron-left open-card-option"></i></li>
@@ -271,24 +288,26 @@
               </tr>
             </thead>
             <tbody>
+              <?php
+              $cprocess = "Annealing";
+              $result = runQuery("SELECT * FROM processentry  LEFT JOIN processentryparams ON processentryparams.processid=processentry.processid WHERE processentry.processname = '$cprocess' AND processentryparams.param='Furnace' ORDER BY processentry.entrytime DESC LIMIT 3");
+              while($row=$result->fetch_assoc())
+              {
+
+                $cprocessid = $row["processid"];
+
+              ?>
+
               <tr>
-                <td>22/06-AF1-029</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>AF1</td>
-                <td>6897 Kg</td>
+                <td><?php echo $cprocessid; ?></td>
+                <td><?php echo Date('Y-M-d h:i A',strtotime($row["entrytime"])) ?></td>
+                <td><?php echo $row["value"];  ?></td>
+                <td><?php echo getTotalQuantity($cprocessid); ?></td>
               </tr>
-              <tr>
-                <td>22/06-AF1-029</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>AF1</td>
-                <td>6897 Kg</td>
-              </tr>
-              <tr>
-                <td>22/06-AF1-029</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>AF1</td>
-                <td>6897 Kg</td>
-              </tr>
+
+              <?php
+                }
+              ?>
             </tbody>
           </table>
         </div>
@@ -302,6 +321,10 @@
   <div class="card table-card">
     <div class="card-header">
       <h5>Recent Semi Finished</h5>
+      <div class="row">
+          <a class="col-md-5 mr-1 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/semifinished-new.php">New Semi Finished</a>
+          <a class="col-md-5 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/semifinished-view.php">View Semi Finished</a>
+      </div>
 	  	<div class="card-header-right">
 			<ul class="list-unstyled card-option">
 			<li class="first-opt"><i class="feather icon-chevron-left open-card-option"></i></li>
@@ -323,27 +346,27 @@
               </tr>
             </thead>
             <tbody>
+               <?php
+              $cprocess = "Semi Finished";
+              $result = runQuery("SELECT * FROM processentry WHERE processname='$cprocess' ORDER BY entrytime DESC LIMIT 3");
+              while($row=$result->fetch_assoc())
+              {
+
+                $cprocessid = $row["processid"];
+
+              ?>
+
               <tr>
-                <td>22/06-A-149</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>14</td>
-				<td>AIP -80 PV</th>
-                <td>6897 Kg</td>
+                <td><?php echo $cprocessid; ?></td>
+                <td><?php echo Date('Y-M-d h:i A',strtotime($row["entrytime"])) ?></td>
+                <td><?php echo getBinNo($cprocessid); ?></td>
+                <td><?php echo getProcessGrade($cprocessid) ?></td>
+                <td><?php echo getTotalQuantity($cprocessid); ?></td>
               </tr>
-              <tr>
-                <td>22/06-A-150</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>14</td>
-				<td>AIP -80 PV</th>
-                <td>6897 Kg</td>
-              </tr>
-              <tr>
-                <td>22/06-A-151</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>14</td>
-				<td>AIP -40 PV</th>
-                <td>6897 Kg</td>
-              </tr>
+
+              <?php
+                }
+              ?>
             </tbody>
           </table>
         </div>
@@ -357,6 +380,10 @@
   <div class="card table-card">
     <div class="card-header">
       <h5>Recent Final Blend</h5>
+      <div class="row">
+          <a class="col-md-5 mr-1 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/finalblend-new.php">New Final Blend</a>
+          <a class="col-md-5 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/finalblend-view.php">View Final Blends</a>
+      </div>
 	  	<div class="card-header-right">
 			<ul class="list-unstyled card-option">
 			<li class="first-opt"><i class="feather icon-chevron-left open-card-option"></i></li>
@@ -378,27 +405,27 @@
               </tr>
             </thead>
             <tbody>
+               <?php
+              $cprocess = "Final Blend";
+              $result = runQuery("SELECT * FROM processentry WHERE processname='$cprocess' ORDER BY entrytime DESC LIMIT 3");
+              while($row=$result->fetch_assoc())
+              {
+
+                $cprocessid = $row["processid"];
+
+              ?>
+
               <tr>
-                <td>22/06-TF-026</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>1</td>
-				<td>F-100</th>
-                <td>6897 Kg</td>
+                <td><?php echo $cprocessid; ?></td>
+                <td><?php echo Date('Y-M-d h:i A',strtotime($row["entrytime"])) ?></td>
+                <td><?php echo getBlendID($cprocessid); ?></td>
+                <td><?php echo getProcessGrade($cprocessid) ?></td>
+                <td><?php echo getTotalQuantity($cprocessid); ?></td>
               </tr>
-              <tr>
-                <td>22/06-TF-026</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>1</td>
-				<td>F-100</th>
-                <td>6897 Kg</td>
-              </tr>
-              <tr>
-                <td>22/06-TF-026</td>
-                <td>22/06/2022 8:00 PM</td>
-                <td>1</td>
-				<td>F-100</th>
-                <td>6897 Kg</td>
-              </tr>
+
+              <?php
+                }
+              ?>
             </tbody>
           </table>
         </div>
@@ -413,6 +440,10 @@
   <div class="card table-card">
     <div class="card-header">
       <h5>Recent Batches</h5>
+      <div class="row">
+          <a class="col-md-5 mr-1 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/batch-new.php">New Batch</a>
+          <a class="col-md-5 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/process/batch-view.php">View Batches</a>
+      </div>
 	  	<div class="card-header-right">
 			<ul class="list-unstyled card-option">
 			<li class="first-opt"><i class="feather icon-chevron-left open-card-option"></i></li>
@@ -434,27 +465,27 @@
               </tr>
             </thead>
             <tbody>
+              <?php
+              $cprocess = "Batch";
+              $result = runQuery("SELECT * FROM processentry WHERE processname='$cprocess' ORDER BY entrytime DESC LIMIT 3");
+              while($row=$result->fetch_assoc())
+              {
+
+                $cprocessid = $row["processid"];
+
+              ?>
+
               <tr>
-                <td>T22IP04070</td>
-                <td>22/06/2022</td>
-                <td>22/04-TF-043</td>
-				<td>SLM 100.29 CUTTING0</th>
-                <td>6897 Kg</td>
+                <td><?php echo $cprocessid; ?></td>
+                <td><?php echo Date('Y-M-d h:i A',strtotime($row["entrytime"])) ?></td>
+                <td><?php  if(isset(getAllParents($cprocessid)["Parents"][0]["id"])){echo getAllParents($cprocessid)["Parents"][0]["id"];} else{echo "-";} ?></td>
+                <td><?php echo getProcessGrade($cprocessid) ?></td>
+                <td><?php echo getTotalQuantity($cprocessid); ?></td>
               </tr>
-              <tr>
-                <td>T22IP04070</td>
-                <td>22/06/2022</td>
-                <td>22/04-TF-043</td>
-				<td>SLM 100.29 CUTTING0</th>
-                <td>6897 Kg</td>
-              </tr>
-              <tr>
-                <td>T22IP04070</td>
-                <td>22/06/2022</td>
-                <td>22/04-TF-043</td>
-				<td>SLM 100.29 CUTTING0</th>
-                <td>6897 Kg</td>
-              </tr>
+
+              <?php
+                }
+              ?>
             </tbody>
           </table>
         </div>
@@ -468,7 +499,11 @@
 <div class="col-xl-6 col-md-6">
   <div class="card table-card">
     <div class="card-header">
-      <h5>Recent Orders</h5>
+      <h5>Recent Purchase Orders</h5>
+      <div class="row">
+          <a class="col-md-5 mr-1 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/dispatch/new-purchase.php">New Purchase Order</a>
+          <a class="col-md-5 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/dispatch/purchase-view.php">View Purchase Orders</a>
+      </div>
       <div class="card-block">
         <div class="table-responsive">
           <table class="table table-hover m-b-0" style="font-size:14px;">
@@ -482,60 +517,138 @@
               </tr>
             </thead>
             <tbody>
+
+
+              <?php
+
+                $result  = runQuery("SELECT * FROM purchase_order ORDER BY entrydate DESC LIMIT 3");
+
+                while($row = $result->fetch_assoc())
+                {
+                  $poid = $row["orderid"];
+
+                  
+                  $dispatch_qty = "-";
+
+                  $result2 = runQuery("SELECT SUM(value) as qty FROM purchaseorder_params WHERE orderid='$poid' AND step='BATCH'");
+                  $total_qty = $result2->fetch_assoc()["qty"];
+                  if(!$total_qty)
+                  {
+                    $total_qty = "-";
+                  }
+
+
+                  $result2 = runQuery("SELECT SUM(quantity) as qty FROM loadingadvice_batches WHERE laid IN (SELECT laid FROM loading_advice WHERE poid ='$poid' AND status='FULFILLED')");
+                  $dispatch_qty = $result2->fetch_assoc()["qty"];
+                  if(!$dispatch_qty)
+                  {
+                    $dispatch_qty = "-";
+                  }
+
+
+                  if($row["status"] == "FULFILLED")
+                  {
+                    $label = "label-success";
+                    $label_text = "Closed";
+                  }
+                  elseif($row["status"] == "LOADING ADVICE")
+                  {
+                    $label = "label-warning";
+                    $label_text = "Loading Advice";
+                  }
+                  else
+                  {
+                    $label = "label-danger";
+                    $label_text = "Open";
+                  }
+
+                  $dumC = $row["customer"];
+                  $result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='Name'");
+                  $customer_name = $result2->fetch_assoc()["value"];
+
+
+              ?>
+
               <tr>
-                <td>Apple Company</td>
-                <td>23/05/2022 - T-12.05.2022</td>
-                <td>120000kg</td>
-                <td>120000kg</td>
+                <td><?php echo $customer_name; ?></td>
+                <td><?php echo Date('Y-M-d',strtotime($row["entrydate"])) ?> <br> <?php echo $poid ; ?></td>
+                <td><?php echo $total_qty; ?> kg</td>
+                <td><?php echo $dispatch_qty; ?> kg</td>
                 <td>
-                  <label class="label label-success">Closed</label>
+                  <label class="label <?php echo $label; ?>"><?php echo $label_text; ?></label>
                 </td>
               </tr>
-              <tr>
-                <td>Apple Company</td>
-                <td>23/05/2022 - T-13.05.2022</td>
-                <td>120000kg</td>
-                <td>120000kg</td>
-                <td>
-                  <label class="label label-success">Closed</label>
-                </td>
+
+              <?php
+                }
+
+              ?>
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="col-xl-6 col-md-6">
+  <div class="card table-card">
+    <div class="card-header">
+      <h5>Recent Dispatch</h5>
+      <div class="row">
+          <a class="col-md-5 mr-1 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/dispatch/new-dispatch.php">New Dispatch</a>
+          <a class="col-md-5 btn waves-effect waves-light hor-grd btn-grd-primary" href="/user/dispatch/dispatch-view.php">View Dispatches</a>
+      </div>
+      <div class="card-block">
+        <div class="table-responsive">
+          <table class="table table-hover m-b-0" style="font-size:14px;">
+            <thead>
+              <tr style="text-align:center;">
+                <th>Company</th>
+                <th>Dispatch Date</th>
+                <th>Consignment Number</th>
+                <th>Dispatched<br>Qty</th>
               </tr>
+            </thead>
+            <tbody>
+
+              <?php
+
+                $result = runQuery("SELECT * FROM dispatch ORDER BY entrydate DESC LIMIT 3");
+
+                while($row = $result->fetch_assoc())
+                {
+
+                  $cid = $row["cid"];
+                  $dumC = $row["customer"];
+                  $result2 = runQuery("SELECT * FROM external_param WHERE externalid='$dumC' AND param='Name'");
+                  $customer_name = $result2->fetch_assoc()["value"];
+
+                  $result2 = runQuery("SELECT SUM(qty) as qty FROM dispatch_invoices WHERE cid='$cid'");
+                  $total_qty = $result2->fetch_assoc()["qty"];
+                  if(!$total_qty)
+                  {
+                    $total_qty = "-";
+                  }
+
+              ?>
+
               <tr>
-                <td>Google Company</td>
-                <td>23/05/2022 - T-14.05.2022</td>
-                <td>120000kg</td>
-                <td>20000kg</td>
-                <td>
-                  <label class="label label-danger">Open</label>
-                </td>
+                <td><?php echo $customer_name; ?></td>
+                <td><?php echo Date('Y-M-d',strtotime($row["entrydate"])) ?> </td>
+                <td><?php echo $cid; ?></td>
+                <td><?php echo $total_qty; ?> kg</td>
+
               </tr>
-              <tr>
-                <td>Apple Company</td>
-                <td>23/05/2022 - T-18.04.2022</td>
-                <td>120000kg</td>
-                <td>120000kg</td>
-                <td>
-                  <label class="label label-success">Closed</label>
-                </td>
-              </tr>
-              <tr>
-                <td>Apple Company</td>
-                <td>23/05/2022 - T-12.05.2022</td>
-                <td>120000kg</td>
-                <td>0kg</td>
-                <td>
-                  <label class="label label-danger">Open</label>
-                </td>
-              </tr>
-              <tr>
-                <td>Apple Company</td>
-                <td>23/05/2022 - T-12.05.2022</td>
-                <td>120000kg</td>
-                <td>0kg</td>
-                <td>
-                  <label class="label label-danger">Open</label>
-                </td>
-              </tr>
+
+
+              <?php
+              }
+
+              ?>
+              
             </tbody>
           </table>
         </div>

@@ -39,7 +39,7 @@
     }
 
    $processid = $_POST["processid"];
-
+   
 
    if(isset($_POST['approvecoa']))
    {
@@ -77,6 +77,7 @@
    $allsheader = ["Test Id"];
    $allaverage = [];
    $propdata =[];
+
 
    $result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND param='$GRADE_TITLE'");
 
@@ -461,7 +462,25 @@
 					<td><?php echo $propdata[$header]['min']; ?></td>
 					<td><?php echo $propdata[$header]['max']; ?></td>
 					<td><?php echo round($allaverage[$header],$round) ?></td>
-					<td><input <?php if($isapproved){echo "readonly";} ?> required step="<?php echo $step; ?>" type="number" name="allvalues[]" value="<?php if(!$isapproved){echo round($allaverage[$header],$round);}else{echo $allapproved[$header];} ?>">
+					<td>
+						<?php
+							if($header=="Iron Content")
+							{
+						?>
+						<input <?php if($isapproved){echo "readonly";} ?> required  type="text" name="allvalues[]" value="<?php if(!$isapproved){echo round($allaverage[$header],$round);}else{echo $allapproved[$header];} ?>">
+						<?php
+							}
+							else
+							{
+						?>
+						
+
+						<input <?php if($isapproved){echo "readonly";} ?> required step="<?php echo $step; ?>" type="number" name="allvalues[]" value="<?php if(!$isapproved){echo round($allaverage[$header],$round);}else{echo $allapproved[$header];} ?>">
+
+						<?php
+						}
+						?>
+
 							<input type="hidden" name="allmpif[]" value="<?php echo $propdata[$header]['max']; ?>">
 							<input type="hidden" name="allmin[]" value="<?php echo $propdata[$header]['min']; ?>">
 							<input type="hidden" name="allmax[]" value="<?php echo $propdata[$header]['max']; ?>">

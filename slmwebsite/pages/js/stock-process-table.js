@@ -45,6 +45,10 @@ DataModel.prototype.createTable = function(columnDefs,rowData)
   	getRowId: (params) => params.data.process_id,
   	pagination: true,
   	paginationPageSize: 100,
+	defaultColDef: {
+        sortable: true
+    },
+	onCellClicked: (event) => open_report(event.value,event),
 
 	}
 

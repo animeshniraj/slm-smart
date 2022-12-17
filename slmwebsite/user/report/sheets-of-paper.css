@@ -139,7 +139,13 @@ table {
 
 		/* Force page breaks after each .page element of the document */
 		page-break-after: always;
-		
 
 	}
+
+	.table{
+		font-size:15px;
+		border:2px solid #000!important;
+	}	
+
+.card{margin-top:-150px!important;}
 }

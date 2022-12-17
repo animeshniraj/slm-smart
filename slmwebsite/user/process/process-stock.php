@@ -119,6 +119,9 @@
 			<button class="btn btn-primary" onclick="select_all_grade()">Select All</button>
 			<p style="text-align:right;font-size:12px;color:#ccc;display:inline;">*To select all grades</a>
 		</th>
+		<th style="" colspan="1">
+			<button class="btn btn-primary" onclick="reset_all_grade()">Reset</button>
+		</th>
 
 		
 	</tr>
@@ -158,7 +161,27 @@
 </div>
 </div>
 
+<div class="card">
+	<div class="card-header">
+	
 
+	</div>
+<div class="card-block" id="qty_resultdiv" style="display:none">
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th style="text-align: right;">Total Production Quantity</th>
+			<th id="total_production_qty">-</th>
+
+			<th style="text-align: right;">Total  Balance Quantity</th>
+			<th id="total_balance_qty">-</th>
+		</tr>
+	</thead>
+	
+</table>
+	
+
+<div>
 
 
 <div class="card">

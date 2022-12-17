@@ -280,7 +280,7 @@
 		<table class="table">
 			<th rowspan="1" colspan="1" style="width:15%">Additive</th>
 			<th rowspan="1" colspan="1" style="width:15%">Composition %</th>
-			<th rowspan="1" colspan="1" style="width:10%">Feed Splits</th>
+			<th style="display: none;" rowspan="1" colspan="1" style="width:10%">Feed Splits</th>
 			<th rowspan="1" colspan="1" style="width:10%">Over 100%</th>
 			<th rowspan="1" colspan="1" style="width:15%">Min (%)</th>
 			<th rowspan="1" colspan="1"style="width:15%" >Max (%)</th>
@@ -413,6 +413,7 @@ selectedAdditives = []
 
 
 		dumTD = document.createElement("TD");
+		dumTD.style.display="None";
 		dumTD.innerHTML = "<input required type='number' name='feedsplits[]' min='1' max='100' step='1' value='"+splits+"'>";
 		row.appendChild(dumTD);
 

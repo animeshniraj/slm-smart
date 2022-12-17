@@ -26,7 +26,9 @@
 	switch ($action) {
 		case "getasof"		: getasof($_POST['processname'],$_POST['gradename'],$_POST['last'],$_POST['asof']);break;
 		
-		case "trace_forward": trace_forward($_POST['processid'])
+		case "trace_forward": trace_forward($_POST['processid']); break;
+
+		case "getShortnames" : getShortNames_array($_POST['processname'],$_POST['properties']); break;
 		
 		default: echo json_encode($error_response);
 	}
@@ -34,7 +36,22 @@
 
 
 
+function getShortNames_array($processname,$properties)
+{
+	$properties = explode(",",$properties);
+	$return_list = [];
 
+	foreach ($properties as $property) {
+		array_push($return_list, getpropShortname($processname,$property));
+	}
+
+	$response = [
+		"response" => true,
+		"names" => $return_list,
+	];
+
+	echo json_encode($response);
+}
 
 function getasof($processname,$gradename,$last,$asof)
 {

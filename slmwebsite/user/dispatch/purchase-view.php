@@ -29,13 +29,48 @@
 	$myrole = $session->user->getRoleid();
 
 
+	if(isset($_POST['modify_order']))
+	{
+		$modify_type = $_POST['modify_order'];
+		$p_id = $_POST['poid'];
+
+		if($modify_type=="open_order")
+		{
+			$result = runQuery("SELECT * FROM loading_advice WHERE poid = '$p_id'");
+			if($result->num_rows==0)
+			{
+				$new_status = "UNFULFILLED";
+			}
+			else
+			{
+				$new_status = "LOADING ADVICE";
+			}
+
+			$result = runQuery("UPDATE purchase_order SET status='$new_status' WHERE orderid = '$p_id'");
+
+		}
+		elseif($modify_type=="close_order")
+		{
+			$result = runQuery("UPDATE purchase_order SET status='FULFILLED' WHERE orderid = '$p_id'");
+		}
+
+
+
+	}
+
+
+
 	$data = [];
+	$json_data = [];
+
+	$open_flag = false;
 	if(isset($_POST['getdata']))
 	{
 
 		$isopen = "open" == $_POST['filter'] ;
-		
+		$open_flag = $isopen;
 		$data = [];
+		$json_data = [];
 		if($isopen)
 		{
 			$result = runQuery("SELECT * FROM purchase_order WHERE status<>'FULFILLED'");
@@ -44,6 +79,9 @@
 			{
 				$poid = $row['orderid'];
 				$po_date = Date('d-M-Y',strtotime($row['entrydate']));
+				$customer_id = $row['customer'];
+				$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$customer_id' AND param='Name'");
+				$customer_name = $result2->fetch_assoc()["value"];
 
 				$result2 = runQuery("SELECT * FROM purchaseorder_params WHERE orderid='$poid' AND step='BATCH'");
 
@@ -64,7 +102,21 @@
 
 					$pending_qty = $po_qty - $dis_qty;
 
-					array_push($data,[$poid,$po_date,$grade,$po_qty,$dis_qty,$pending_qty,$package]);
+					$dum_json_data = [
+						"poid" => $poid,
+						"customer_name" => $customer_name,
+						"po_date"	=> $po_date,
+						"grade"		=> $grade,
+						"po_qty"	=> $po_qty,
+						"dis_qty"	=> $dis_qty,
+						"pending_qty" => $pending_qty,
+						"package"	=> $package,
+						"option"	=> "Delete"
+					];
+
+					array_push($json_data,$dum_json_data);
+
+					array_push($data,[$poid,$customer_name,$po_date,$grade,$po_qty,$dis_qty,$pending_qty,$package]);
 					
 
 
@@ -89,6 +141,9 @@
 			{
 				$poid = $row['orderid'];
 				$po_date = $row['entrydate'];
+				$customer_id = $row['customer'];
+				$result2 = runQuery("SELECT * FROM external_param WHERE externalid='$customer_id' AND param='Name'");
+				$customer_name = $result2->fetch_assoc()["value"];
 
 				$result2 = runQuery("SELECT * FROM purchaseorder_params WHERE orderid='$poid' AND step='BATCH'");
 
@@ -109,7 +164,21 @@
 
 					$pending_qty = $po_qty - $dis_qty;
 
-					array_push($data,[$poid,$po_date,$grade,$po_qty,$dis_qty,$pending_qty,$package]);
+					$dum_json_data = [
+						"poid" => $poid,
+						"customer_name" => $customer_name,
+						"po_date"	=> $po_date,
+						"grade"		=> $grade,
+						"po_qty"	=> $po_qty,
+						"dis_qty"	=> $dis_qty,
+						"pending_qty" => $pending_qty,
+						"package"	=> $package,
+						"option"	=> "Delete"
+					];
+
+					array_push($json_data,$dum_json_data);
+
+					array_push($data,[$poid,$customer_name,$po_date,$grade,$po_qty,$dis_qty,$pending_qty,$package]);
 					
 
 
@@ -170,6 +239,11 @@
 
 <style>
 .btn{margin-left: 5px!important;}</style>
+
+<link rel="stylesheet" type="text/css" href="/pages/css/aggrid/ag-grid.css">
+<link rel="stylesheet" type="text/css" href="/pages/css/aggrid/ag-theme-alpine.css">
+<script type="text/javascript" src="/pages/js/aggrid/ag-grid-community.min.js" ></script>
+
 
 
 
@@ -296,78 +370,10 @@
 </div>
 <div class="card-block">
 
+<div class="table-responsive">
+	<div id="result-table"></div>
 
-<table class="table table-bordered table-striped table-xs">
-	<thead>
-		<tr>
-		<th>PO No</th>
-		<th>PO Date</th>
-		<th>Grade</th>
-		<th>PO Qty</th>
-		<th>Dispatch Qty</th>
-		<th>Pending Qty</th>
-		<th>Package</th>
-		<th>Edit</th>
-		<?php 
-			if($deletePermission)
-			{
-				echo "<th>Delete PO</th>";
-			}
-		?>
-		</tr>
-	</thead>
-	<tbody>
-
-		<?php 
-
-			foreach ($data as  $value) {
-				
-
-
-		?>
-
-		<tr>
-			<td><?php echo $value[0];?></td>
-			<td><?php echo $value[1];?></td>
-			<td><?php echo $value[2];?></td>
-			<td><?php echo $value[3];?></td>
-			<td><?php echo $value[4];?></td>
-			<td><?php echo $value[5];?></td>
-			<td><?php echo $value[6];?></td>
-			<td><form method="POST" action="purchase-edit.php"><input type="hidden" name="orderid" value="<?php echo $value[0]; ?>"><button class="btn btn-info" type="submit"><i class="feather icon-edit-2"></i>Edit</button></form></td>
-			<?php
-
-
-			if($deletePermission)
-			{
-				echo "<td><button class=\"btn btn-danger\" name=\"deleteProcess\" onclick=\"removeProcess('".$value[0]."')\" type=\"button\"><i class=\"feather icon-trash\"></i>Remove</button></td>";
-			}
-		
-
-
-			?>
-		</tr>
-
-		<?php 
-
-
-
-			}
-
-
-		?>
-
-
-
-	
-
-
-	</tbody>
-	</table>
-
-
-
-
+</div>
 
 
 </div>
@@ -406,6 +412,7 @@
 
 ?>
 
+
 <script type="text/javascript">
 
 
@@ -439,6 +446,7 @@ $(document).ready(function() {
 function removeProcess(externalid)
 {
 
+	
 	const swalWithBootstrapButtons  = Swal.mixin({
 	customClass: {
 		confirmButton: 'btn btn-success',
@@ -469,8 +477,242 @@ function removeProcess(externalid)
 			})
 }
 
+<?php 
+if (count($json_data)>0)
+{
+?>
 
+setTable()
+
+<?php 
+}
+?>
+
+function setTable()
+{
+	rowData = <?php echo json_encode($json_data); ?>;
+	
+	const columnDefs = [
+		{ field: "poid", headerName: "PO No.", floatingFilter: true, pinned: "left" },
+		{ field: "customer_name", headerName: "Customer Name",filter:"agTextColumnFilter" , floatingFilter: true  },
+		{ field: "po_date", headerName: "PO Date",filter:"agDateColumnFilter" , floatingFilter: true  },
+		{ field: "grade", headerName: "Grade",filter:"agTextColumnFilter" , floatingFilter: true  },
+		{ field: "po_qty", headerName: "PO Qty",filter:"agNumberColumnFilter" , floatingFilter: true  },
+		{ field: "dis_qty", headerName: "Dispatch Qty",filter:"agNumberColumnFilter" , floatingFilter: true  },
+		{ field: "pending_qty", headerName: "Pending Qty",filter:"agNumberColumnFilter" , floatingFilter: true  },
+		{ field: "package", headerName: "Package",filter:"agTextColumnFilter" , floatingFilter: true  },
+
+		<?php
+		if($open_flag)
+		{
+		?>
+
+		{ field: "close", headerName: "Close Order",
+				cellRenderer: function(params) {
+				let keyData = params.data.option;
+				let newLink = 
+				`<a href='#'><i class='fa fa-lock'></i> Close Order</a>`;
+				return newLink;
+			}
+		},
+
+		<?php
+		}
+		else{
+		?>
+		{ field: "open", headerName: "Open Order",
+				cellRenderer: function(params) {
+				let keyData = params.data.option;
+				let newLink = 
+				`<a href='#'><i class='fa fa-unlock'></i> Open Order</a>`;
+				return newLink;
+			}
+		},
+
+		<?php
+		}
+		?>
+		{ field: "delete", headerName: "Delete",
+				cellRenderer: function(params) {
+				let keyData = params.data.option;
+				let newLink = 
+				`<a href='#'><i class='fa fa-times'></i> Delete</a>`;
+				return newLink;
+			}
+		},
+	];
+
+	gridOptions = {
+		columnDefs: columnDefs,
+		rowData	: rowData,
+		rowData: rowData,
+		pagination: true,
+		paginationPageSize: 100,
+		defaultColDef: {
+			sortable: true
+		},
+		onCellClicked: (event) => send_post(event.value,event),
+
+	}
+
+
+		const resultdiv = document.querySelector('#result-table');
+		gridDiv = document.createElement('div');
+		gridDiv.id = 'agGridElement';
+		//gridDiv.classList.add('ag-theme-alphine')
+		gridDiv.classList.add('ag-theme-alpine')
+		gridDiv.style.height = "500px";
+
+		resultdiv.innerHTML = "";
+		resultdiv.appendChild(gridDiv);
+
+
+
+
+
+		new agGrid.Grid(gridDiv, gridOptions);
+
+
+}
+
+function close_order(externalid)
+{
+	const swalWithBootstrapButtons  = Swal.mixin({
+	customClass: {
+		confirmButton: 'btn btn-success',
+		cancelButton: 'btn btn-danger'
+	},
+	buttonsStyling: false
+	})
+
+
+
+	swalWithBootstrapButtons.fire({
+		  icon: 'warning',
+		  title: 'Close Purchase Order',
+		  html: 'Are you sure you want to close the purchase order. <br> Purchase Order No.: '+externalid ,
+		  confirmButtonText: '<i class="fa fa-lock"></i> Yes',
+		  cancelButtonText: '<i class="fa fa-window-close"></i> No',
+		  showCancelButton: true,
+		  reverseButtons: true
+
+		}).then((result) => {
+			  if (result.isConfirmed) {
+			    		
+				var form  = document.createElement("form")
+					form.method = "POST"
+					
+					var input = document.createElement("input")
+					input.type = "hidden"
+					input.name = "modify_order"
+					input.value = "close_order"
+					form.appendChild(input)
+
+					var input = document.createElement("input")
+					input.type = "hidden"
+					input.name = "poid"
+					input.value = externalid
+					form.appendChild(input)
+
+					document.body.appendChild(form)
+					form.submit()
+
+				}
+			})
+}
+
+function open_order(externalid)
+{
+	const swalWithBootstrapButtons  = Swal.mixin({
+	customClass: {
+		confirmButton: 'btn btn-success',
+		cancelButton: 'btn btn-danger'
+	},
+	buttonsStyling: false
+	})
+
+
+
+	swalWithBootstrapButtons.fire({
+		  icon: 'warning',
+		  title: 'Open Purchase Order',
+		  html: 'Are you sure you want to open the purchase order. <br> Purchase Order No.: '+externalid ,
+		  confirmButtonText: '<i class="fa fa-unlock"></i> Yes',
+		  cancelButtonText: '<i class="fa fa-window-close"></i> No',
+		  showCancelButton: true,
+		  reverseButtons: true
+
+		}).then((result) => {
+			  if (result.isConfirmed) {
+			    		
+					var form  = document.createElement("form")
+					form.method = "POST"
+					
+					var input = document.createElement("input")
+					input.type = "hidden"
+					input.name = "modify_order"
+					input.value = "open_order"
+					form.appendChild(input)
+
+					var input = document.createElement("input")
+					input.type = "hidden"
+					input.name = "poid"
+					input.value = externalid
+					form.appendChild(input)
+
+					document.body.appendChild(form)
+					form.submit()
+
+				}
+			})
+}
+
+
+
+
+function send_post(poid,event)
+{
+
+
+	if (event.column.colId == "delete") {
+		removeProcess(event.data.poid)
+		return;
+	}
+
+	if (event.column.colId == "close") {
+		close_order(event.data.poid)
+		return;
+	}
+
+	if (event.column.colId == "open") {
+		open_order(event.data.poid)
+		return;
+	}
+	
+
+
+	if (event.column.colId != "poid") {
+		return;
+	}
+
+	var form = document.createElement("form")
+	form.target = "__blank"
+	form.method = "POST"
+	form.action = "purchase-edit.php"
+
+	var input1 = document.createElement("input")
+	input1.type = "hidden"
+	input1.name = "orderid"
+	input1.value = poid
+
+	form.appendChild(input1);
+
+	document.body.appendChild(form)
+	form.submit()
+	form.remove()
+}
 
 
 
 </script>
+

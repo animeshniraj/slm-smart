@@ -4,7 +4,7 @@
  * Licensed under the MIT License (https://opensource.org/licenses/MIT)
  */
 
-@import "sheets-of-paper.css";
+ @import "sheets-of-paper.css";
 
 .page {
 	/* Styles for better appearance on screens only -- are reset to defaults in print styles later */

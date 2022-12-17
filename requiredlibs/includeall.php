@@ -64,7 +64,7 @@
     	}
 	}
 
-	function get_last_premixid($processname)
+	function get_last_premixid()
 	{
 		$result = runQuery("SELECT * FROM premix_batch  ORDER BY entrydate DESC LIMIT 1");
 
@@ -108,6 +108,10 @@
 			{
 				$shortname = $propname;
 			}
+		}
+		elseif(substr($propname,0,5)=="Sieve")
+		{	
+			$shortname = "S".substr($propname,6);
 		}
 		else
 		{

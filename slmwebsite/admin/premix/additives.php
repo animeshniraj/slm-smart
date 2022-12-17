@@ -19,6 +19,7 @@
 	if(isset($_POST["deleteadditive"]))
 	{
 		$curr = $_POST["additive"];
+		runQuery("DELETE FROM additive_test WHERE additive='$curr'");
 		runQuery("DELETE FROM premix_additives WHERE additive='$curr'");
 
 	}
@@ -144,7 +145,7 @@
 		<div class="form-group row">
 		<label class="col-sm-2 col-form-label">Buy Increment</label>
 			<div class="col-sm-10">
-			<input type="number" required class="form-control" name="increment" id="shelflife" placeholder="">
+			<input type="number" required class="form-control" name="increment" step="0.01" id="shelflife" placeholder="">
 
 		</div>
 		
@@ -337,7 +338,7 @@
 
 			if($row["additive"]!=="Iron")
 			{
-				echo "<td><form  method=\"POST\"><input type=\"hidden\" name=\"additive\" value=\"".$row["additive"]."\"><input type=\"hidden\" name=\"deleteadditive\" value=\"\"><a href=\"#\" onclick=\"delete_additive(this.parentNode);\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Additive\"><i class=\"fa fa-trash\" style=\"display:inline-block\"></i></a></form></td>";
+				echo "<td><form  action=\"additive-test.php\" method=\"POST\"><input type=\"hidden\" name=\"additive\" value=\"".$row["additive"]."\"><a href=\"#\" onclick=\"this.parentNode.submit();\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Additive\"><i class=\"fa fa-edit\" style=\"display:inline-block\"></i></a></form><form  method=\"POST\"><input type=\"hidden\" name=\"additive\" value=\"".$row["additive"]."\"><input type=\"hidden\" name=\"deleteadditive\" value=\"\"><a href=\"#\" onclick=\"delete_additive(this.parentNode);\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Additive\"><i class=\"fa fa-trash\" style=\"display:inline-block\"></i></a></form></td>";
 			}
 			else
 			{

@@ -99,12 +99,47 @@
 		return $heatnumber;
 	}
 
+	function getRawBagNo($processid)
+	{
+		
+		
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND STEP='GENERIC' AND param='Raw Bag No.'");
+		$heatnumber  = 0;
+		if($result->num_rows>0)
+		{
+			$row=$result->fetch_assoc();
+			
+			$heatnumber = $row["value"];
+			
+		}
+
+		return $heatnumber;
+	}
+
 	function getBlendID($processid)
 	{
 		
 		
 		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND STEP='GENERIC' AND param='Blend Number'");
-		$heatnumber  = 0;
+		$heatnumber  = "-";
+		if($result->num_rows>0)
+		{
+			$row=$result->fetch_assoc();
+			
+			$heatnumber = $row["value"];
+			
+		}
+
+		return $heatnumber;
+	}
+
+
+	function getBinNo($processid)
+	{
+		
+		
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND STEP='GENERIC' AND param='Bin Number'");
+		$heatnumber  = "-";
 		if($result->num_rows>0)
 		{
 			$row=$result->fetch_assoc();
@@ -120,7 +155,7 @@
 	{
 		
 		
-		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND STEP='PARENT'");
+		$result = runQuery("SELECT * FROM processentryparams WHERE processid='$processid' AND STEP='PARENT' AND param <>'$processid'");
 		$heatnumber  = 0;
 		if($result->num_rows>0)
 		{
@@ -219,11 +254,33 @@
 
 
 
-	function getAverageTest($processid,$param)
+	function getAverageTest($processid,$params)
 	{
-		$result = runQuery("SELECT AVG(value) as avg FROM processtestparams WHERE processid='$processid' AND param='$param'");
+		$result = runQuery("SELECT param,AVG(value) as avg FROM processtestparams WHERE processid='$processid' GROUP BY param");
 
-		return round($result->fetch_assoc()["avg"],2);
+		$dum_prop = [];
+		$dumData = [];
+
+		while($row=$result->fetch_assoc())
+		{
+			$dum_prop[$row["param"]] = $row["avg"];
+		}
+
+		for($j=0;$j<count($params);$j++)
+		{
+			if(isset($dum_prop[$params[$j]]))
+			{
+				array_push($dumData,$dum_prop[$params[$j]]);
+			}
+			else
+			{
+				array_push($dumData,"");
+				
+			}
+			
+		}
+		
+		return $dumData;
 	}
 
 
@@ -266,8 +323,7 @@
 
 				array_push($params,$row["properties"]);
 			}
-
-			$result = runQuery("SELECT * FROM processentryparams WHERE param='$GRADE_TITLE' AND value='$gradename' AND step='OPERATIONAL'");
+			$result = runQuery("SELECT * FROM processentryparams WHERE param='$GRADE_TITLE' AND value='$gradename' AND step='OPERATIONAL' AND processid in (SELECT processid FROM processentry WHERE processname='$processname' AND (DATE(entrytime) >= Date(NOW()- INTERVAL 60 day)))");
 			
 			while($row=$result->fetch_assoc())
 			{
@@ -349,7 +405,7 @@
 			$dumId = $processid[$i][0];
 
 
-			$result = runQuery("SELECT * FROM processentryparams WHERE processid = '$childid' AND step = 'PARENT' and param='$dumId'");
+			$result = runQuery("SELECT value FROM processentryparams WHERE processid = '$childid' AND step = 'PARENT' and param='$dumId'");
 
 			if($result->num_rows==1)
 			{
@@ -383,24 +439,46 @@
 						continue;
 					}
 				}
+
+			//	$result2 = runQuery("SELECT value FROM processentryparams WHERE processid = '$dumId' AND param='$HOLD_QTY'");
+
+			//	if($result2->num_rows>0)
+			//	{
+			//		$hold = floatval($result2->fetch_assoc()["value"]);
+			//	}
+			
+			$hold = 0;	
 				
 			}
-
-
-			$result2 = runQuery("SELECT * FROM processentryparams WHERE processid = '$dumId' AND param='$HOLD_QTY'");
-
-			if($result2->num_rows>0)
+			else
 			{
-				$hold = floatval($result2->fetch_assoc()["value"]);
+				$hold = 0;
 			}
 
-			array_push($dumData,Date('d-M-Y',strtotime($result["entrytime"])));
+
+			
+
+			if($processname=="Raw Bag")
+			{
+				array_push($dumData,Date('d-M-Y',strtotime($result["entrytime"])));
+			}
+			else
+			{
+				array_push($dumData,Date('d-M-Y',strtotime($result["entrytime"])));
+			}
+
+
+
+			
 			array_push($dumData,$processid[$i][1]);
 
-			for($j=0;$j<count($params);$j++)
-			{
+			$avg_data = getAverageTest($processid[$i][0],$params);
+			
+			
 
-				array_push($dumData,getAverageTest($processid[$i][0],$params[$j]));
+			for($j=0;$j<count($avg_data);$j++)
+			{
+				array_push($dumData,$avg_data[$j]);
 			}
 			$total = getTotalQuantity($processid[$i][0]);
 			$used = getChildProcessQuantity($processid[$i][0]);
@@ -418,12 +496,12 @@
 			
 			if($processname=="Raw Bag")
 			{
-				$result_d = runQuery("SELECT * FROM processentryparams WHERE processid = '$dumid' AND  param='Raw Bag No.'");
+				$result_d = runQuery("SELECT value FROM processentryparams WHERE processid = '$dumid' AND  param='Raw Bag No.'");
 			}
 			else
 			{
 				
-				$result_d = runQuery("SELECT * FROM processentryparams WHERE processid = '$dumid' AND  param='Bin Number'");
+				$result_d = runQuery("SELECT value FROM processentryparams WHERE processid = '$dumid' AND  param='Bin Number'");
 			}
 
 			if($result_d->num_rows!=0)

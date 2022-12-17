@@ -234,6 +234,13 @@
 		</a>
 		</li>
 
+		<li id="process-batch-newnofinal" class="">
+		<a href="/user/process/batch-new-no-final.php" class="waves-effect waves-dark">
+
+		<span class="pcoded-mtext">Create New (Edit: NO FINAL)</span>
+		</a>
+		</li>
+
 
 		<li id="process-batch-view" class="">
 		<a href="/user/process/batch-view.php" class="waves-effect waves-dark">
@@ -381,7 +388,7 @@
 
 	<ul class="pcoded-submenu">
 		<li id="stock-batch" class="">
-		<a href="/user/process/stock-batch.php" class="waves-effect waves-dark">
+		<a href="/user/process/batch-stock.php" class="waves-effect waves-dark">
 
 		<span class="pcoded-mtext">Batch Stock</span>
 		</a>
@@ -634,6 +641,8 @@
 <?php
 
 $url = strtok($_SERVER["REQUEST_URI"], '?');
+
+
 if(substr($url, -1)=="/")
 {
 	$url = substr($url,0, -1);

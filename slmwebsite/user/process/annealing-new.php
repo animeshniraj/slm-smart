@@ -412,6 +412,7 @@ p {
 			if($result2->num_rows==0)
 			{
 				$dlock = true;
+		//		echo "<script>console.log('".$dpid."')</script>";
 			}
 			elseif($result2->num_rows==1)
 			{
@@ -420,6 +421,7 @@ p {
 				if($pval=="")
 				{
 					$dlock = true;
+				//	echo "<script>console.log('".$dpid."')</script>";
 				}
 			}
 
