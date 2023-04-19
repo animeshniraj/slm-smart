@@ -57,6 +57,13 @@
 		
 
 	}
+	if($myrole =='Dispatch')
+	{
+		
+			$deletePermission = true;
+		
+
+	}
  
 
 
@@ -154,15 +161,15 @@
 <div class="card-block">
 
 
-	<table class="table table-bordered table-striped table-xs">
+	<table class="table table-bordered table-striped table-xs table-responsive" style="font-size:14px;word-break:break-all;">
 	<thead>
 		<tr style="text-align:center;">
-		<th>#</th>
-		<th>Consignment ID</th>
-		<th>Loading Advice</th>
-		<th>Customer</th>
-		<th>Entry Date</th>
-		<th>Edit</th>
+		<th style="width:5%">#</th>
+		<th style="width:10%">Consignment ID</th>
+		<th style="width:10%">Loading Advice</th>
+		<th style="width:30%">Customer</th>
+		<th style="width:10%">Entry Date</th>
+		<th style="width:10%">Edit</th>
 		<?php 
 			if($deletePermission)
 			{

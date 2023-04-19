@@ -44,7 +44,7 @@
 
    $entryd = $result["entrydate"];
 
-   $testPermission = false;
+   $testPermission = true;
    if($myrole =='ADMIN')
 	{
 		

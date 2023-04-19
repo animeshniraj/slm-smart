@@ -107,7 +107,7 @@
 
 <div class="page-body">
 <div class="row">
-<div class="col-lg-12">
+<div class="col-md-6">
 
 
 <div class="card">
@@ -170,24 +170,8 @@
 </div>
 
 </div>
-</div>
-</div>
 
-</div>
-</div>
-</div>
-
-
-
-
-
-<div class="pcoded-inner-content">
-<div class="main-body">
-<div class="page-wrapper">
-
-<div class="page-body">
-<div class="row">
-<div class="col-lg-12">
+<div class="col-md-6">
 
 
 <div class="card">

@@ -20,7 +20,7 @@
 
 	$editidPermission = false;
 
-	if($myrole =="ADMIN" OR $myrole =="Production_Supervisor")
+	if($myrole =="ADMIN" OR $myrole =="Production_Supervisor" OR =="Lab_Supervisor")
 	{
 		$editidPermission = true;
 	}

@@ -69,7 +69,7 @@
     	$year = substr(explode("-",explode(" ",$creationDate)[0])[0],-2);
     	$month = explode("-",explode(" ",$creationDate)[0])[1];
     	$prefix = $year."/".$month.'-I'.$furnaceid.'-';
-    	$sqlprefix = $$year."/".$month.'-I'.$furnaceid.'-%';
+    	$sqlprefix = $year."/".$month.'-I'.$furnaceid.'-%';
 
     	
 
@@ -86,7 +86,8 @@
 	    	$count = intval($lastID)+1;
     	}
     	
-    
+    	
+    	
 
     	$prefix = $prefix . str_pad($count, 3, '0', STR_PAD_LEFT);
     	

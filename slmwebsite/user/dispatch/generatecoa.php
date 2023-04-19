@@ -141,10 +141,13 @@
 		$result2 = runQuery("SELECT * FROM loading_advice WHERE laid='$dlaid'");
 		$result2 = $result2->fetch_assoc(); 
 		$data['basic']['company'] = $result2['company'];
+        $data['basic']['company_original'] = $result2['company'];
 
         if($data['basic']['company']=="SLM Metal")
         {
+            
             $data['basic']['company'] = "SLM METAL PRIVATE LIMITED";
+            
         }
         else
         {
@@ -262,7 +265,7 @@ if($isfinal)
 
                 <div class="row mb-0 mt-3">
                     <div class="col-sm-6">
-                            <h5 class="mb-1">GRADE:<strong><?php echo $data['grade']; ?></strong></h5>
+                            <h5 class="mb-1">GRADE:<strong><?php echo explode("#",$data['grade'])[0]; ?></strong></h5>
                     </div>
                     <div class="col-sm-3">
                    <!-- <h6>PROD. CODE:
@@ -358,7 +361,7 @@ if($isfinal)
 
                             	?>
                                 <tr style="font-size:15px;border:2px solid #000!important;line-height:19px;">
-                                    <td class="left"><?php echo $prop ?></td>
+                                    <td class="left"><?php echo $cdata['showname'] ?></td>
                                     <td class="center"><?php echo $cdata['units'] ?></td>
                                     <td class="center"><?php echo $cdata['mpif'] ?></td>
                                     <td class="center"><?php echo $cdata['min'] ?></td>
@@ -541,7 +544,7 @@ if($isfinal)
                         <div class="col-sm-9">
                         </div>
                         <div class="col-sm-3 lab-sign text-right">
-                          <img src='generate_sign.php?data=<?php echo serialize($data['sign']); ?>'>
+                          <img src='generate_sign.php?data=<?php echo serialize($data['sign']); ?>&company=<?php echo $data['basic']['company_original'];?>'>
                         </div>
                     </div>
 <!---- End of Packaging details -->
@@ -622,7 +625,7 @@ else
 
 
                     <div class="row">
-                        <h6 class="mb-1">GRADE:</h6><strong><?php echo $data['grade']; ?></strong>
+                        <h6 class="mb-1">GRADE:</h6><strong><?php echo explode("#",$data['grade'])[0]; ?></strong>
                     </div>
 
                     <div class="row mb-4 mt-3">
@@ -968,8 +971,8 @@ function getDataPremix($id,$grade)
 				$allSieve[$row['properties']] =[];
                 // print property
                 $dumprop1 = $row['properties'];
-                $dumisprinted = runQuery("SELECT * FROM final_coa_grade_settings WHERE gradename = '$cgrade' AND property='$dumprop1'")->fetch_assoc()['print'];
-				$allSieve[$row['properties']]['printed'] = $dumisprinted==1?true:false;
+                $coa_grade_setting = runQuery("SELECT * FROM final_coa_grade_settings WHERE gradename = '$cgrade' AND property='$dumprop1'")->fetch_assoc();
+				$allSieve[$row['properties']]['printed'] = $coa_grade_setting['print']==1?true:false;
 				$allSieve[$row['properties']]["value"] =[];
                 // Seive Cumulative
                 
@@ -983,12 +986,14 @@ function getDataPremix($id,$grade)
                 $allSieve[$row['properties']]["max"] = $row['max'];
                 $allSieve[$row['properties']]["min"] = $row['min'];
                 $allSieve[$row['properties']]["units"] = "%";
+
+                
 			}
 			else
 			{
                 $dumprop1 = $row['properties'];
-                $dumisprinted = runQuery("SELECT * FROM final_coa_grade_settings WHERE gradename = '$cgrade' AND property='$dumprop1'")->fetch_assoc()['print'];
-                if($dumisprinted!=1)
+                $coa_grade_setting = runQuery("SELECT * FROM final_coa_grade_settings WHERE gradename = '$cgrade' AND property='$dumprop1'")->fetch_assoc();
+                if($coa_grade_setting['print']!=1)
                 {
                     continue;
                 }
@@ -1002,6 +1007,7 @@ function getDataPremix($id,$grade)
 				$allproperties[$row['properties']]["value"] = "";
 				$allproperties[$row['properties']]["min"] = $row['min'];
 				$allproperties[$row['properties']]["max"] = $row['max'];
+                $allproperties[$row['properties']]["showname"] = $coa_grade_setting['showname'];
 
                 $result3 = runQuery("SELECT * FROM units WHERE id1='Final Blend' AND id2='$dumprop1'");
                 if($result3->num_rows==1)

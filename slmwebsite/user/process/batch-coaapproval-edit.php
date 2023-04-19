@@ -163,7 +163,11 @@
 		   		while($row2=$result2->fetch_assoc())
 		   		{
 		   			$alltestData[$testid][$row2['param']]  =  $row2['value'];
-		   			array_push($allaverage[$row2['param']],$row2['value']);
+					if($row2['value'])
+					{
+						array_push($allaverage[$row2['param']],$row2['value']);
+					}
+		   			
 		   			
 		   		}
 		   }

@@ -131,6 +131,123 @@
 <div class="page-body">
 <div class="row">
 
+
+
+<div class="col-md-6">
+<div class="card">
+	<div class="card-header">
+		<h5 class="slm-color">All Saved <?php echo $processname; ?> Grades</h5>
+		<div class="card-header-right">
+
+		</div>
+	</div>
+	<div class="card-block">
+
+		<div class="dt-responsive table-responsive text-center">
+			<div id="grade-table_wrapper" class="dataTables_wrapper dt-bootstrap4">
+
+				<div class="row">
+					<div class="col-md-12 col-sm-12">
+						<?php
+							
+							$result = runQuery("SELECT * FROM processgrades WHERE processname='$processname'");
+							$k=1;
+							if($result->num_rows>0)
+							{
+
+								?>
+							<table id="grade-table" class="table table-striped table-bordered nowrap dataTable" role="grid">
+								<thead>
+								<tr role="row">
+									<th rowspan="1" colspan="1"  style="width:15%">Sl No.</th>
+									<th rowspan="1" colspan="1"  style="width:30%">Grade Name</th>
+									<th rowspan="1" colspan="1"  style="width:55%">Options</th>
+									
+									
+
+								</tr>
+								</thead>
+								<tbody>
+
+
+										<?php
+										while($row=$result->fetch_assoc())
+										{
+											if($k%2==0)
+											{
+												$type = "even";
+											}
+											else
+											{
+												$type = "odd";
+											}
+											echo "<tr role=\"row\" class=\"".$type."\">";
+
+											echo "<td style=\"padding-top:20px;\">".$k++.".</td>";
+											echo "<td style=\"padding-top:20px;\">".$row["gradename"]."</td>";
+
+											if($processname=="Melting")
+											{
+												echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button></div></td>";
+											}
+											else
+											if ($processname!="Final Blend")
+											{
+												echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Copy Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"copygrade('".$row["gradename"]."')\"><i class=\"fa fa-copy\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"deleteGrade('".$row["gradename"]."')\"><i class=\"fa fa-trash\"></i></button> </div></td>";
+											}
+
+											if($processname=="Final Blend")
+											{
+												echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Copy Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"copygrade('".$row["gradename"]."')\"><i class=\"fa fa-copy\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Print Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"window.open('print-final-grade.php?grade=".$row["gradename"]."')\"><i class=\"fa fa-print\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"deleteGrade('".$row["gradename"]."')\"><i class=\"fa fa-trash\"></i></button> </div></td>";
+
+											}
+
+											
+											echo "</tr>";
+
+											if($processname=="Melting")
+											{
+												break;
+											}
+
+
+										}
+
+										?>
+								</tbody>
+
+							</table>
+
+						<?php
+							}
+
+						?>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+
+		<form method="POST" id="deletegrade">
+			<input type="hidden" name="deletegradename" id="deletegradename">
+		</form>
+
+		<form method="POST" id="copygrade">
+			<input type="hidden" name="copygradename" id="copygradename">
+		</form>
+
+
+		<form method="POST" id="editgrade" action="<?php echo str_replace(" ", "",strtolower($processname)) ?>-grade.php">
+			<input type="hidden" name="editgradename" id="editgradename">
+		</form>
+
+
+
+	</div>
+</div>
+</div>
+
 <?php
 
 if($processname!="Melting")
@@ -138,169 +255,50 @@ if($processname!="Melting")
 
 
 ?>
-<div class="col-md-6">
-<div class="card ">
-<div class="card-header">
-<h5 class="slm-color">Add A New Grade</h5>
-<div class="card-header-right">
 
-</div>
-</div>
-<div class="card-block">
 
-<form method="POST">
+<div class="col-md-4">
+		<div class="card" style="margin-top:4rem;">
+			<div class="card-header">
+			<img src="grade.png" style="margin-top:-5rem; width:100px;">
 
-		<div class="form-group row">
-			<label class="col-sm-3 col-form-label">Grade Name</label>
-			<div class="col-sm-9">
-			<input type="text" required class="form-control" name="gradename" id="gradename" placeholder="">
-			<span class="messages"></span>
+				<div class="card-header-right">
+				<h5 class="slm-color">Add A New Grade</h5>
+
+				</div>
 			</div>
-		</div>
-
-		<div class="form-group row">
-			<label class="col-sm-3"></label>
-			<div class="col-sm-9">
-			<button type="submit" name="createnewgrade" id="createnewgradeBtn" class="btn btn-primary m-b-0 pull-right"><i class="fa fa-plus"></i>Add New Grade</button>
-			</div>
-		</div>
-
-</form>
-</div>
-</div>
-
-<?php
-}
-
-?>
-</div>
-
-<div class="col-md-6">
-<div class="card">
-<div class="card-header">
-<h5 class="slm-color">Grades</h5>
-<div class="card-header-right">
-
-</div>
-</div>
-<div class="card-block">
-
-<div class="dt-responsive table-responsive text-center">
-<div id="grade-table_wrapper" class="dataTables_wrapper dt-bootstrap4">
-
-	<div class="row">
-		<div class="col-md-12 col-sm-12">
-
-
-
-
-<?php
-	
-	$result = runQuery("SELECT * FROM processgrades WHERE processname='$processname'");
-	$k=1;
-	if($result->num_rows>0)
-	{
-
-		?>
-		<table id="grade-table" class="table table-striped table-bordered nowrap dataTable" role="grid">
-<thead>
- <tr role="row">
-	<th rowspan="1" colspan="1"  style="width:15%">Sl No.</th>
-	<th rowspan="1" colspan="1"  style="width:30%">Grade Name</th>
-	<th rowspan="1" colspan="1"  style="width:55%">Options</th>
-	
-	
-
-</tr>
-</thead>
-<tbody>
-
-
-		<?php
-		while($row=$result->fetch_assoc())
-		{
-			if($k%2==0)
-			{
-				$type = "even";
-			}
-			else
-			{
-				$type = "odd";
-			}
-			echo "<tr role=\"row\" class=\"".$type."\">";
-
-			echo "<td style=\"padding-top:20px;\">".$k++.".</td>";
-			echo "<td style=\"padding-top:20px;\">".$row["gradename"]."</td>";
-
-			if($processname=="Melting")
-			{
-				echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button></div></td>";
-			}
-			else
-			if ($processname!="Final Blend")
-			{
-				echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Copy Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"copygrade('".$row["gradename"]."')\"><i class=\"fa fa-copy\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"deleteGrade('".$row["gradename"]."')\"><i class=\"fa fa-trash\"></i></button> </div></td>";
-			}
-
-			if($processname=="Final Blend")
-			{
-				echo "<td><div><button type=\"button\"  data-toggle=\"tooltip\" data-placement=\"top\" title=\"Edit Grade\" class=\"btn btn-primary\" aria-hidden=\"true\" onclick=\"editGrade('".$row["gradename"]."')\"><i class=\"fa fa-edit\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Copy Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"copygrade('".$row["gradename"]."')\"><i class=\"fa fa-copy\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Print Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"window.open('print-final-grade.php?grade=".$row["gradename"]."')\"><i class=\"fa fa-print\"></i></button><button type=\"button\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Delete Grade\" class=\"btn btn-danger m-b-0\" style=\"margin-left:30px;\" onclick=\"deleteGrade('".$row["gradename"]."')\"><i class=\"fa fa-trash\"></i></button> </div></td>";
-
-			}
-
 			
-			echo "</tr>";
+			<div class="card-block">
 
-			if($processname=="Melting")
-			{
-				break;
-			}
+				<form method="POST">
 
+						<div class="form-group row">
+							<label class="col-sm-3 col-form-label">Grade Name</label>
+							<div class="col-sm-9">
+							<input type="text" required class="form-control" name="gradename" id="gradename" placeholder="">
+							<span class="messages"></span>
+							</div>
+						</div>
 
-		}
+						<div class="form-group row">
+							<label class="col-sm-3"></label>
+							<div class="col-sm-9">
+							<button type="submit" name="createnewgrade" id="createnewgradeBtn" class="btn btn-primary m-b-0 pull-right"><i class="fa fa-plus"></i> Add Grade Now</button>
+							</div>
+						</div>
 
-		?>
-		</tbody>
+				</form>
+			</div>
+		</div>
 
-</table>
-		<?php
+	<?php
 	}
 
-?>
-
-
-
-
-
-</div></div></div>
-</div>
-
-
-<form method="POST" id="deletegrade">
-	<input type="hidden" name="deletegradename" id="deletegradename">
-</form>
-
-<form method="POST" id="copygrade">
-	<input type="hidden" name="copygradename" id="copygradename">
-</form>
-
-
-<form method="POST" id="editgrade" action="<?php echo str_replace(" ", "",strtolower($processname)) ?>-grade.php">
-	<input type="hidden" name="editgradename" id="editgradename">
-</form>
-
-
-
-</div>
+	?>
 </div>
 
 
 
-
-
-
-
-</div>
 
 </div>
 </div>

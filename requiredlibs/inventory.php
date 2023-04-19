@@ -194,7 +194,12 @@
 		{
 			while($row=$result->fetch_assoc())
 			{
-				$totalQuantity += $row["value"];
+				if(is_numeric($row["value"]))
+				{
+					$totalQuantity += $row["value"];
+				}
+				
+				
 			}
 			
 			
@@ -274,7 +279,7 @@
 			}
 			else
 			{
-				array_push($dumData,"");
+				array_push($dumData,0);
 				
 			}
 			
@@ -287,6 +292,7 @@
 	function getAllBlendmasterGrades($processid,$processname)
 	{
 		global $GRADE_TITLE;
+		global $HOLD_QTY;
 
 		if($processname=="Raw Blend")
 		{
@@ -312,6 +318,9 @@
 
 		$params = [];
 		$allids = [];
+
+		$allqty = [];
+
 		for($i=0;$i<count($grades);$i++)
 		{
 
@@ -323,11 +332,55 @@
 
 				array_push($params,$row["properties"]);
 			}
-			$result = runQuery("SELECT * FROM processentryparams WHERE param='$GRADE_TITLE' AND value='$gradename' AND step='OPERATIONAL' AND processid in (SELECT processid FROM processentry WHERE processname='$processname' AND (DATE(entrytime) >= Date(NOW()- INTERVAL 60 day)))");
+			$result = runQuery("SELECT * FROM processentryparams WHERE param='$GRADE_TITLE' AND value='$gradename' AND step='OPERATIONAL' AND processid in (SELECT processid FROM processentry WHERE processname='$processname' AND (DATE(entrytime) >= Date(NOW()- INTERVAL 180 day)))");
 			
 			while($row=$result->fetch_assoc())
 			{
+				
+
+				$curr_id = $row["processid"];
+
+				$total = getTotalQuantity($row["processid"]);
+				$used = getChildProcessQuantity($row["processid"]);
+				
+
+				if($processname == "Raw Bag")
+				{
+					$result2 = runQuery("SELECT value FROM processentryparams WHERE processid = '$curr_id' AND param='$HOLD_QTY'");
+
+					if($result2->num_rows>0)
+					{
+					  $hold = floatval($result2->fetch_assoc()["value"]);
+					}
+					else
+					{
+						$hold=0;
+					}
+				}
+				else
+				{
+					$hold=0;
+				}
+
+
+				$result2 = runQuery("SELECT value FROM processentryparams WHERE processid = '$processid' AND step = 'PARENT' and param='$curr_id'");
+
+				if($result2->num_rows==1)
+				{
+					$checked = $result2->fetch_assoc()["value"];
+
+				}
+				else
+				{
+					$checked = 0;
+				}
+
+				if(($total-$used-$hold)==0 && $checked==0){
+					continue;
+				}
 				array_push($allids,[$row["processid"],$gradename]);
+
+				$allqty[$row["processid"]] = [$total,$used,$hold,$checked];
 			}
 
 		}
@@ -365,14 +418,14 @@
 
 
 
-		return getFullBlendData($allids,$params,$processname,$processid);
+		return getFullBlendData($allids,$params,$processname,$processid,$allqty);
 			
 		
 
 	}
 
 
-	function getFullBlendData($processid,$params,$processname,$childid)
+	function getFullBlendData($processid,$params,$processname,$childid,$allqty)
 	{
 		global $HOLD_QTY;
 		$allData = [];
@@ -400,16 +453,21 @@
 		{
 			$dumData = [];
 
-			
+			$total = $allqty[$processid[$i][0]][0];
+			$used = $allqty[$processid[$i][0]][1];
+			$hold = $allqty[$processid[$i][0]][2];
+
+
+
 
 			$dumId = $processid[$i][0];
 
 
-			$result = runQuery("SELECT value FROM processentryparams WHERE processid = '$childid' AND step = 'PARENT' and param='$dumId'");
+			//$result = runQuery("SELECT value FROM processentryparams WHERE processid = '$childid' AND step = 'PARENT' and param='$dumId'");
 
-			if($result->num_rows==1)
+			if($allqty[$processid[$i][0]][3] != 0)
 			{
-				array_push($dumData,"checked",$result->fetch_assoc()["value"]);
+				array_push($dumData,"checked",$allqty[$processid[$i][0]][3]);
 			}
 			else
 			{
@@ -417,6 +475,8 @@
 			}
 
 			array_push($dumData,$processid[$i][0]);
+
+			
 
 			$result = runQuery("SELECT * FROM processentry WHERE processid = '$dumId'");
 
@@ -428,7 +488,7 @@
 			}
 
 
-			$hold = 0;
+			
 
 			if($processname=="Raw Bag")
 			{
@@ -440,20 +500,9 @@
 					}
 				}
 
-			//	$result2 = runQuery("SELECT value FROM processentryparams WHERE processid = '$dumId' AND param='$HOLD_QTY'");
-
-			//	if($result2->num_rows>0)
-			//	{
-			//		$hold = floatval($result2->fetch_assoc()["value"]);
-			//	}
-			
-			$hold = 0;	
 				
 			}
-			else
-			{
-				$hold = 0;
-			}
+			
 
 
 			
@@ -480,14 +529,7 @@
 			{
 				array_push($dumData,$avg_data[$j]);
 			}
-			$total = getTotalQuantity($processid[$i][0]);
-			$used = getChildProcessQuantity($processid[$i][0]);
-
-
-
-			if(($total-$used-$hold)==0 && $dumData[0]!== "checked"){
-				continue;
-			}
+			
 
 			array_push($dumData,$total-$used-$hold);
 

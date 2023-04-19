@@ -274,7 +274,7 @@
     	$failedblend = false;
     }
 
-    if($result["islocked"]=="LOCKED")
+    if($result["islocked"]=="LOCKED" || $result["islocked"]=="BATCHED")
     {
     	$approvedblend = true;
     	$failedblend = false;

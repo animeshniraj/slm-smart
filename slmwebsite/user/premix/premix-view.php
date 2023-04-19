@@ -61,6 +61,13 @@
 		
 
 	}
+	if($myrole =='Premix')
+	{
+		
+			$deletePermission = true;
+		
+
+	}
  
 
 

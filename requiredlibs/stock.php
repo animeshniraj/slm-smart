@@ -611,6 +611,14 @@
             
         }
 
+        // Add sieve pan manually
+        $dumData =[];
+        $dumData["type"] = "DECIMAL";
+        $dumData["mpif"] = 5;
+        $dumData["class"] = "Sieve";
+        $dumData["property"] = "Sieve PAN";
+        array_push($payload["data"],$dumData);
+
 
 
         echo json_encode($payload);

@@ -1892,19 +1892,22 @@ else
 ?>
 
 
-<script type="text/javascript">
+<!--<script type="text/javascript">
 
 function activaTab(tab){
     $('.nav-tabs a[href="#' + tab + '"]').tab('show');
 	};
 
-y(document).ready(function () {
-	y(document).bind('keydown', 'shift+w', function () {
+$(document).ready(function () {
+	$(document).bind('keydown', 'shift+w', function () {
 		activaTab('messages');
   	})
 	});
 
-</script>
+</script> -->
+
+
+
 
 
 

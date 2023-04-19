@@ -417,11 +417,11 @@
     			{
     				if($value['permission']=="ALLOW")
     				{
-    					$dumData = $dumData."<td><form method=\"POST\"><input type='hidden' name='path' value='".$value['fullpath']."'><input type='hidden' name='newpermission' value='DENY'><input type='hidden' name='roleid' value='$roleid'>".strtoupper($key)."<button name=\"editpermission\" type='submit' style=\"width: 120px;\" class=\"btn btn-primary pull-right\"><i class=\"feather icon-check\"></i>ALLOW</button></form></td>";
+    					$dumData = $dumData."<td><form method=\"POST\"><input type='hidden' name='path' value='".$value['fullpath']."'><input type='hidden' name='newpermission' value='DENY'><input type='hidden' name='roleid' value='$roleid'>".strtoupper($key)."<button name=\"editpermission\" type='submit' style=\"width: 120px;\" class=\"btn btn-success pull-right\"><i class=\"feather icon-check\"></i>ALLOWED</button></form></td>";
     				}
     				else
     				{
-    					$dumData = $dumData."<td><form method=\"POST\"><input type='hidden' name='path' value='".$value['fullpath']."'><input type='hidden' name='newpermission' value='ALLOW'><input type='hidden' name='roleid' value='$roleid'>".strtoupper($key)."<button name=\"editpermission\" type='submit' style=\"width: 120px;\" class=\"btn btn-danger pull-right\"><i class=\"feather icon-slash\"></i>DENY</button></form></td>";
+    					$dumData = $dumData."<td><form method=\"POST\"><input type='hidden' name='path' value='".$value['fullpath']."'><input type='hidden' name='newpermission' value='ALLOW'><input type='hidden' name='roleid' value='$roleid'>".strtoupper($key)."<button name=\"editpermission\" type='submit' style=\"width: 120px;\" class=\"btn btn-primary pull-right\"><i class=\"feather icon-slash\"></i>DENIED</button></form></td>";
     				}
     				
 

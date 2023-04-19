@@ -22,7 +22,15 @@
 
 
 	//Background Image - The Image To Write Text On
-    $image = imagecreatefrompng('slm_stamp.png');
+	if($_GET['company'] == "SLM Metal")
+	{
+		$image = imagecreatefrompng('slm_stamp_metal.png');
+	}
+	else
+	{
+		$image = imagecreatefrompng('slm_stamp_tech.png');
+	}
+    
     imagesavealpha($image, true);
     $width  = imagesx($image);
 	$height = imagesy($image);
@@ -66,7 +74,7 @@
   	$posx = $width/2 - $dwidth/2;
   	$posy = $height-2;
 
-
+	 
     imagettftext($image, $fontsize, 0, $posx,$posy, $black, $font,$data["hash"]);
 
     //Set Browser Content Type

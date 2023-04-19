@@ -98,7 +98,8 @@
   <!-- Set page size here: A5, A4 or A3 -->
   <!-- Set also "landscape" if you need -->
   <style type="text/css">
-  @page { size: A4 portrait }
+    .padding-15mm{padding:15px;}
+  @page { size: A5 landscape }
 .center {
   display: block;
   margin-left: auto;
@@ -146,25 +147,22 @@ border: none;
 
 <!-- Set "A5", "A4" or "A3" for class name -->
 <!-- Set also "landscape" if you need -->
-<body class="A4 portrait" style="font-family:Arial">
+<body class="A5 landscape" style="font-family:Arial">
   <!-- Each sheet element should have the class "sheet" -->
   <!-- "padding-**mm" is optional: you can set 10, 15, 20 or 25 -->
-  <section class="sheet padding-10mm">
-  <h3 style="text-align:center;background-color:#000;color:#fff;top:0;margin:0; width:40%;margin:0 auto;">Dispatch Tag</h3>
-    <table style="width:100%;font-size: 12px;">
+  <section class="sheet padding-15mm">
+    <table style="width:100%;font-size: 12px;margin-top:1.4rem;">
         <tr>
         <th>
-          <img src="/pages/png/slmlogo.png">
-          <h2 style="margin-bottom:0;"><?php echo $company; ?> PVT. LTD.</h2><p style="margin-top: 0;">PLOT NO. 185/A, IDCO PLOT, KALUNGA-770031, ODISHA</p>
         </th>
-        <th width="30%">
-          <img src="get_qr.php?data=<?php echo $qrdata;?>" width="150px;">
-          <p style="font-size:12px;color:#ccc;margin-top:-1rem;font-weight:100;">Scan this for details</p>
+        <th width="160px;">
+        <img src="get_qr.php?data=<?php echo $qrdata;?>" width="150px;">
+        <p style="font-size:12px;color:#333;font-weight:100;margin-top:-1rem;">Scan this for details</p>
         </th>
         </tr>
     </table>
 <br>
-<table class="tbl">
+<table class="tbl" style="margin-top:-1.5rem;">
 
   <tbody>
         <tr>
@@ -190,13 +188,13 @@ border: none;
             <td><input type="number" min=0 step="0.001" value="<?php echo $qty; ?>" placeholder="Click to edit" /></td>
         </tr>
         <tr>
-          <td style="border:0;"><input type="text" placeholder=".." /></td>
-          <td style="border:0;"><input type="text" placeholder=".." /></td>
+          <td><input type="text" placeholder=".." /></td>
+          <td><input type="text" placeholder=".." /></td>
         </tr>
-        <tr>
+      <!--  <tr>
           <td style="border:0;"><input type="text" placeholder=".." /></td>
           <td style="border:0;"><input type="text" placeholder=".." /></td>
-        </tr>
+        </tr>-->
 
 
     

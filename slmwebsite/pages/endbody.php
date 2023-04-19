@@ -90,7 +90,7 @@
 <script src="/pages/js/select2.full.min.js" type="text/javascript"></script>
 <script src="/pages/js/moment.min.js" type="text/javascript"></script>
 <script src="/pages/js/daterangepicker.js" type="text/javascript"></script>
-
+<script src="/pages/js/jquery.hotkeys.js" type="text/javascript"></script>
 
 
 <script type="aab919c724f78c685c2cf9e5-text/javascript" src="/pages/js/custom-prism.js"></script>

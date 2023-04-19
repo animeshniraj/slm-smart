@@ -372,7 +372,8 @@
 	    }
     
 
-    
+		ksort($allgradeqty);
+		sort($allgrade);
 
     
     
@@ -665,16 +666,17 @@ if($show == "yes")
 {
 ?>
 
-<div class="row">
-<div class="col-lg-12">
+
+<div class="row justify-content-md-center">
+<div class="col-md-5">
 
 <div class="table-responsive">
-	<table class="table table-striped">
+	<table class="table table-striped table-bordered">
 		<thead>
 		<tr style="font-size:15px;font-weight:bold;color:#990000;text-align:center;padding:0.25em!important;">
-		<th style="text-align:right;">Total Production</th>
+		<th>Total Production (in kgs)</th>
 		<th><?php echo $total_prod_qty; ?></th>
-		<th style="text-align:right;">Total Remaining</th>
+		<th style="text-align:right;">Total Remaining (in kgs)</th>
 		<th><?php echo $asof; ?></th>
 		</tr>
 		</thead>
@@ -685,15 +687,16 @@ if($show == "yes")
 </div>
 </div>
 
+<div class="row justify-content-md-center">
+<div class="col-md-5">
 
-<div class="row">
 	<div class="table-responsive">
 
-		<table class="table table-striped">
+		<table class="table table-striped table-xs table-bordered">
 			<thead>
 			<tr>
-				<th>Grade</th>
-				<th>Remaining Qty. (kg) </th>
+				<th style="width:70%;">Grade</th>
+				<th style="text-align:right">Remaining Qty. (in kgs) </th>
 
 			</tr>
 			
@@ -708,7 +711,7 @@ if($show == "yes")
 				?>
 				<tr>
 					<td><?php echo $key; ?></td>
-					<td><?php echo $value; ?></td>
+					<td style="text-align:right"><?php echo $value; ?></td>
 				</tr>
 				<?php
 					}
@@ -717,8 +720,14 @@ if($show == "yes")
 		</table>
 	
 	</div>	
+
+</div>
+
+
 </div>
 	
+
+
 
 
 
@@ -749,7 +758,7 @@ foreach ($allgrade as $dgrade) {
 		<th scope="col">Sl.<br>No.</th>
 		<th>Batch ID</th>
 		<th>Final Blend Id</th>
-		<th>Entry Time</th>
+		<th>Production Date</th>
 		<th>Grade</th>
 		<?php
 
@@ -938,7 +947,7 @@ foreach ($allgrade as $dgrade) {
 </script>
 </div>
 </div>
-<br>
+
 
 <?php 
 

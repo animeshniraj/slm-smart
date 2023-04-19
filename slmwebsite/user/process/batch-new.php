@@ -60,7 +60,7 @@
     	
     	
 	    	
-	    	$result = runQuery("INSERT INTO processentry VALUES('$prefix','$processname','CREATION',CURRENT_TIMESTAMP,'UNLOCKED')");
+	    	$result = runQuery("INSERT INTO processentry VALUES('$prefix','$processname','CREATION','$creationDate','UNLOCKED')");
 
 	    	$result = runQuery("SELECT * FROM processentryparams WHERE processid='$parentid' AND param='$MASS_TITLE'");
 	    	$qty = $result->fetch_assoc()["value"];
@@ -317,11 +317,18 @@ p {
 
 										$result2 = runQuery("SELECT * FROM processentryparams WHERE processid='$finalid' AND param ='$GRADE_TITLE'");
 
+										$dumqty = getTotalQuantity($finalid) - getChildProcessQuantity($finalid);
+
+										if($dumqty<=0)
+										{
+											continue;
+										}
+
 										$grade = $result2->fetch_assoc()['value'];
 
 										echo "<option value=\"".$row["processid"]."\">".$row["processid"]." </option>";
 
-										
+										echo "<script> console.log('".$row["processid"]."')</script>";
 									}
 								}
 
